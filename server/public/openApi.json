@@ -1992,35 +1992,6 @@
         ]
       }
     },
-    "/system/role/deptTree/{id}": {
-      "get": {
-        "operationId": "RoleController_deptTree",
-        "summary": "角色管理-部门树",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "角色管理"
-        ],
-        "security": [
-          {
-            "Authorization": []
-          }
-        ]
-      }
-    },
     "/system/role/{id}": {
       "get": {
         "operationId": "RoleController_findOne",
@@ -2061,36 +2032,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "角色管理"
-        ],
-        "security": [
-          {
-            "Authorization": []
-          }
-        ]
-      }
-    },
-    "/system/role/dataScope": {
-      "put": {
-        "operationId": "RoleController_dataScope",
-        "summary": "角色管理-数据权限修改",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateRoleDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": ""

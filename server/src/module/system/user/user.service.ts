@@ -8,7 +8,7 @@ import { Response } from 'express';
 import { GetNowDate, GenerateUUID, Uniq } from 'src/common/utils/index';
 import { ExportTable } from 'src/common/utils/export';
 
-import { CacheEnum, StatusEnum, DataScopeEnum } from 'src/common/enum/index';
+import { CacheEnum, StatusEnum } from 'src/common/enum/index';
 import { LOGIN_TOKEN_EXPIRESIN, SYS_USER_TYPE } from 'src/common/constant/index';
 import { ResultData } from 'src/common/utils/result';
 import { CreateUserDto, UpdateUserDto, ListUserDto, ChangeStatusDto, ResetPwdDto, AllocatedListDto, UpdateProfileDto, UpdatePwdDto } from './dto/index';
@@ -91,40 +91,19 @@ export class UserService {
   async findAll(query: ListUserDto, user: UserType['user']) {
     const entity = this.userRepo.createQueryBuilder('user');
 
-    //数据权限过滤
-    if (user) {
-      const roles = user.roles;
-      const deptIds = [];
-      let dataScopeAll = false;
-      let dataScopeSelf = false;
-      for (let index = 0; index < roles.length; index++) {
-        const role = roles[index];
-        if (role.dataScope === DataScopeEnum.DATA_SCOPE_ALL) {
-          dataScopeAll = true;
-          break;
-        } else if (role.dataScope === DataScopeEnum.DATA_SCOPE_CUSTOM) {
-          const roleWithDeptIds = await this.roleService.findRoleWithDeptIds(role.roleId);
-          deptIds.push(...roleWithDeptIds);
-        } else if (role.dataScope === DataScopeEnum.DATA_SCOPE_DEPT || role.dataScope === DataScopeEnum.DATA_SCOPE_DEPT_AND_CHILD) {
-          const dataScopeWidthDeptIds = await this.deptService.findDeptIdsByDataScope(user.deptId, role.dataScope);
-          deptIds.push(...dataScopeWidthDeptIds);
-        } else if (role.dataScope === DataScopeEnum.DATA_SCOPE_SELF) {
-          dataScopeSelf = true;
-        }
-      }
-
-      if (!dataScopeAll) {
-        if (deptIds.length > 0) {
-          entity.where('user.deptId IN (:...deptIds)', { deptIds: deptIds });
-        } else if (dataScopeSelf) {
-          entity.where('user.userId = :userId', { userId: user.userId });
-        }
-      }
-    }
-
     if (query.deptId) {
-      const deptIds = await this.deptService.findDeptIdsByDataScope(+query.deptId, DataScopeEnum.DATA_SCOPE_DEPT_AND_CHILD);
-      entity.andWhere('user.deptId IN (:...deptIds)', { deptIds: deptIds });
+      // 按“所选部门 + 子部门”筛选用户（不再使用角色数据权限 dataScope）
+      const deptId = +query.deptId;
+      const deptRows = await this.sysDeptEntityRep
+        .createQueryBuilder('dept')
+        .select('dept.deptId', 'deptId')
+        .where('dept.ancestors LIKE :ancestors', { ancestors: `%${deptId}%` })
+        .orWhere('dept.deptId = :deptId', { deptId })
+        .getRawMany();
+      const deptIds = deptRows.map((r) => +r.deptId);
+      if (deptIds.length > 0) {
+        entity.andWhere('user.deptId IN (:...deptIds)', { deptIds });
+      }
     }
 
     if (query.userName) {
