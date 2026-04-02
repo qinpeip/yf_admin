@@ -95,7 +95,6 @@ export class ConfigService {
     const list = await this.sysConfigEntityRep.find({
       where: {
         configId: In(configIds),
-        delFlag: '0',
       },
       select: ['configType', 'configKey'],
     });
@@ -103,12 +102,7 @@ export class ConfigService {
     if (item) {
       return ResultData.fail(500, `内置参数【${item.configKey}】不能删除`);
     }
-    const data = await this.sysConfigEntityRep.update(
-      { configId: In(configIds) },
-      {
-        delFlag: '1',
-      },
-    );
+    const data = await this.sysConfigEntityRep.softRemove(list);
     return ResultData.ok(data);
   }
 

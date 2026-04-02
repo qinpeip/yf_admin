@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from 'src/common/entities/base';
+import { ApiProperty } from '@nestjs/swagger';
 @Entity('sys_user', {
   comment: '用户信息表',
 })
@@ -43,4 +44,9 @@ export class UserEntity extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'login_date', default: null, comment: '最后登录时间' })
   public loginDate: Date;
+
+  //0正常 1停用
+  @ApiProperty({ type: String, description: '状态' })
+  @Column({ type: 'char', name: 'status', default: '0', length: 1, comment: '状态' })
+  public status: string;
 }

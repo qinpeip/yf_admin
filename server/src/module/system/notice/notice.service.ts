@@ -65,12 +65,7 @@ export class NoticeService {
   }
 
   async remove(noticeIds: number[]) {
-    const data = await this.sysNoticeEntityRep.update(
-      { noticeId: In(noticeIds) },
-      {
-        delFlag: '1',
-      },
-    );
+    const data = await this.sysNoticeEntityRep.softDelete({ noticeId: In(noticeIds) });
     return ResultData.ok(data);
   }
 }

@@ -4,7 +4,6 @@ import { BaseEntity } from 'src/common/entities/base';
 class NewBaseEntity extends BaseEntity {
   constructor() {
     super();
-    delete this.delFlag;
   }
 }
 
@@ -56,4 +55,9 @@ export class SysMenuEntity extends NewBaseEntity {
 
   @Column({ type: 'varchar', name: 'icon', length: 100, default: '', comment: '菜单图标' })
   public icon: string;
+
+  //0正常 1停用
+  @ApiProperty({ type: String, description: '状态' })
+  @Column({ type: 'char', name: 'status', default: '0', length: 1, comment: '状态' })
+  public status: string;
 }

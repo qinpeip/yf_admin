@@ -21,7 +21,6 @@ export class DeptService {
       const parent = await this.sysDeptEntityRep.findOne({
         where: {
           deptId: createDeptDto.parentId,
-          delFlag: '0',
         },
         select: ['ancestors'],
       });
@@ -54,7 +53,6 @@ export class DeptService {
     const data = await this.sysDeptEntityRep.findOne({
       where: {
         deptId: deptId,
-        delFlag: '0',
       },
     });
     return ResultData.ok(data);
@@ -122,9 +120,7 @@ export class DeptService {
   async findListExclude(id: number) {
     //TODO 需排出ancestors 中不出现id的数据
     const data = await this.sysDeptEntityRep.find({
-      where: {
-        delFlag: '0',
-      },
+      where: {},
     });
     return ResultData.ok(data);
   }
@@ -135,7 +131,6 @@ export class DeptService {
       const parent = await this.sysDeptEntityRep.findOne({
         where: {
           deptId: updateDeptDto.parentId,
-          delFlag: '0',
         },
         select: ['ancestors'],
       });
@@ -151,12 +146,7 @@ export class DeptService {
 
   @CacheEvict(CacheEnum.SYS_DEPT_KEY, '*')
   async remove(deptId: number) {
-    const data = await this.sysDeptEntityRep.update(
-      { deptId: deptId },
-      {
-        delFlag: '1',
-      },
-    );
+    const data = await this.sysDeptEntityRep.softDelete({ deptId: deptId });
     return ResultData.ok(data);
   }
 
@@ -166,11 +156,7 @@ export class DeptService {
    */
   @Cacheable(CacheEnum.SYS_DEPT_KEY, 'deptTree')
   async deptTree() {
-    const res = await this.sysDeptEntityRep.find({
-      where: {
-        delFlag: '0',
-      },
-    });
+    const res = await this.sysDeptEntityRep.find({});
     const tree = ListToTree(
       res,
       (m) => m.deptId,

@@ -18,7 +18,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "cross-env NODE_ENV=development typeorm-ts-node-esm -d ./dist/config/data-source.js",
+    "migration:create": "cross-env NODE_ENV=development typeorm-ts-node-esm migration:create ./src/migrations/initData",
+    "migration:generate": "node -e \"const version = process.env.npm_package_version.replaceAll('.', '_'); require('child_process').execSync('npm run typeorm migration:generate ./src/migrations/update-table_' + version, { stdio: 'inherit' });\"",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.2",

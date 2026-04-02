@@ -24,7 +24,7 @@ export class DictService {
   }
 
   async deleteType(dictIds: number[]) {
-    await this.sysDictTypeEntityRep.update({ dictId: In(dictIds) }, { delFlag: '1' });
+    await this.sysDictTypeEntityRep.softDelete({ dictId: In(dictIds) });
     return ResultData.ok();
   }
 
@@ -69,18 +69,13 @@ export class DictService {
     const data = await this.sysDictTypeEntityRep.findOne({
       where: {
         dictId: dictId,
-        delFlag: '0',
       },
     });
     return ResultData.ok(data);
   }
 
   async findOptionselect() {
-    const data = await this.sysDictTypeEntityRep.find({
-      where: {
-        delFlag: '0',
-      },
-    });
+    const data = await this.sysDictTypeEntityRep.find({});
     return ResultData.ok(data);
   }
 
@@ -91,7 +86,7 @@ export class DictService {
   }
 
   async deleteDictData(dictIds: number[]) {
-    await this.sysDictDataEntityRep.update({ dictCode: In(dictIds) }, { delFlag: '1' });
+    await this.sysDictDataEntityRep.softDelete({ dictCode: In(dictIds) });
     return ResultData.ok();
   }
 
@@ -145,7 +140,6 @@ export class DictService {
     data = await this.sysDictDataEntityRep.find({
       where: {
         dictType: dictType,
-        delFlag: '0',
       },
     });
 
@@ -158,7 +152,6 @@ export class DictService {
     const data = await this.sysDictDataEntityRep.findOne({
       where: {
         dictCode: dictCode,
-        delFlag: '0',
       },
     });
     return ResultData.ok(data);

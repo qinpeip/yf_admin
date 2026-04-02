@@ -79,7 +79,6 @@ export class RoleService {
     const res = await this.sysRoleEntityRep.findOne({
       where: {
         roleId: roleId,
-        delFlag: '0',
       },
     });
     return ResultData.ok(res);
@@ -156,21 +155,12 @@ export class RoleService {
   }
 
   async remove(roleIds: number[]) {
-    const data = await this.sysRoleEntityRep.update(
-      { roleId: In(roleIds) },
-      {
-        delFlag: '1',
-      },
-    );
+    const data = await this.sysRoleEntityRep.softDelete({ roleId: In(roleIds) });
     return ResultData.ok(data);
   }
 
   async deptTree(roleId: number) {
-    const res = await this.sysDeptEntityRep.find({
-      where: {
-        delFlag: '0',
-      },
-    });
+    const res = await this.sysDeptEntityRep.find({});
     const tree = ListToTree(
       res,
       (m) => +m.deptId,
@@ -205,7 +195,7 @@ export class RoleService {
     });
     const menuIds = list.map((item) => item.menuId);
     const permission = await this.menuService.findMany({
-      where: { delFlag: '0', status: '0', menuId: In(menuIds) },
+      where: { status: '0', menuId: In(menuIds) },
     });
     return permission;
   }

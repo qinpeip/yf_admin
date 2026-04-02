@@ -42,9 +42,6 @@ export class MenuService {
 
   async treeSelect() {
     const res = await this.sysMenuEntityRep.find({
-      where: {
-        delFlag: '0',
-      },
       order: {
         orderNum: 'ASC',
       },
@@ -59,9 +56,6 @@ export class MenuService {
 
   async roleMenuTreeselect(roleId: number): Promise<any> {
     const res = await this.sysMenuEntityRep.find({
-      where: {
-        delFlag: '0',
-      },
       order: {
         orderNum: 'ASC',
         parentId: 'ASC',
@@ -88,7 +82,6 @@ export class MenuService {
   async findOne(menuId: number) {
     const res = await this.sysMenuEntityRep.findOne({
       where: {
-        delFlag: '0',
         menuId: menuId,
       },
     });
@@ -101,12 +94,7 @@ export class MenuService {
   }
 
   async remove(menuId: number) {
-    const data = await this.sysMenuEntityRep.update(
-      { menuId: menuId },
-      {
-        delFlag: '1',
-      },
-    );
+    const data = await this.sysMenuEntityRep.softDelete({ menuId: menuId });
     return ResultData.ok(data);
   }
 
@@ -127,7 +115,6 @@ export class MenuService {
       // 超管roleId=1，所有菜单权限
       menuWidthRoleList = await this.sysMenuEntityRep.find({
         where: {
-          delFlag: '0',
           status: '0',
         },
         select: ['menuId'],
@@ -144,7 +131,6 @@ export class MenuService {
     // 菜单列表
     const menuList = await this.sysMenuEntityRep.find({
       where: {
-        delFlag: '0',
         status: '0',
         menuId: In(menuIds),
       },

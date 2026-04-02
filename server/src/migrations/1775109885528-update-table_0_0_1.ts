@@ -1,0 +1,107 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export class UpdateTable0011775109885528 implements MigrationInterface {
+  name = 'UpdateTable0011775109885528';
+
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`ALTER TABLE \`sys_upload\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`sys_upload\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`sys_user\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`sys_user\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`gen_table\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`gen_table\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`gen_table\` DROP COLUMN \`status\``);
+    await queryRunner.query(`ALTER TABLE \`gen_table_column\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`gen_table_column\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`gen_table_column\` DROP COLUMN \`status\``);
+    await queryRunner.query(`ALTER TABLE \`sys_role\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`sys_role\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`sys_post\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`sys_post\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`sys_post\` DROP COLUMN \`status\``);
+    await queryRunner.query(`ALTER TABLE \`sys_notice\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`sys_notice\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`sys_notice\` DROP COLUMN \`status\``);
+    await queryRunner.query(`ALTER TABLE \`sys_menu\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`sys_menu\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_type\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_type\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_type\` DROP COLUMN \`status\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_data\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_data\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_data\` DROP COLUMN \`status\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dept\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dept\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dept\` DROP COLUMN \`status\``);
+    await queryRunner.query(`ALTER TABLE \`sys_config\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`sys_config\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`sys_config\` DROP COLUMN \`status\``);
+    await queryRunner.query(`ALTER TABLE \`sys_job\` DROP COLUMN \`concurrent\``);
+    await queryRunner.query(`ALTER TABLE \`sys_job\` DROP COLUMN \`del_flag\``);
+    await queryRunner.query(`ALTER TABLE \`sys_job\` DROP COLUMN \`remark\``);
+    await queryRunner.query(`ALTER TABLE \`sys_upload\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`sys_user\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`gen_table\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`gen_table_column\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`sys_role\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`sys_post\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`sys_notice\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`sys_menu\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_type\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_data\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dept\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`sys_config\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+    await queryRunner.query(`ALTER TABLE \`sys_job\` ADD \`delete_time\` datetime(6) NULL COMMENT '删除时间'`);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`ALTER TABLE \`sys_job\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`sys_config\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dept\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_data\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_type\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`sys_menu\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`sys_notice\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`sys_post\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`sys_role\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`gen_table_column\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`gen_table\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`sys_user\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`sys_upload\` DROP COLUMN \`delete_time\``);
+    await queryRunner.query(`ALTER TABLE \`sys_job\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`sys_job\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_job\` ADD \`concurrent\` char COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '是否并发执行（0允许 1禁止）' DEFAULT '1'`);
+    await queryRunner.query(`ALTER TABLE \`sys_config\` ADD \`status\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '状态' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_config\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`sys_config\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dept\` ADD \`status\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '状态' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dept\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dept\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_data\` ADD \`status\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '状态' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_data\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_data\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_type\` ADD \`status\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '状态' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_type\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`sys_dict_type\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_menu\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`sys_menu\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_notice\` ADD \`status\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '状态' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_notice\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`sys_notice\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_post\` ADD \`status\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '状态' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_post\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`sys_post\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_role\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`sys_role\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`gen_table_column\` ADD \`status\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '状态' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`gen_table_column\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`gen_table_column\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`gen_table\` ADD \`status\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '状态' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`gen_table\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`gen_table\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_user\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`sys_user\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+    await queryRunner.query(`ALTER TABLE \`sys_upload\` ADD \`remark\` varchar(500) COLLATE "utf8mb4_0900_ai_ci" NULL COMMENT '备注'`);
+    await queryRunner.query(`ALTER TABLE \`sys_upload\` ADD \`del_flag\` char COLLATE "utf8mb4_0900_ai_ci" NOT NULL COMMENT '删除标志' DEFAULT '0'`);
+  }
+}

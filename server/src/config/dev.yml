@@ -28,31 +28,31 @@ cos:
 # 数据库配置
 db:
   mysql:
-    host: '127.0.0.1'
-    username: 'root'
-    password: 'yehuozhili'
-    database: 'nest-admin'
+    host: '1.95.140.90'
+    username: 'yifeng-ruoyi'
+    password: '8BRbCTcpe5M2dSAe'
+    database: 'yifeng-ruoyi'
     port: 3306
     charset: 'utf8mb4'
     logger: 'file'
-    logging: true
+    logging: false
     multipleStatements: true
     dropSchema: false
-    synchronize: true
+    synchronize: false
     supportBigNumbers: true
     bigNumberStrings: true
 
 # redis 配置
 redis:
-  host: 'localhost'
-  password: '*********'
+  host: '1.95.140.90'
+  password: '59f0ffd2f57d65f0'
   port: 6379
   db: 2
   keyPrefix: ''
 
 # jwt 配置
 jwt:
-  secretkey: 'you_secretkey'
+  secretkey: 'yifeng123456'
   expiresin: '1h'
   refreshExpiresIn: '2h'
 # 权限 白名单配置

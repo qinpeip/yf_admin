@@ -45,5 +45,10 @@ export class Job extends BaseEntity {
     default: '1',
     nullable: true,
   })
+
+  //0正常 1停用
+  @ApiProperty({ type: String, description: '状态' })
+  @Column({ type: 'char', name: 'status', default: '0', length: 1, comment: '状态' })
+  public status: string;
   public concurrent: string;
 }

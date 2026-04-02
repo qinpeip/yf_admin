@@ -183,8 +183,8 @@ export class ToolService {
    * @returns
    */
   async findOne(id: number) {
-    const data = await this.genTableEntityRep.findOne({ where: { tableId: id, delFlag: '0' } });
-    const columns = await this.genTableColumnEntityRep.find({ where: { tableId: id, delFlag: '0' } });
+    const data = await this.genTableEntityRep.findOne({ where: { tableId: id } });
+    const columns = await this.genTableColumnEntityRep.find({ where: { tableId: id } });
     return ResultData.ok({ info: { ...data, columns } });
   }
 
@@ -194,8 +194,8 @@ export class ToolService {
    * @returns
    */
   async findOneByTableName(tableName: string) {
-    const data = await this.genTableEntityRep.findOne({ where: { tableName: tableName, delFlag: '0' } });
-    const columns = await this.genTableColumnEntityRep.find({ where: { tableId: data.tableId, delFlag: '0' } });
+    const data = await this.genTableEntityRep.findOne({ where: { tableName: tableName } });
+    const columns = await this.genTableColumnEntityRep.find({ where: { tableId: data.tableId } });
     return { ...data, columns };
   }
 
@@ -248,8 +248,8 @@ export class ToolService {
     const tableNamesList = table.tableNames.split(',');
     const tableList = await Promise.all(
       tableNamesList.map(async (item) => {
-        const data = await this.genTableEntityRep.findOne({ where: { tableName: item, delFlag: '0' } });
-        const columns = await this.genTableColumnEntityRep.find({ where: { tableId: data.tableId, delFlag: '0' } });
+        const data = await this.genTableEntityRep.findOne({ where: { tableName: item } });
+        const columns = await this.genTableColumnEntityRep.find({ where: { tableId: data.tableId } });
         const primaryKey = await this.getPrimaryKey(columns);
         return { primaryKey, BusinessName: data.businessName, ...data, columns };
       }),
@@ -296,8 +296,8 @@ export class ToolService {
    * @returns
    */
   async preview(id: number) {
-    const data = await this.genTableEntityRep.findOne({ where: { tableId: id, delFlag: '0' } });
-    const columns = await this.genTableColumnEntityRep.find({ where: { tableId: id, delFlag: '0' } });
+    const data = await this.genTableEntityRep.findOne({ where: { tableId: id } });
+    const columns = await this.genTableColumnEntityRep.find({ where: { tableId: id } });
     const primaryKey = await this.getPrimaryKey(columns);
     const info = { primaryKey, BusinessName: capitalize(data.businessName), ...data, columns };
     return ResultData.ok(templateIndex(info));

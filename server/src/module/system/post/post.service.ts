@@ -50,7 +50,6 @@ export class PostService {
     const res = await this.sysPostEntityRep.findOne({
       where: {
         postId: postId,
-        delFlag: '0',
       },
     });
     return ResultData.ok(res);
@@ -62,12 +61,7 @@ export class PostService {
   }
 
   async remove(postIds: string[]) {
-    const data = await this.sysPostEntityRep.update(
-      { postId: In(postIds) },
-      {
-        delFlag: '1',
-      },
-    );
+    const data = await this.sysPostEntityRep.softDelete({ postId: In(postIds) });
     return ResultData.ok(data);
   }
 

@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryColumn } from 'typeorm';
 import { BaseEntity } from 'src/common/entities/base';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('sys_upload', {
   comment: '文件上传记录',
@@ -43,4 +44,9 @@ export class SysUploadEntity extends BaseEntity {
     name: 'ext',
   })
   ext: string;
+
+  //0正常 1停用
+  @ApiProperty({ type: String, description: '状态' })
+  @Column({ type: 'char', name: 'status', default: '0', length: 1, comment: '状态' })
+  public status: string;
 }

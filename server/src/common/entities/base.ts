@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, UpdateDateColumn } from 'typeorm';
 import { dateTransformer } from 'src/common/utils/index';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -22,7 +22,7 @@ export abstract class BaseStatusEntity extends DeleteStatusEntity {
 
 //基础实体信息
 @Entity()
-export abstract class BaseEntity extends BaseStatusEntity {
+export abstract class BaseEntity {
   @ApiProperty({ type: String, description: '创建者' })
   @Column({ type: 'varchar', name: 'create_by', length: 64, default: '', comment: '创建者' })
   public createBy: string;
@@ -36,6 +36,6 @@ export abstract class BaseEntity extends BaseStatusEntity {
   @UpdateDateColumn({ type: 'datetime', name: 'update_time', default: null, transformer: dateTransformer, comment: '更新时间' })
   public updateTime: Date;
 
-  @Column({ type: 'varchar', name: 'remark', length: 500, default: null, comment: '备注' })
-  public remark: string;
+  @DeleteDateColumn({ type: 'datetime', name: 'delete_time', default: null, transformer: dateTransformer, comment: '删除时间' })
+  public deleteTime: Date;
 }

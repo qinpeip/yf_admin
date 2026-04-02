@@ -163,16 +163,8 @@ export class UserService {
    * @returns
    */
   async findPostAndRoleAll() {
-    const posts = await this.sysPostEntityRep.find({
-      where: {
-        delFlag: '0',
-      },
-    });
-    const roles = await this.roleService.findRoles({
-      where: {
-        delFlag: '0',
-      },
-    });
+    const posts = await this.sysPostEntityRep.find({});
+    const roles = await this.roleService.findRoles({});
 
     return ResultData.ok({
       posts,
@@ -184,14 +176,12 @@ export class UserService {
   async findOne(userId: number) {
     const data = await this.userRepo.findOne({
       where: {
-        delFlag: '0',
         userId: userId,
       },
     });
 
     const dept = await this.sysDeptEntityRep.findOne({
       where: {
-        delFlag: '0',
         deptId: data.deptId,
       },
     });
@@ -204,16 +194,12 @@ export class UserService {
     });
     const postIds = postList.map((item) => item.postId);
     const allPosts = await this.sysPostEntityRep.find({
-      where: {
-        delFlag: '0',
-      },
+      where: {},
     });
 
     const roleIds = await this.getRoleIds([userId]);
     const allRoles = await this.roleService.findRoles({
-      where: {
-        delFlag: '0',
-      },
+      where: {},
     });
 
     data['roles'] = allRoles.filter((item) => roleIds.includes(item.roleId));
@@ -328,8 +314,8 @@ export class UserService {
 
     const userData = await this.getUserinfo(data.userId);
 
-    if (userData.delFlag === DelFlagEnum.DELETE) {
-      return ResultData.fail(500, `您已被禁用，如需正常使用请联系管理员`);
+    if (!userData.userId) {
+      return ResultData.fail(500, `用户不存在`);
     }
     if (userData.status === StatusEnum.STOP) {
       return ResultData.fail(500, `您已被停用，如需正常使用请联系管理员`);
@@ -463,7 +449,6 @@ export class UserService {
     const entity = this.userRepo.createQueryBuilder('user');
     entity.where({
       userId: userId,
-      delFlag: DelFlagEnum.NORMAL,
     });
     //联查部门详情
     entity.leftJoinAndMapOne('user.dept', SysDeptEntity, 'dept', 'dept.deptId = user.deptId');
@@ -471,7 +456,6 @@ export class UserService {
 
     const roles = await this.roleService.findRoles({
       where: {
-        delFlag: '0',
         roleId: In(roleIds),
       },
     });
@@ -487,7 +471,6 @@ export class UserService {
 
     const posts = await this.sysPostEntityRep.find({
       where: {
-        delFlag: '0',
         postId: In(postIds),
       },
     });
@@ -585,12 +568,7 @@ export class UserService {
    */
   async remove(ids: number[]) {
     // 忽略系统角色的删除
-    const data = await this.userRepo.update(
-      { userId: In(ids), userType: Not(SYS_USER_TYPE.SYS) },
-      {
-        delFlag: '1',
-      },
-    );
+    const data = await this.userRepo.softDelete({ userId: In(ids), userType: Not(SYS_USER_TYPE.SYS) });
     return ResultData.ok(data);
   }
 
@@ -601,21 +579,17 @@ export class UserService {
    */
   async authRole(userId: number) {
     const allRoles = await this.roleService.findRoles({
-      where: {
-        delFlag: '0',
-      },
+      where: {},
     });
 
     const user = await this.userRepo.findOne({
       where: {
-        delFlag: '0',
         userId: userId,
       },
     });
 
     const dept = await this.sysDeptEntityRep.findOne({
       where: {
-        delFlag: '0',
         deptId: user.deptId,
       },
     });
