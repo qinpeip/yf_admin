@@ -152,3 +152,24 @@ export class AuthUserSelectAllDto {
   @IsString()
   userIds: string;
 }
+
+export class UpdateRoleDataScopeDto {
+  @ApiProperty({
+    required: true,
+  })
+  @IsNumber()
+  roleId: number;
+
+  @ApiProperty({
+    required: true,
+  })
+  @IsString()
+  dataScope: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  deptIds?: number[];
+}

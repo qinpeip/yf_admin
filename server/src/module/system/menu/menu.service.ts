@@ -8,6 +8,8 @@ import { CreateMenuDto, UpdateMenuDto, ListDeptDto } from './dto/index';
 import { ListToTree, Uniq } from 'src/common/utils/index';
 import { UserService } from '../user/user.service';
 import { buildMenus } from './utils';
+import { DataPermissionService } from 'src/common/services/data-permission/data-permission.service';
+import { UserType } from '../user/dto/user';
 @Injectable()
 export class MenuService {
   constructor(
@@ -17,15 +19,22 @@ export class MenuService {
     private readonly sysMenuEntityRep: Repository<SysMenuEntity>,
     @InjectRepository(SysRoleWithMenuEntity)
     private readonly sysRoleWithMenuEntityRep: Repository<SysRoleWithMenuEntity>,
+    private readonly dataPermissionService: DataPermissionService,
   ) {}
 
-  async create(createMenuDto: CreateMenuDto) {
+  async create(createMenuDto: CreateMenuDto, currentUser: UserType['user']) {
+    (createMenuDto as any).tenantId = currentUser.tenantId;
+    (createMenuDto as any).deptId = currentUser.deptId;
+    (createMenuDto as any).ownerUserId = currentUser.userId;
     const res = await this.sysMenuEntityRep.save(createMenuDto);
     return ResultData.ok(res);
   }
 
-  async findAll(query: ListDeptDto) {
+  async findAll(query: ListDeptDto, currentUser: UserType['user']) {
     const entity = this.sysMenuEntityRep.createQueryBuilder('entity');
+
+    await this.dataPermissionService.applyTenantAndScope(entity, 'entity', currentUser as any);
+
     if (query.menuName) {
       entity.andWhere(`entity.menuName LIKE "%${query.menuName}%"`);
     }
@@ -77,22 +86,30 @@ export class MenuService {
     });
   }
 
-  async findOne(menuId: number) {
-    const res = await this.sysMenuEntityRep.findOne({
-      where: {
-        menuId: menuId,
-      },
-    });
+  async findOne(menuId: number, currentUser: UserType['user']) {
+    const qb = this.sysMenuEntityRep.createQueryBuilder('entity').where('entity.menuId = :menuId', { menuId });
+    await this.dataPermissionService.applyTenantAndScope(qb, 'entity', currentUser as any);
+    const res = await qb.getOne();
+    if (!res) return ResultData.fail(403, '无权限访问该数据');
     return ResultData.ok(res);
   }
 
-  async update(updateMenuDto: UpdateMenuDto) {
-    const res = await this.sysMenuEntityRep.update({ menuId: updateMenuDto.menuId }, updateMenuDto);
-    return ResultData.ok(res);
+  async update(updateMenuDto: UpdateMenuDto, currentUser: UserType['user']) {
+    const qb = this.sysMenuEntityRep.createQueryBuilder('entity').where('entity.menuId = :menuId', { menuId: updateMenuDto.menuId });
+    await this.dataPermissionService.applyTenantAndScope(qb, 'entity', currentUser as any);
+    const found = await qb.getOne();
+    if (!found) return ResultData.fail(403, '无权限修改该数据');
+
+    await this.sysMenuEntityRep.update({ menuId: updateMenuDto.menuId }, updateMenuDto);
+    return ResultData.ok();
   }
 
-  async remove(menuId: number) {
-    const data = await this.sysMenuEntityRep.softDelete({ menuId: menuId });
+  async remove(menuId: number, currentUser: UserType['user']) {
+    const qb = this.sysMenuEntityRep.createQueryBuilder('entity').select('entity.menuId', 'menuId').where('entity.menuId = :menuId', { menuId });
+    await this.dataPermissionService.applyTenantAndScope(qb, 'entity', currentUser as any);
+    const rows = await qb.getRawMany<{ menuId: string }>();
+    if (rows.length !== 1) return ResultData.fail(403, '无权限删除该数据');
+    const data = await this.sysMenuEntityRep.softDelete({ menuId: rows[0].menuId as any });
     return ResultData.ok(data);
   }
 

@@ -34,4 +34,7 @@ export class SysDictDataEntity extends BaseEntity {
   //是否默认（Y是 N否）
   @Column({ type: 'char', name: 'is_default', length: 1, default: 'N', comment: '是否默认' })
   public isDefault: string;
+
+  @Column({ type: 'int', name: 'dept_id', default: null, comment: '部门ID' })
+  public deptId: number;
 }

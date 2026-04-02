@@ -102,3 +102,20 @@ export function authUserSelectAll(data) {
 }
 
 // 数据权限相关接口已移除
+
+// 查询角色数据权限配置
+export function getRoleDataScope(roleId) {
+  return request({
+    url: '/system/role/dataScope/' + roleId,
+    method: 'get'
+  })
+}
+
+// 保存角色数据权限配置（CUSTOM 时写入 sys_role_dept）
+export function updateRoleDataScope(data) {
+  return request({
+    url: '/system/role/dataScope',
+    method: 'put',
+    data: data
+  })
+}

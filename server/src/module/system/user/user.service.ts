@@ -22,6 +22,7 @@ import { SysPostEntity } from '../post/entities/post.entity';
 import { SysDeptEntity } from '../dept/entities/dept.entity';
 import { RoleService } from '../role/role.service';
 import { DeptService } from '../dept/dept.service';
+import { DataPermissionService } from 'src/common/services/data-permission/data-permission.service';
 
 import { ConfigService } from '../config/config.service';
 import { SysRoleEntity } from '../role/entities/role.entity';
@@ -46,6 +47,7 @@ export class UserService {
     private readonly sysUserWithRoleEntityRep: Repository<SysUserWithRoleEntity>,
     private readonly roleService: RoleService,
     private readonly deptService: DeptService,
+    private readonly dataPermissionService: DataPermissionService,
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
     private readonly configService: ConfigService,
@@ -91,16 +93,14 @@ export class UserService {
   async findAll(query: ListUserDto, user: UserType['user']) {
     const entity = this.userRepo.createQueryBuilder('user');
 
-    if (query.deptId) {
-      // 按“所选部门 + 子部门”筛选用户（不再使用角色数据权限 dataScope）
-      const deptId = +query.deptId;
-      const deptRows = await this.sysDeptEntityRep
-        .createQueryBuilder('dept')
-        .select('dept.deptId', 'deptId')
-        .where('dept.ancestors LIKE :ancestors', { ancestors: `%${deptId}%` })
-        .orWhere('dept.deptId = :deptId', { deptId })
-        .getRawMany();
-      const deptIds = deptRows.map((r) => +r.deptId);
+    // 多租户 + 数据范围（五种规则）过滤
+    if (user) {
+      await this.dataPermissionService.applyTenantAndScope(entity, 'user', user as any);
+    }
+
+    // 前端“筛选部门”仅作为额外条件，再受数据权限约束
+    if (user && query.deptId) {
+      const deptIds = await this.deptService.findChildDeptIdsByTenantAndDept(+user.tenantId, +query.deptId);
       if (deptIds.length > 0) {
         entity.andWhere('user.deptId IN (:...deptIds)', { deptIds });
       }
@@ -151,12 +151,24 @@ export class UserService {
   }
 
   @Cacheable(CacheEnum.SYS_USER_KEY, '{userId}')
-  async findOne(userId: number) {
-    const data = await this.userRepo.findOne({
-      where: {
-        userId: userId,
-      },
-    });
+  async findOne(userId: number, currentUser?: UserType['user']) {
+    let data: UserEntity | null = null;
+
+    if (currentUser) {
+      const qb = this.userRepo.createQueryBuilder('user').where('user.userId = :userId', { userId });
+      await this.dataPermissionService.applyTenantAndScope(qb, 'user', currentUser as any);
+      data = await qb.getOne();
+    } else {
+      data = await this.userRepo.findOne({
+        where: {
+          userId: userId,
+        },
+      });
+    }
+
+    if (!data) {
+      return ResultData.fail(403, '无权限访问该用户数据');
+    }
 
     const dept = await this.sysDeptEntityRep.findOne({
       where: {
@@ -658,8 +670,8 @@ export class UserService {
    * 部门树
    * @returns
    */
-  async deptTree() {
-    const tree = await this.deptService.deptTree();
+  async deptTree(currentUser: UserType['user']) {
+    const tree = await this.deptService.deptTree(currentUser);
     return ResultData.ok(tree);
   }
 

@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiBody, ApiConsumes, ApiQuery, ApiBearerAuth } 
 import { MenuService } from './menu.service';
 import { CreateMenuDto, UpdateMenuDto, ListDeptDto } from './dto/index';
 import { RequirePermission } from 'src/common/decorators/require-premission.decorator';
+import { User, UserDto } from 'src/module/system/user/user.decorator';
 
 @ApiTags('菜单管理')
 @Controller('system/menu')
@@ -19,8 +20,8 @@ export class MenuController {
   })
   @RequirePermission('system:menu:add')
   @Post()
-  create(@Body() createMenuDto: CreateMenuDto) {
-    return this.menuService.create(createMenuDto);
+  create(@Body() createMenuDto: CreateMenuDto, @User() user: UserDto) {
+    return this.menuService.create(createMenuDto, user.user);
   }
 
   @ApiOperation({
@@ -28,8 +29,8 @@ export class MenuController {
   })
   @RequirePermission('system:menu:list')
   @Get('/list')
-  findAll(@Query() query: ListDeptDto) {
-    return this.menuService.findAll(query);
+  findAll(@Query() query: ListDeptDto, @User() user: UserDto) {
+    return this.menuService.findAll(query, user.user);
   }
 
   @ApiOperation({
@@ -55,8 +56,8 @@ export class MenuController {
   })
   @RequirePermission('system:menu:query')
   @Get(':menuId')
-  findOne(@Param('menuId') menuId: string) {
-    return this.menuService.findOne(+menuId);
+  findOne(@Param('menuId') menuId: string, @User() user: UserDto) {
+    return this.menuService.findOne(+menuId, user.user);
   }
 
   @ApiOperation({
@@ -68,8 +69,8 @@ export class MenuController {
   })
   @RequirePermission('system:menu:edit')
   @Put()
-  update(@Body() updateMenuDto: UpdateMenuDto) {
-    return this.menuService.update(updateMenuDto);
+  update(@Body() updateMenuDto: UpdateMenuDto, @User() user: UserDto) {
+    return this.menuService.update(updateMenuDto, user.user);
   }
 
   @ApiOperation({
@@ -77,7 +78,7 @@ export class MenuController {
   })
   @RequirePermission('system:menu:remove')
   @Delete(':menuId')
-  remove(@Param('menuId') menuId: string) {
-    return this.menuService.remove(+menuId);
+  remove(@Param('menuId') menuId: string, @User() user: UserDto) {
+    return this.menuService.remove(+menuId, user.user);
   }
 }

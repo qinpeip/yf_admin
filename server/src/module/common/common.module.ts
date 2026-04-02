@@ -1,12 +1,17 @@
 import { Module, Global } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from './redis/redis.module';
 import { AxiosModule } from './axios/axios.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisClientOptions } from '@songkeys/nestjs-redis';
+import { DataPermissionService } from 'src/common/services/data-permission/data-permission.service';
+import { SysDeptEntity } from '../system/dept/entities/dept.entity';
+import { SysRoleWithDeptEntity } from '../system/role/entities/role-width-dept.entity';
 
 @Global()
 @Module({
   imports: [
+    TypeOrmModule.forFeature([SysDeptEntity, SysRoleWithDeptEntity]),
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule],
@@ -25,5 +30,7 @@ import { RedisClientOptions } from '@songkeys/nestjs-redis';
 
     AxiosModule,
   ],
+  providers: [DataPermissionService],
+  exports: [DataPermissionService],
 })
 export class CommonModule {}

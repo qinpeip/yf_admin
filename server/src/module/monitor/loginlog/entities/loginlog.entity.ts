@@ -6,6 +6,15 @@ import { dateTransformer } from 'src/common/utils/index';
   comment: '系统访问记录',
 })
 export class MonitorLoginlogEntity extends BaseStatusEntity {
+  @Column({ type: 'int', name: 'tenant_id', default: 1, comment: '租户ID' })
+  tenantId: number;
+
+  @Column({ type: 'int', name: 'dept_id', nullable: true, comment: '部门ID' })
+  deptId: number;
+
+  @Column({ type: 'int', name: 'owner_user_id', nullable: true, comment: '数据所有者用户ID' })
+  ownerUserId: number;
+
   @PrimaryGeneratedColumn({ type: 'int', name: 'info_id', comment: '访问ID' })
   public infoId: number;
 

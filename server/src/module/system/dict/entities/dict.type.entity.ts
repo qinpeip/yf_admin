@@ -16,4 +16,7 @@ export class SysDictTypeEntity extends BaseEntity {
 
   @Column({ type: 'varchar', name: 'dict_type', unique: true, length: 100, comment: '字典类型' })
   public dictType: string;
+
+  @Column({ type: 'int', name: 'dept_id', default: null, comment: '部门ID' })
+  public deptId: number;
 }

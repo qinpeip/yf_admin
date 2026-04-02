@@ -51,4 +51,7 @@ export class Job extends BaseEntity {
   @Column({ type: 'char', name: 'status', default: '0', length: 1, comment: '状态' })
   public status: string;
   public concurrent: string;
+
+  @Column({ type: 'int', name: 'dept_id', default: null, comment: '部门ID' })
+  public deptId: number;
 }

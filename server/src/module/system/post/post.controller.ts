@@ -4,6 +4,7 @@ import { PostService } from './post.service';
 import { CreatePostDto, UpdatePostDto, ListPostDto } from './dto/index';
 import { RequirePermission } from 'src/common/decorators/require-premission.decorator';
 import { Response } from 'express';
+import { User, UserDto } from 'src/module/system/user/user.decorator';
 
 @ApiTags('岗位管理')
 @Controller('system/post')
@@ -20,8 +21,8 @@ export class PostController {
   })
   @RequirePermission('system:post:add')
   @Post('/')
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postService.create(createPostDto);
+  create(@Body() createPostDto: CreatePostDto, @User() user: UserDto) {
+    return this.postService.create(createPostDto, user.user);
   }
 
   @ApiOperation({
@@ -33,8 +34,8 @@ export class PostController {
   })
   @RequirePermission('system:post:list')
   @Get('/list')
-  findAll(@Query() query: ListPostDto) {
-    return this.postService.findAll(query);
+  findAll(@Query() query: ListPostDto, @User() user: UserDto) {
+    return this.postService.findAll(query, user.user);
   }
 
   @ApiOperation({
@@ -42,8 +43,8 @@ export class PostController {
   })
   @RequirePermission('system:post:query')
   @Get('/:id')
-  findOne(@Param('id') id: string) {
-    return this.postService.findOne(+id);
+  findOne(@Param('id') id: string, @User() user: UserDto) {
+    return this.postService.findOne(+id, user.user);
   }
 
   @ApiOperation({
@@ -55,8 +56,8 @@ export class PostController {
   })
   @RequirePermission('system:post:edit')
   @Put('/')
-  update(@Body() updatePostDto: UpdatePostDto) {
-    return this.postService.update(updatePostDto);
+  update(@Body() updatePostDto: UpdatePostDto, @User() user: UserDto) {
+    return this.postService.update(updatePostDto, user.user);
   }
 
   @ApiOperation({
@@ -64,15 +65,15 @@ export class PostController {
   })
   @RequirePermission('system:post:remove')
   @Delete('/:ids')
-  remove(@Param('ids') ids: string) {
+  remove(@Param('ids') ids: string, @User() user: UserDto) {
     const menuIds = ids.split(',').map((id) => id);
-    return this.postService.remove(menuIds);
+    return this.postService.remove(menuIds, user.user);
   }
 
   @ApiOperation({ summary: '导出岗位管理xlsx文件' })
   @RequirePermission('system:post:export')
   @Post('/export')
-  async export(@Res() res: Response, @Body() body: ListPostDto): Promise<void> {
-    return this.postService.export(res, body);
+  async export(@Res() res: Response, @Body() body: ListPostDto, @User() user: UserDto): Promise<void> {
+    return this.postService.export(res, body, user.user);
   }
 }

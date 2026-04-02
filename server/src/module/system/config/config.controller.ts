@@ -4,6 +4,7 @@ import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { ConfigService } from './config.service';
 import { CreateConfigDto, UpdateConfigDto, ListConfigDto } from './dto/index';
 import { RequirePermission } from 'src/common/decorators/require-premission.decorator';
+import { User, UserDto } from 'src/module/system/user/user.decorator';
 
 @ApiTags('参数设置')
 @Controller('system/config')
@@ -19,9 +20,9 @@ export class ConfigController {
   })
   @RequirePermission('system:config:add')
   @Post()
-  create(@Body() createConfigDto: CreateConfigDto, @Request() req) {
-    createConfigDto['createBy'] = req.user.userName;
-    return this.configService.create(createConfigDto);
+  create(@Body() createConfigDto: CreateConfigDto, @Request() req, @User() user: UserDto) {
+    createConfigDto['createBy'] = req.user.userName ?? user.user.userName;
+    return this.configService.create(createConfigDto, user.user);
   }
 
   @ApiOperation({
@@ -33,8 +34,8 @@ export class ConfigController {
   })
   @RequirePermission('system:config:list')
   @Get('/list')
-  findAll(@Query() query: ListConfigDto) {
-    return this.configService.findAll(query);
+  findAll(@Query() query: ListConfigDto, @User() user: UserDto) {
+    return this.configService.findAll(query, user.user);
   }
 
   @ApiOperation({
@@ -42,8 +43,8 @@ export class ConfigController {
   })
   @RequirePermission('system:config:query')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.configService.findOne(+id);
+  findOne(@Param('id') id: string, @User() user: UserDto) {
+    return this.configService.findOne(+id, user.user);
   }
 
   @ApiOperation({
@@ -60,8 +61,8 @@ export class ConfigController {
   })
   @RequirePermission('system:config:edit')
   @Put()
-  update(@Body() updateConfigDto: UpdateConfigDto) {
-    return this.configService.update(updateConfigDto);
+  update(@Body() updateConfigDto: UpdateConfigDto, @User() user: UserDto) {
+    return this.configService.update(updateConfigDto, user.user);
   }
 
   @ApiOperation({
@@ -78,15 +79,15 @@ export class ConfigController {
   })
   @RequirePermission('system:config:remove')
   @Delete(':id')
-  remove(@Param('id') ids: string) {
+  remove(@Param('id') ids: string, @User() user: UserDto) {
     const configIds = ids.split(',').map((id) => +id);
-    return this.configService.remove(configIds);
+    return this.configService.remove(configIds, user.user);
   }
 
   @ApiOperation({ summary: '导出参数管理为xlsx文件' })
   @RequirePermission('system:config:export')
   @Post('/export')
-  async export(@Res() res: Response, @Body() body: ListConfigDto): Promise<void> {
-    return this.configService.export(res, body);
+  async export(@Res() res: Response, @Body() body: ListConfigDto, @User() user: UserDto): Promise<void> {
+    return this.configService.export(res, body, user.user);
   }
 }

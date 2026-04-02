@@ -5,6 +5,15 @@ import { dateTransformer } from 'src/common/utils/index';
   comment: '操作日志记录',
 })
 export class SysOperlogEntity {
+  @Column({ type: 'int', name: 'tenant_id', default: 1, comment: '租户ID' })
+  public tenantId: number;
+
+  @Column({ type: 'int', name: 'dept_id', nullable: true, comment: '部门ID' })
+  public deptId: number;
+
+  @Column({ type: 'int', name: 'owner_user_id', nullable: true, comment: '数据所有者用户ID' })
+  public ownerUserId: number;
+
   @PrimaryGeneratedColumn({ type: 'int', name: 'oper_id', comment: '日志主键' })
   public operId: number;
 

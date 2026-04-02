@@ -4,6 +4,7 @@ import { NoticeService } from './notice.service';
 import { CreateNoticeDto, UpdateNoticeDto, ListNoticeDto } from './dto/index';
 import { RequirePermission } from 'src/common/decorators/require-premission.decorator';
 import { GetNowDate } from 'src/common/utils';
+import { User, UserDto } from 'src/module/system/user/user.decorator';
 
 @ApiTags('通知公告')
 @Controller('system/notice')
@@ -19,9 +20,9 @@ export class NoticeController {
   })
   @RequirePermission('system:notice:add')
   @Post()
-  create(@Body() createConfigDto: CreateNoticeDto, @Request() req) {
+  create(@Body() createConfigDto: CreateNoticeDto, @User() user: UserDto, @Request() req) {
     createConfigDto['createBy'] = req.user.userName;
-    return this.noticeService.create(createConfigDto);
+    return this.noticeService.create(createConfigDto, user.user);
   }
 
   @ApiOperation({
@@ -33,8 +34,8 @@ export class NoticeController {
   })
   @RequirePermission('system:notice:list')
   @Get('/list')
-  findAll(@Query() query: ListNoticeDto) {
-    return this.noticeService.findAll(query);
+  findAll(@Query() query: ListNoticeDto, @User() user: UserDto) {
+    return this.noticeService.findAll(query, user.user);
   }
 
   @ApiOperation({
@@ -42,8 +43,8 @@ export class NoticeController {
   })
   @RequirePermission('system:notice:query')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.noticeService.findOne(+id);
+  findOne(@Param('id') id: string, @User() user: UserDto) {
+    return this.noticeService.findOne(+id, user.user);
   }
 
   @ApiOperation({
@@ -51,8 +52,8 @@ export class NoticeController {
   })
   @RequirePermission('system:notice:edit')
   @Put()
-  update(@Body() updateNoticeDto: UpdateNoticeDto) {
-    return this.noticeService.update(updateNoticeDto);
+  update(@Body() updateNoticeDto: UpdateNoticeDto, @User() user: UserDto) {
+    return this.noticeService.update(updateNoticeDto, user.user);
   }
 
   @ApiOperation({
@@ -60,8 +61,8 @@ export class NoticeController {
   })
   @RequirePermission('system:notice:remove')
   @Delete(':id')
-  remove(@Param('id') ids: string) {
+  remove(@Param('id') ids: string, @User() user: UserDto) {
     const noticeIds = ids.split(',').map((id) => +id);
-    return this.noticeService.remove(noticeIds);
+    return this.noticeService.remove(noticeIds, user.user);
   }
 }

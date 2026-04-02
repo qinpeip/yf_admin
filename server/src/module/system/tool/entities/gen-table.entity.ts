@@ -69,4 +69,7 @@ export class GenTableEntity extends BaseEntity {
   @ApiProperty({ type: String, description: '其它生成选项' })
   @Column({ type: 'varchar', name: 'options', default: '', length: 1000, comment: '其它生成选项' })
   public options: string;
+
+  @Column({ type: 'int', name: 'dept_id', default: null, comment: '部门ID' })
+  public deptId: number;
 }

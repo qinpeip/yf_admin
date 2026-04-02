@@ -14,6 +14,14 @@ export abstract class BaseStatusEntity {
 //基础实体信息
 @Entity()
 export abstract class BaseEntity {
+  @ApiProperty({ type: Number, description: '租户ID' })
+  @Column({ type: 'int', name: 'tenant_id', default: 1, comment: '租户ID' })
+  public tenantId: number;
+
+  @ApiProperty({ type: Number, description: '数据所有者用户ID' })
+  @Column({ type: 'int', name: 'owner_user_id', nullable: true, default: null, comment: '数据所有者用户ID' })
+  public ownerUserId: number;
+
   @ApiProperty({ type: String, description: '创建者' })
   @Column({ type: 'varchar', name: 'create_by', length: 64, default: '', comment: '创建者' })
   public createBy: string;

@@ -88,8 +88,8 @@ export class UserController {
   })
   @RequirePermission('system:dept:query')
   @Get('deptTree')
-  deptTree() {
-    return this.userService.deptTree();
+  deptTree(@User() user: UserDto) {
+    return this.userService.deptTree(user.user);
   }
 
   @ApiOperation({
@@ -124,8 +124,8 @@ export class UserController {
   })
   @RequirePermission('system:user:query')
   @Get(':userId')
-  findOne(@Param('userId') userId: string) {
-    return this.userService.findOne(+userId);
+  findOne(@Param('userId') userId: string, @User() user: UserDto) {
+    return this.userService.findOne(+userId, user.user);
   }
 
   @ApiOperation({

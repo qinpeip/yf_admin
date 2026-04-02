@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiBody, ApiConsumes, ApiQuery, ApiBearerAuth } 
 import { DeptService } from './dept.service';
 import { CreateDeptDto, UpdateDeptDto, ListDeptDto } from './dto/index';
 import { RequirePermission } from 'src/common/decorators/require-premission.decorator';
+import { User, UserDto } from 'src/module/system/user/user.decorator';
 
 @ApiTags('部门管理')
 @Controller('system/dept')
@@ -20,8 +21,8 @@ export class DeptController {
   @RequirePermission('system:dept:add')
   @Post()
   @HttpCode(200)
-  create(@Body() createDeptDto: CreateDeptDto) {
-    return this.deptService.create(createDeptDto);
+  create(@Body() createDeptDto: CreateDeptDto, @User() user: UserDto) {
+    return this.deptService.create(createDeptDto, user.user);
   }
 
   @ApiOperation({
@@ -29,8 +30,8 @@ export class DeptController {
   })
   @RequirePermission('system:dept:list')
   @Get('/list')
-  findAll(@Query() query: ListDeptDto) {
-    return this.deptService.findAll(query);
+  findAll(@Query() query: ListDeptDto, @User() user: UserDto) {
+    return this.deptService.findAll(query, user.user);
   }
 
   @ApiOperation({
@@ -38,8 +39,8 @@ export class DeptController {
   })
   @RequirePermission('system:dept:query')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.deptService.findOne(+id);
+  findOne(@Param('id') id: string, @User() user: UserDto) {
+    return this.deptService.findOne(+id, user.user);
   }
 
   @ApiOperation({
@@ -47,8 +48,8 @@ export class DeptController {
   })
   @RequirePermission('system:dept:query')
   @Get('/list/exclude/:id')
-  findListExclude(@Param('id') id: string) {
-    return this.deptService.findListExclude(+id);
+  findListExclude(@Param('id') id: string, @User() user: UserDto) {
+    return this.deptService.findListExclude(+id, user.user);
   }
 
   @ApiOperation({
@@ -60,8 +61,8 @@ export class DeptController {
   })
   @RequirePermission('system:dept:edit')
   @Put()
-  update(@Body() updateDeptDto: UpdateDeptDto) {
-    return this.deptService.update(updateDeptDto);
+  update(@Body() updateDeptDto: UpdateDeptDto, @User() user: UserDto) {
+    return this.deptService.update(updateDeptDto, user.user);
   }
 
   @ApiOperation({
@@ -69,7 +70,7 @@ export class DeptController {
   })
   @RequirePermission('system:dept:remove')
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.deptService.remove(+id);
+  remove(@Param('id') id: string, @User() user: UserDto) {
+    return this.deptService.remove(+id, user.user);
   }
 }

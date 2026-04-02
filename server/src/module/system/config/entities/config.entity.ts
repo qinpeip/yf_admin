@@ -20,4 +20,7 @@ export class SysConfigEntity extends BaseEntity {
   //系统内置（Y是 N否）
   @Column({ type: 'char', name: 'config_type', length: 1, default: 'N', comment: '系统内置' })
   public configType: string;
+
+  @Column({ type: 'int', name: 'dept_id', default: null, comment: '部门ID' })
+  public deptId: number;
 }

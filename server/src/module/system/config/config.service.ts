@@ -9,6 +9,8 @@ import { SysConfigEntity } from './entities/config.entity';
 import { RedisService } from 'src/module/common/redis/redis.service';
 import { CacheEnum } from 'src/common/enum/index';
 import { Cacheable, CacheEvict } from 'src/common/decorators/redis.decorator';
+import { DataPermissionService } from 'src/common/services/data-permission/data-permission.service';
+import { UserType } from '../user/dto/user';
 
 @Injectable()
 export class ConfigService {
@@ -16,14 +18,20 @@ export class ConfigService {
     @InjectRepository(SysConfigEntity)
     private readonly sysConfigEntityRep: Repository<SysConfigEntity>,
     private readonly redisService: RedisService,
+    private readonly dataPermissionService: DataPermissionService,
   ) {}
-  async create(createConfigDto: CreateConfigDto) {
+  async create(createConfigDto: CreateConfigDto, currentUser: UserType['user']) {
+    (createConfigDto as any).tenantId = currentUser.tenantId;
+    (createConfigDto as any).deptId = currentUser.deptId;
+    (createConfigDto as any).ownerUserId = currentUser.userId;
     await this.sysConfigEntityRep.save(createConfigDto);
     return ResultData.ok();
   }
 
-  async findAll(query: ListConfigDto) {
+  async findAll(query: ListConfigDto, currentUser: UserType['user']) {
     const entity = this.sysConfigEntityRep.createQueryBuilder('entity');
+
+    await this.dataPermissionService.applyTenantAndScope(entity, 'entity', currentUser as any);
 
     if (query.configName) {
       entity.andWhere(`entity.configName LIKE "%${query.configName}%"`);
@@ -53,12 +61,11 @@ export class ConfigService {
     });
   }
 
-  async findOne(configId: number) {
-    const data = await this.sysConfigEntityRep.findOne({
-      where: {
-        configId: configId,
-      },
-    });
+  async findOne(configId: number, currentUser: UserType['user']) {
+    const qb = this.sysConfigEntityRep.createQueryBuilder('entity').where('entity.configId = :configId', { configId });
+    await this.dataPermissionService.applyTenantAndScope(qb, 'entity', currentUser as any);
+    const data = await qb.getOne();
+    if (!data) return ResultData.fail(403, '无权限访问该数据');
     return ResultData.ok(data);
   }
 
@@ -80,20 +87,34 @@ export class ConfigService {
   }
 
   @CacheEvict(CacheEnum.SYS_CONFIG_KEY, '{updateConfigDto.configKey}')
-  async update(updateConfigDto: UpdateConfigDto) {
-    await this.sysConfigEntityRep.update(
-      {
-        configId: updateConfigDto.configId,
-      },
-      updateConfigDto,
-    );
+  async update(updateConfigDto: UpdateConfigDto, currentUser: UserType['user']) {
+    const qb = this.sysConfigEntityRep.createQueryBuilder('entity').where('entity.configId = :configId', { configId: updateConfigDto.configId });
+    await this.dataPermissionService.applyTenantAndScope(qb, 'entity', currentUser as any);
+    const found = await qb.getOne();
+    if (!found) return ResultData.fail(403, '无权限修改该数据');
+
+    await this.sysConfigEntityRep.update({ configId: updateConfigDto.configId, tenantId: currentUser.tenantId }, updateConfigDto);
     return ResultData.ok();
   }
 
-  async remove(configIds: number[]) {
+  async remove(configIds: number[], currentUser: UserType['user']) {
+    if (!configIds?.length) return ResultData.ok();
+
+    const allowedQb = this.sysConfigEntityRep
+      .createQueryBuilder('entity')
+      .select('entity.configId', 'configId')
+      .where('entity.configId IN (:...ids)', { ids: configIds });
+    await this.dataPermissionService.applyTenantAndScope(allowedQb, 'entity', currentUser as any);
+    const rows = await allowedQb.getRawMany<{ configId: string }>();
+    const allowedIds = rows.map((r) => +r.configId);
+
+    if (allowedIds.length !== configIds.length) {
+      return ResultData.fail(403, '无权限删除部分数据');
+    }
+
     const list = await this.sysConfigEntityRep.find({
       where: {
-        configId: In(configIds),
+        configId: In(allowedIds),
       },
       select: ['configType', 'configKey'],
     });
@@ -109,10 +130,10 @@ export class ConfigService {
    * 导出参数管理数据为xlsx
    * @param res
    */
-  async export(res: Response, body: ListConfigDto) {
+  async export(res: Response, body: ListConfigDto, currentUser: UserType['user']) {
     delete body.pageNum;
     delete body.pageSize;
-    const list = await this.findAll(body);
+    const list = await this.findAll(body, currentUser);
     const options = {
       sheetName: '参数管理',
       data: list.data.list,

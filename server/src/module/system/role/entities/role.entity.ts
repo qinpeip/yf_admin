@@ -19,6 +19,9 @@ export class SysRoleEntity extends BaseEntity {
   @Column({ type: 'varchar', name: 'role_key', length: 100, comment: '角色权限字符串' })
   public roleKey: string;
 
+  @Column({ type: 'int', name: 'dept_id', default: null, comment: '部门ID' })
+  public deptId: number;
+
   //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
   @Column({ type: 'char', name: 'data_scope', length: 1, default: '1', comment: '数据范围' })
   public dataScope: string;

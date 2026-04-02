@@ -20,4 +20,5 @@ export type UserType = {
   userId: number;
   userName: string;
   deptId: number;
+  tenantId?: number;
 };

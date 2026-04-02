@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Query, Delete, Res } from '@ne
 import { ApiTags, ApiOperation, ApiBody, ApiConsumes, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { RoleService } from './role.service';
 import { Response } from 'express';
-import { CreateRoleDto, UpdateRoleDto, ListRoleDto, ChangeStatusDto, AuthUserCancelDto, AuthUserCancelAllDto, AuthUserSelectAllDto } from './dto/index';
+import { CreateRoleDto, UpdateRoleDto, ListRoleDto, ChangeStatusDto, AuthUserCancelDto, AuthUserCancelAllDto, AuthUserSelectAllDto, UpdateRoleDataScopeDto } from './dto/index';
 import { AllocatedListDto } from '../user/dto/index';
 import { RequirePermission } from 'src/common/decorators/require-premission.decorator';
 
@@ -27,8 +27,8 @@ export class RoleController {
   })
   @RequirePermission('system:role:add')
   @Post()
-  create(@Body() createRoleDto: CreateRoleDto) {
-    return this.roleService.create(createRoleDto);
+  create(@Body() createRoleDto: CreateRoleDto, @User() user: UserDto) {
+    return this.roleService.create(createRoleDto, user.user);
   }
 
   @ApiOperation({
@@ -41,7 +41,7 @@ export class RoleController {
   @RequirePermission('system:role:list')
   @Get('list')
   findAll(@Query() query: ListRoleDto, @User() user: UserDto) {
-    return this.roleService.findAll(query);
+    return this.roleService.findAll(query, user.user);
   }
 
   @ApiOperation({
@@ -49,8 +49,8 @@ export class RoleController {
   })
   @RequirePermission('system:role:query')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roleService.findOne(+id);
+  findOne(@Param('id') id: string, @User() user: UserDto) {
+    return this.roleService.findOne(+id, user.user);
   }
 
   @ApiOperation({
@@ -62,8 +62,8 @@ export class RoleController {
   })
   @RequirePermission('system:role:edit')
   @Put()
-  update(@Body() updateRoleDto: UpdateRoleDto) {
-    return this.roleService.update(updateRoleDto);
+  update(@Body() updateRoleDto: UpdateRoleDto, @User() user: UserDto) {
+    return this.roleService.update(updateRoleDto, user.user);
   }
 
   @ApiOperation({
@@ -75,15 +75,15 @@ export class RoleController {
   })
   @RequirePermission('system:role:edit')
   @Put('changeStatus')
-  changeStatus(@Body() changeStatusDto: ChangeStatusDto) {
-    return this.roleService.changeStatus(changeStatusDto);
+  changeStatus(@Body() changeStatusDto: ChangeStatusDto, @User() user: UserDto) {
+    return this.roleService.changeStatus(changeStatusDto, user.user);
   }
 
   @RequirePermission('system:role:remove')
   @Delete(':id')
-  remove(@Param('id') ids: string) {
+  remove(@Param('id') ids: string, @User() user: UserDto) {
     const menuIds = ids.split(',').map((id) => +id);
-    return this.roleService.remove(menuIds);
+    return this.roleService.remove(menuIds, user.user);
   }
 
   @ApiOperation({
@@ -154,7 +154,21 @@ export class RoleController {
   @ApiOperation({ summary: '导出角色管理xlsx文件' })
   @RequirePermission('system:role:export')
   @Post('/export')
-  async export(@Res() res: Response, @Body() body: ListRoleDto): Promise<void> {
-    return this.roleService.export(res, body);
+  async export(@Res() res: Response, @Body() body: ListRoleDto, @User() user: UserDto): Promise<void> {
+    return this.roleService.export(res, body, user.user);
+  }
+
+  @ApiOperation({ summary: '角色数据权限-详情' })
+  @RequirePermission('system:role:edit')
+  @Get('dataScope/:id')
+  getRoleDataScope(@Param('id') id: string, @User() user: UserDto) {
+    return this.roleService.getRoleDataScope(+id, user.user);
+  }
+
+  @ApiOperation({ summary: '角色数据权限-保存' })
+  @RequirePermission('system:role:edit')
+  @Put('dataScope')
+  updateRoleDataScope(@Body() body: UpdateRoleDataScopeDto, @User() user: UserDto) {
+    return this.roleService.updateRoleDataScope(body, user.user);
   }
 }

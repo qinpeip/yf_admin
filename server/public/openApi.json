@@ -2383,6 +2383,65 @@
         ]
       }
     },
+    "/system/role/dataScope/{id}": {
+      "get": {
+        "operationId": "RoleController_getRoleDataScope",
+        "summary": "角色数据权限-详情",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "角色管理"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      }
+    },
+    "/system/role/dataScope": {
+      "put": {
+        "operationId": "RoleController_updateRoleDataScope",
+        "summary": "角色数据权限-保存",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleDataScopeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "角色管理"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      }
+    },
     "/tool/gen/list": {
       "get": {
         "operationId": "ToolController_findAll",
@@ -5066,6 +5125,27 @@
         "required": [
           "roleId",
           "userIds"
+        ]
+      },
+      "UpdateRoleDataScopeDto": {
+        "type": "object",
+        "properties": {
+          "roleId": {
+            "type": "number"
+          },
+          "dataScope": {
+            "type": "string"
+          },
+          "deptIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "roleId",
+          "dataScope"
         ]
       },
       "TableName": {

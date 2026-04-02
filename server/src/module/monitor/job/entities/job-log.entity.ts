@@ -6,6 +6,15 @@ import { dateTransformer } from 'src/common/utils/index';
   comment: '任务调度日志表',
 })
 export class JobLog {
+  @Column({ name: 'tenant_id', type: 'int', default: 1, comment: '租户ID' })
+  tenantId: number;
+
+  @Column({ name: 'dept_id', type: 'int', nullable: true, default: null, comment: '部门ID' })
+  deptId: number;
+
+  @Column({ name: 'owner_user_id', type: 'int', nullable: true, default: null, comment: '数据所有者用户ID' })
+  ownerUserId: number;
+
   @ApiProperty({ description: '任务日志ID' })
   @PrimaryGeneratedColumn({ name: 'job_log_id', comment: '任务日志ID' })
   jobLogId: number;

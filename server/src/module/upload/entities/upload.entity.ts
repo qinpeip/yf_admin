@@ -37,6 +37,9 @@ export class SysUploadEntity extends BaseEntity {
   })
   url: string;
 
+  @Column({ type: 'int', name: 'dept_id', default: null, comment: '部门ID' })
+  public deptId: number;
+
   @Column({
     type: 'varchar',
     comment: '拓展名',

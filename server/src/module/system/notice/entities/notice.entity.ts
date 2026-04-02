@@ -17,4 +17,7 @@ export class SysNoticeEntity extends BaseEntity {
 
   @Column({ type: 'longtext', name: 'notice_content', default: null, comment: '公告内容' })
   public noticeContent: string;
+
+  @Column({ type: 'int', name: 'dept_id', default: null, comment: '部门ID' })
+  public deptId: number;
 }

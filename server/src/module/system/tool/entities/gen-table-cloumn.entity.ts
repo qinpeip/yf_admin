@@ -80,4 +80,7 @@ export class GenTableColumnEntity extends BaseEntity {
   @ApiProperty({ type: Number, description: '排序' })
   @Column({ type: 'int', name: 'sort', comment: '排序' })
   public sort: number;
+
+  @Column({ type: 'int', name: 'dept_id', default: null, comment: '部门ID' })
+  public deptId: number;
 }
