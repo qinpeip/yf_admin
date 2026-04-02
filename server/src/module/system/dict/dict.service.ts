@@ -35,7 +35,6 @@ export class DictService {
 
   async findAllType(query: ListDictType) {
     const entity = this.sysDictTypeEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
 
     if (query.dictName) {
       entity.andWhere(`entity.dictName LIKE "%${query.dictName}%"`);
@@ -97,7 +96,6 @@ export class DictService {
 
   async findAllData(query: ListDictData) {
     const entity = this.sysDictDataEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
     if (query.dictLabel) {
       entity.andWhere(`entity.dictLabel LIKE "%${query.dictLabel}%"`);
     }
@@ -226,7 +224,6 @@ export class DictService {
    */
   async loadingDictCache() {
     const entity = this.sysDictTypeEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
     entity.leftJoinAndMapMany('entity.dictTypeList', SysDictDataEntity, 'dictType', 'dictType.dictType = entity.dictType');
     const list = await entity.getMany();
     list.forEach((item: any) => {

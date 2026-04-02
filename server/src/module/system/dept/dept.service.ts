@@ -1,18 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { EntityManager, Repository, SelectQueryBuilder } from 'typeorm';
 import { ResultData } from 'src/common/utils/result';
 import { SysDeptEntity } from './entities/dept.entity';
 import { CreateDeptDto, UpdateDeptDto, ListDeptDto } from './dto/index';
 import { ListToTree } from 'src/common/utils/index';
 import { CacheEnum, DataScopeEnum } from 'src/common/enum/index';
 import { Cacheable, CacheEvict } from 'src/common/decorators/redis.decorator';
+import { UserEntity } from '../user/entities/sys-user.entity';
 
 @Injectable()
 export class DeptService {
   constructor(
     @InjectRepository(SysDeptEntity)
     private readonly sysDeptEntityRep: Repository<SysDeptEntity>,
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager,
   ) {}
 
   @CacheEvict(CacheEnum.SYS_DEPT_KEY, '*')
@@ -36,7 +39,6 @@ export class DeptService {
 
   async findAll(query: ListDeptDto) {
     const entity = this.sysDeptEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
 
     if (query.deptName) {
       entity.andWhere(`entity.deptName LIKE "%${query.deptName}%"`);
@@ -69,8 +71,6 @@ export class DeptService {
     try {
       // 创建部门实体的查询构建器
       const entity = this.sysDeptEntityRep.createQueryBuilder('dept');
-      // 筛选出删除标志为未删除的部门
-      entity.where('dept.delFlag = :delFlag', { delFlag: '0' });
 
       // 根据不同的数据权限范围添加不同的查询条件
       if (dataScope === DataScopeEnum.DATA_SCOPE_DEPT) {
@@ -146,8 +146,24 @@ export class DeptService {
 
   @CacheEvict(CacheEnum.SYS_DEPT_KEY, '*')
   async remove(deptId: number) {
-    const data = await this.sysDeptEntityRep.softDelete({ deptId: deptId });
-    return ResultData.ok(data);
+    const hasUser = await this.entityManager.exists(UserEntity, {
+      where: {
+        deptId: deptId,
+      },
+    });
+    if (hasUser) {
+      return ResultData.fail(500, '该部门下有用户，不能删除');
+    }
+    const hasChildren = await this.entityManager.exists(SysDeptEntity, {
+      where: {
+        parentId: deptId,
+      },
+    });
+    if (hasChildren) {
+      return ResultData.fail(500, '该部门下有子部门，不能删除');
+    }
+    const result = await this.entityManager.delete(SysDeptEntity, { deptId: deptId });
+    return ResultData.ok(result);
   }
 
   /**

@@ -2,18 +2,9 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, UpdateDateColumn } 
 import { dateTransformer } from 'src/common/utils/index';
 import { ApiProperty } from '@nestjs/swagger';
 
-//基础实体信息
-@Entity()
-export abstract class DeleteStatusEntity {
-  //0代表存在 1代表删除
-  @ApiProperty({ type: String, description: '删除标志' })
-  @Column({ type: 'char', name: 'del_flag', default: '0', length: 1, comment: '删除标志' })
-  public delFlag: string;
-}
-
 // 状态
 @Entity()
-export abstract class BaseStatusEntity extends DeleteStatusEntity {
+export abstract class BaseStatusEntity {
   //0正常 1停用
   @ApiProperty({ type: String, description: '状态' })
   @Column({ type: 'char', name: 'status', default: '0', length: 1, comment: '状态' })

@@ -42,7 +42,6 @@ export class RoleService {
 
   async findAll(query: ListRoleDto) {
     const entity = this.sysRoleEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
 
     if (query.roleName) {
       entity.andWhere(`entity.roleName LIKE "%${query.roleName}%"`);

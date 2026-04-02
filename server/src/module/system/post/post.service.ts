@@ -20,7 +20,6 @@ export class PostService {
 
   async findAll(query: ListPostDto) {
     const entity = this.sysPostEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
 
     if (query.postName) {
       entity.andWhere(`entity.postName LIKE "%${query.postName}%"`);

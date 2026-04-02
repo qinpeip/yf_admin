@@ -33,4 +33,9 @@ export class SysDeptEntity extends BaseEntity {
   @ApiProperty({ type: String, description: '邮箱' })
   @Column({ type: 'varchar', name: 'email', length: 50, default: '', comment: '邮箱' })
   public email: string;
+
+  //0正常 1停用
+  @ApiProperty({ type: String, description: '状态' })
+  @Column({ type: 'char', name: 'status', default: '0', length: 1, comment: '状态' })
+  public status: string;
 }

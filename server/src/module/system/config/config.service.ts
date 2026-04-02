@@ -24,7 +24,6 @@ export class ConfigService {
 
   async findAll(query: ListConfigDto) {
     const entity = this.sysConfigEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
 
     if (query.configName) {
       entity.andWhere(`entity.configName LIKE "%${query.configName}%"`);
@@ -157,7 +156,6 @@ export class ConfigService {
    */
   async loadingConfigCache() {
     const entity = this.sysConfigEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
     const list = await entity.getMany();
     list.forEach((item) => {
       if (item.configKey) {

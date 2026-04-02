@@ -30,7 +30,6 @@ export class LoginlogService {
    */
   async findAll(query: ListLoginlogDto) {
     const entity = this.monitorLoginlogEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
 
     if (query.ipaddr) {
       entity.andWhere(`entity.ipaddr LIKE "%${query.ipaddr}%"`);
@@ -70,12 +69,7 @@ export class LoginlogService {
    * @returns
    */
   async remove(ids: string[]) {
-    const data = await this.monitorLoginlogEntityRep.update(
-      { infoId: In(ids) },
-      {
-        delFlag: '1',
-      },
-    );
+    const data = await this.monitorLoginlogEntityRep.softDelete({ infoId: In(ids) });
     return ResultData.ok(data);
   }
 
@@ -84,12 +78,7 @@ export class LoginlogService {
    * @returns
    */
   async removeAll() {
-    await this.monitorLoginlogEntityRep.update(
-      { infoId: Not(IsNull()) },
-      {
-        delFlag: '1',
-      },
-    );
+    await this.monitorLoginlogEntityRep.softDelete({ infoId: Not(IsNull()) });
     return ResultData.ok();
   }
 

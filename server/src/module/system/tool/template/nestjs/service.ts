@@ -26,7 +26,6 @@ export class ${Lodash.upperFirst(BusinessName)}Service {
 
   async findAll(query: Query${Lodash.upperFirst(BusinessName)}Dto) {
     const entity = this.${businessName}EntityRep.createQueryBuilder('entity');
-    entity.where({ delFlag: '0' });
     ${getListQueryStr(options)}
     entity.select([${getListFiledSelectStr(options)}]);
 
@@ -50,7 +49,6 @@ export class ${Lodash.upperFirst(BusinessName)}Service {
   async findOne(${primaryKey}: string) {
     const res = await this.${businessName}EntityRep.findOne({
       where: {
-        delFlag: '0',
         ${primaryKey}: ${primaryKey},
       },
     });
@@ -68,9 +66,6 @@ export class ${Lodash.upperFirst(BusinessName)}Service {
   async remove(${primaryKey}s: number[]) {
     const res = await this.${businessName}EntityRep.update(
       { ${primaryKey}: In(${primaryKey}s) },
-      {
-        delFlag: '1',
-      }
     );
     return ResultData.ok({ value: res.affected >= 1 });
   }

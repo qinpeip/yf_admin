@@ -18,8 +18,6 @@ export class NoticeService {
 
   async findAll(query: ListNoticeDto) {
     const entity = this.sysNoticeEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
-
     if (query.noticeTitle) {
       entity.andWhere(`entity.noticeTitle LIKE "%${query.noticeTitle}%"`);
     }

@@ -8,7 +8,7 @@ import { Response } from 'express';
 import { GetNowDate, GenerateUUID, Uniq } from 'src/common/utils/index';
 import { ExportTable } from 'src/common/utils/export';
 
-import { CacheEnum, DelFlagEnum, StatusEnum, DataScopeEnum } from 'src/common/enum/index';
+import { CacheEnum, StatusEnum, DataScopeEnum } from 'src/common/enum/index';
 import { LOGIN_TOKEN_EXPIRESIN, SYS_USER_TYPE } from 'src/common/constant/index';
 import { ResultData } from 'src/common/utils/result';
 import { CreateUserDto, UpdateUserDto, ListUserDto, ChangeStatusDto, ResetPwdDto, AllocatedListDto, UpdateProfileDto, UpdatePwdDto } from './dto/index';
@@ -90,7 +90,6 @@ export class UserService {
    */
   async findAll(query: ListUserDto, user: UserType['user']) {
     const entity = this.userRepo.createQueryBuilder('user');
-    entity.where('user.delFlag = :delFlag', { delFlag: '0' });
 
     //数据权限过滤
     if (user) {
@@ -567,8 +566,11 @@ export class UserService {
    * @returns
    */
   async remove(ids: number[]) {
+    if (ids.includes(1)) {
+      return ResultData.fail(500, '系统用户不能删除');
+    }
     // 忽略系统角色的删除
-    const data = await this.userRepo.softDelete({ userId: In(ids), userType: Not(SYS_USER_TYPE.SYS) });
+    const data = await this.userRepo.softDelete({ userId: In(ids) });
     return ResultData.ok(data);
   }
 
@@ -702,7 +704,6 @@ export class UserService {
     }
     const userIds = roleWidthRoleList.map((item) => item.userId);
     const entity = this.userRepo.createQueryBuilder('user');
-    entity.where('user.delFlag = :delFlag', { delFlag: '0' });
     entity.andWhere('user.status = :status', { status: '0' });
     entity.andWhere('user.userId IN (:...userIds)', { userIds: userIds });
     if (query.userName) {
@@ -737,7 +738,6 @@ export class UserService {
 
     const userIds = roleWidthRoleList.map((item) => item.userId);
     const entity = this.userRepo.createQueryBuilder('user');
-    entity.where('user.delFlag = :delFlag', { delFlag: '0' });
     entity.andWhere('user.status = :status', { status: '0' });
     entity.andWhere({
       userId: Not(In(userIds)),

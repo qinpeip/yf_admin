@@ -26,8 +26,6 @@ export class MenuService {
 
   async findAll(query: ListDeptDto) {
     const entity = this.sysMenuEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
-
     if (query.menuName) {
       entity.andWhere(`entity.menuName LIKE "%${query.menuName}%"`);
     }

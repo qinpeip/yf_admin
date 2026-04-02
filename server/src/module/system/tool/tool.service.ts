@@ -35,7 +35,6 @@ export class ToolService {
   async findAll(query: GenTableList) {
     const { pageNum = 1, pageSize = 10, tableNames, tableComment } = query;
     const entity = this.genTableEntityRep.createQueryBuilder('entity');
-    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
     if (tableNames) {
       entity.andWhere('entity.tableName LIKE :tableNames', { tableNames: `%${tableNames}%` });
     }

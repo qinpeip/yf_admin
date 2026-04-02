@@ -1,7 +1,7 @@
 import * as Lodash from 'lodash';
 import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
-import { StatusEnum, SexEnum, DelFlagEnum } from 'src/common/enum/index';
+import { StatusEnum, SexEnum } from 'src/common/enum/index';
 
 /**
  * 通用枚举映射配置
@@ -14,10 +14,6 @@ export const commonExportMap = {
   sex: {
     [SexEnum.MAN]: '男',
     [SexEnum.WOMAN]: '女',
-  },
-  delFlag: {
-    [DelFlagEnum.NORMAL]: '正常',
-    [DelFlagEnum.DELETE]: '已删除',
   },
 };
 
