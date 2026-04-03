@@ -39,10 +39,11 @@ export class JobController {
     return this.jobService.changeStatus(jobId, status, req.user?.userName);
   }
 
-  @Put('')
+  @Put()
   @ApiOperation({ summary: '修改定时任务' })
   @RequirePermission('monitor:job:edit')
-  update(@Body('jobId') jobId: number, @Body() updateJobDto: Partial<CreateJobDto>, @Req() req: any) {
+  update(@Body() body: { jobId: number } & Partial<CreateJobDto>, @Req() req: any) {
+    const { jobId, ...updateJobDto } = body;
     return this.jobService.update(jobId, updateJobDto, req.user?.userName);
   }
 

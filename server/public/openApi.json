@@ -1247,7 +1247,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ListDictType"
+                "$ref": "#/components/schemas/ListDictData"
               }
             }
           }
@@ -4662,6 +4662,41 @@
         "properties": {}
       },
       "ListDictType": {
+        "type": "object",
+        "properties": {
+          "pageNum": {
+            "type": "number",
+            "description": "当前分页",
+            "default": 1
+          },
+          "pageSize": {
+            "type": "number",
+            "description": "每页数量",
+            "default": 10
+          },
+          "params": {
+            "description": "时间范围",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DateParamsDTO"
+              }
+            ]
+          },
+          "orderByColumn": {
+            "type": "string",
+            "description": "排序字段"
+          },
+          "isAsc": {
+            "type": "string",
+            "description": "排序规则"
+          }
+        },
+        "required": [
+          "pageNum",
+          "pageSize"
+        ]
+      },
+      "ListDictData": {
         "type": "object",
         "properties": {
           "pageNum": {

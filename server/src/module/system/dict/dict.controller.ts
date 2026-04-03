@@ -123,19 +123,19 @@ export class DictController {
   }
 
   @ApiOperation({
-    summary: '字典数据-详情',
-  })
-  @Get('/data/:id')
-  findOneDictData(@Param('id') dictCode: string) {
-    return this.dictService.findOneDictData(+dictCode);
-  }
-
-  @ApiOperation({
     summary: '字典数据-类型-详情【走缓存】',
   })
   @Get('/data/type/:id')
   findOneDataType(@Param('id') dictType: string) {
     return this.dictService.findOneDataType(dictType);
+  }
+
+  @ApiOperation({
+    summary: '字典数据-详情',
+  })
+  @Get('/data/:id')
+  findOneDictData(@Param('id') dictCode: string) {
+    return this.dictService.findOneDictData(+dictCode);
   }
 
   @ApiOperation({ summary: '导出字典组为xlsx文件' })
@@ -148,7 +148,7 @@ export class DictController {
   @ApiOperation({ summary: '导出字典内容为xlsx文件' })
   @RequirePermission('system:dict:export')
   @Post('/data/export')
-  async exportData(@Res() res: Response, @Body() body: ListDictType): Promise<void> {
+  async exportData(@Res() res: Response, @Body() body: ListDictData): Promise<void> {
     return this.dictService.exportData(res, body);
   }
 }

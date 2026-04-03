@@ -1,4 +1,3 @@
-export class Dict {}
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntity } from 'src/common/entities/base';
@@ -19,4 +18,13 @@ export class SysDictTypeEntity extends BaseEntity {
 
   @Column({ type: 'int', name: 'dept_id', default: null, comment: '部门ID' })
   public deptId: number;
+
+  //0正常 1停用
+  @ApiProperty({ type: String, description: '状态' })
+  @Column({ type: 'char', name: 'status', default: '0', length: 1, comment: '状态' })
+  public status: string;
+
+  // remark
+  @Column({ type: 'varchar', name: 'remark', length: 500, comment: '备注' })
+  public remark: string;
 }

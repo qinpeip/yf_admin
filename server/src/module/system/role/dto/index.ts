@@ -109,6 +109,11 @@ export class ListRoleDto extends PagingDto {
   @IsString()
   @Length(0, 100)
   roleId?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(0, 500)
+  remark?: string;
 }
 
 export class AuthUserCancelDto {

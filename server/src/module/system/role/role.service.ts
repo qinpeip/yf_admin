@@ -72,6 +72,10 @@ export class RoleService {
       entity.andWhere('entity.status = :status', { status: query.status });
     }
 
+    if (query.remark) {
+      entity.andWhere('entity.remark LIKE :remark', { remark: `%${query.remark}%` });
+    }
+
     if (query.params?.beginTime && query.params?.endTime) {
       entity.andWhere('entity.createTime BETWEEN :start AND :end', { start: query.params.beginTime, end: query.params.endTime });
     }
