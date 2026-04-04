@@ -3261,6 +3261,457 @@
         ]
       }
     },
+    "/system/region": {
+      "post": {
+        "operationId": "RegionController_create",
+        "summary": "地区表-创建",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRegionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/BaseRegionDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "地区表"
+        ]
+      },
+      "put": {
+        "operationId": "RegionController_update",
+        "summary": "地区表-修改",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRegionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "boolean",
+                              "default": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "地区表"
+        ]
+      }
+    },
+    "/system/region/list": {
+      "get": {
+        "operationId": "RegionController_findAll",
+        "summary": "地区表-列表",
+        "parameters": [
+          {
+            "name": "id",
+            "required": false,
+            "in": "query",
+            "description": "地区ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": false,
+            "in": "query",
+            "description": "租户ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "ownerUserId",
+            "required": false,
+            "in": "query",
+            "description": "数据所有者用户ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "createBy",
+            "required": false,
+            "in": "query",
+            "description": "创建者",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "createTime",
+            "required": false,
+            "in": "query",
+            "description": "创建时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "updateBy",
+            "required": false,
+            "in": "query",
+            "description": "更新者",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "updateTime",
+            "required": false,
+            "in": "query",
+            "description": "更新时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "deleteTime",
+            "required": false,
+            "in": "query",
+            "description": "删除时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "pid",
+            "required": false,
+            "in": "query",
+            "description": "父ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "shortname",
+            "required": false,
+            "in": "query",
+            "description": "简称",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "名称",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mergerName",
+            "required": false,
+            "in": "query",
+            "description": "全称",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "description": "层级 1 2 3 省市区县",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "pinyin",
+            "required": false,
+            "in": "query",
+            "description": "拼音",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "required": false,
+            "in": "query",
+            "description": "长途区号",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "zipCode",
+            "required": false,
+            "in": "query",
+            "description": "邮编",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "first",
+            "required": false,
+            "in": "query",
+            "description": "首字母",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lng",
+            "required": false,
+            "in": "query",
+            "description": "经度",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lat",
+            "required": false,
+            "in": "query",
+            "description": "纬度",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "排序",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageNum",
+            "required": true,
+            "in": "query",
+            "description": "当前分页",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": true,
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderByColumn",
+            "required": false,
+            "in": "query",
+            "description": "排序字段",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isAsc",
+            "required": false,
+            "in": "query",
+            "description": "排序规则",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ListRegionDto"
+                              }
+                            },
+                            "total": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "地区表"
+        ]
+      }
+    },
+    "/system/region/{id}": {
+      "get": {
+        "operationId": "RegionController_findOne",
+        "summary": "地区表-详情",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/BaseRegionDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "地区表"
+        ]
+      },
+      "delete": {
+        "operationId": "RegionController_remove",
+        "summary": "地区表-删除",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "boolean",
+                              "default": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "地区表"
+        ]
+      }
+    },
     "/monitor/job/list": {
       "get": {
         "operationId": "JobController_list",
@@ -5420,6 +5871,351 @@
           "pageSize"
         ]
       },
+      "ResultData": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "default": 200
+          },
+          "msg": {
+            "type": "string",
+            "default": "操作成功"
+          }
+        },
+        "required": [
+          "code",
+          "msg"
+        ]
+      },
+      "BaseRegionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "地区ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建者"
+          },
+          "createTime": {
+            "description": "创建时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pid": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "shortname": {
+            "type": "string",
+            "description": "简称"
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "mergerName": {
+            "type": "string",
+            "description": "全称"
+          },
+          "level": {
+            "type": "number",
+            "description": "层级 1 2 3 省市区县"
+          },
+          "pinyin": {
+            "type": "string",
+            "description": "拼音"
+          },
+          "code": {
+            "type": "string",
+            "description": "长途区号"
+          },
+          "zipCode": {
+            "type": "string",
+            "description": "邮编"
+          },
+          "first": {
+            "type": "string",
+            "description": "首字母"
+          },
+          "lng": {
+            "type": "string",
+            "description": "经度"
+          },
+          "lat": {
+            "type": "string",
+            "description": "纬度"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          }
+        }
+      },
+      "CreateRegionDto": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pid": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "shortname": {
+            "type": "string",
+            "description": "简称"
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "mergerName": {
+            "type": "string",
+            "description": "全称"
+          },
+          "level": {
+            "type": "number",
+            "description": "层级 1 2 3 省市区县"
+          },
+          "pinyin": {
+            "type": "string",
+            "description": "拼音"
+          },
+          "code": {
+            "type": "string",
+            "description": "长途区号"
+          },
+          "zipCode": {
+            "type": "string",
+            "description": "邮编"
+          },
+          "first": {
+            "type": "string",
+            "description": "首字母"
+          },
+          "lng": {
+            "type": "string",
+            "description": "经度"
+          },
+          "lat": {
+            "type": "string",
+            "description": "纬度"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          }
+        }
+      },
+      "ListRegionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "地区ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pid": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "shortname": {
+            "type": "string",
+            "description": "简称"
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "mergerName": {
+            "type": "string",
+            "description": "全称"
+          },
+          "level": {
+            "type": "number",
+            "description": "层级 1 2 3 省市区县"
+          },
+          "pinyin": {
+            "type": "string",
+            "description": "拼音"
+          },
+          "code": {
+            "type": "string",
+            "description": "长途区号"
+          },
+          "zipCode": {
+            "type": "string",
+            "description": "邮编"
+          },
+          "first": {
+            "type": "string",
+            "description": "首字母"
+          },
+          "lng": {
+            "type": "string",
+            "description": "经度"
+          },
+          "lat": {
+            "type": "string",
+            "description": "纬度"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          }
+        }
+      },
+      "UpdateRegionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "地区ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pid": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "shortname": {
+            "type": "string",
+            "description": "简称"
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "mergerName": {
+            "type": "string",
+            "description": "全称"
+          },
+          "level": {
+            "type": "number",
+            "description": "层级 1 2 3 省市区县"
+          },
+          "pinyin": {
+            "type": "string",
+            "description": "拼音"
+          },
+          "code": {
+            "type": "string",
+            "description": "长途区号"
+          },
+          "zipCode": {
+            "type": "string",
+            "description": "邮编"
+          },
+          "first": {
+            "type": "string",
+            "description": "首字母"
+          },
+          "lng": {
+            "type": "string",
+            "description": "经度"
+          },
+          "lat": {
+            "type": "string",
+            "description": "纬度"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          }
+        }
+      },
       "CreateJobDto": {
         "type": "object",
         "properties": {
@@ -5598,23 +6394,6 @@
             "type": "string"
           }
         }
-      },
-      "ResultData": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "number",
-            "default": 200
-          },
-          "msg": {
-            "type": "string",
-            "default": "操作成功"
-          }
-        },
-        "required": [
-          "code",
-          "msg"
-        ]
       },
       "QueryOperLogDto": {
         "type": "object",

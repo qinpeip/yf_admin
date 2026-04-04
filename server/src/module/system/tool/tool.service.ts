@@ -250,7 +250,7 @@ export class ToolService {
         const data = await this.genTableEntityRep.findOne({ where: { tableName: item } });
         const columns = await this.genTableColumnEntityRep.find({ where: { tableId: data.tableId } });
         const primaryKey = await this.getPrimaryKey(columns);
-        return { primaryKey, BusinessName: data.businessName, ...data, columns };
+        return { primaryKey, BusinessName: capitalize(data.businessName), ...data, columns };
       }),
     );
 
@@ -263,9 +263,14 @@ export class ToolService {
         { content: list['tool/template/nestjs/controller.ts.vm'], path: `nestjs/${item.BusinessName}/${item.businessName}.controller.ts` },
         { content: list['tool/template/nestjs/service.ts.vm'], path: `nestjs/${item.BusinessName}/${item.businessName}.service.ts` },
         { content: list['tool/template/nestjs/module.ts.vm'], path: `nestjs/${item.BusinessName}/${item.businessName}.module.ts` },
-        { content: list['tool/template/vue/api.js.vm'], path: `vue/${item.BusinessName}/${item.businessName}.js` },
-        { content: list['tool/template/vue/indexVue.vue.vm'], path: `vue/${item.BusinessName}/${item.businessName}/index.vue` },
-        { content: list['tool/template/vue/dialogVue.vue.vm'], path: `vue/${item.BusinessName}/${item.businessName}/components/indexDialog.vue` },
+        {
+          content: list['tool/template/vben/api.ts.vm'],
+          path: `web-antdv-next/src/api/${item.moduleName}/${item.businessName}.ts`,
+        },
+        {
+          content: list['tool/template/vben/index.vue.vm'],
+          path: `web-antdv-next/src/views/${item.moduleName}/${item.businessName}/index.vue`,
+        },
       ];
 
       for (const template of templates) {

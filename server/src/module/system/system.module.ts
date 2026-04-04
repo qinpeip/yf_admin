@@ -9,6 +9,7 @@ import { PostModule } from './post/post.module';
 import { RoleModule } from './role/role.module';
 import { ToolModule } from './tool/tool.module';
 import { UserModule } from './user/user.module';
+import { RegionModule } from './region/region.module';
 
 @Global()
 @Module({
@@ -23,6 +24,7 @@ import { UserModule } from './user/user.module';
     RoleModule,
     ToolModule,
     UserModule,
+    RegionModule,
   ],
 })
 export class SystemModule {}
