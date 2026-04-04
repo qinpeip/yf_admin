@@ -124,37 +124,46 @@ export class MenuService {
    * @return 菜单列表
    */
   async getMenuListByUserId(userId: number) {
-    let menuWidthRoleList = [];
     const roleIds = await this.userService.getRoleIds([userId]);
-    if (roleIds.includes(1)) {
-      // 超管roleId=1，所有菜单权限
-      menuWidthRoleList = await this.sysMenuEntityRep.find({
-        where: {
-          status: '0',
-        },
-        select: ['menuId'],
-      });
-    } else {
-      // 查询角色绑定的菜单
-      menuWidthRoleList = await this.sysRoleWithMenuEntityRep.find({
-        where: { roleId: In(roleIds) },
-        select: ['menuId'],
-      });
-    }
-    // 菜单Id去重
-    const menuIds = Uniq(menuWidthRoleList.map((item) => item.menuId));
-    // 菜单列表
-    const menuList = await this.sysMenuEntityRep.find({
+    const allMenuList = await this.sysMenuEntityRep.find({
       where: {
         status: '0',
-        menuId: In(menuIds),
       },
       order: {
         orderNum: 'ASC',
       },
     });
-    // 构建前端需要的菜单树
-    const menuTree = buildMenus(menuList);
-    return menuTree;
+    const menuById = new Map(allMenuList.map((m) => [m.menuId, m]));
+
+    let visibleMenuIds: Set<number>;
+    if (roleIds.includes(1)) {
+      visibleMenuIds = new Set(allMenuList.map((m) => m.menuId));
+    } else {
+      const menuWidthRoleList = await this.sysRoleWithMenuEntityRep.find({
+        where: { roleId: In(roleIds) },
+        select: ['menuId'],
+      });
+      const assignedMenuIds = Uniq(menuWidthRoleList.map((item) => item.menuId));
+      visibleMenuIds = new Set<number>();
+      for (const menuId of assignedMenuIds) {
+        const start = menuById.get(menuId);
+        if (!start) {
+          continue;
+        }
+        visibleMenuIds.add(menuId);
+        let current: SysMenuEntity | undefined = start;
+        while (current && current.parentId !== 0) {
+          const parentId = current.parentId;
+          if (!menuById.has(parentId)) {
+            break;
+          }
+          visibleMenuIds.add(parentId);
+          current = menuById.get(parentId);
+        }
+      }
+    }
+
+    const menuList = allMenuList.filter((m) => visibleMenuIds.has(m.menuId));
+    return buildMenus(menuList);
   }
 }

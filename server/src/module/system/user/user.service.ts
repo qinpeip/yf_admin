@@ -610,34 +610,36 @@ export class UserService {
    * @param query
    * @returns
    */
-  async updateAuthRole(query) {
-    let roleIds = query.roleIds.split(',');
-
-    //TODO：过滤掉设置超级管理员角色
-    roleIds = roleIds.filter((v) => v != 1);
-
-    if (roleIds?.length > 0) {
-      //用户已有角色,先删除所有关联角色
-      const hasRoletId = await this.sysUserWithRoleEntityRep.findOne({
-        where: {
-          userId: query.userId,
-        },
-        select: ['roleId'],
-      });
-      if (hasRoletId) {
-        await this.sysUserWithRoleEntityRep.delete({
-          userId: query.userId,
-        });
-      }
-      const roleEntity = this.sysUserWithRoleEntityRep.createQueryBuilder('roleEntity');
-      const roleValues = roleIds.map((id) => {
-        return {
-          userId: query.userId,
-          roleId: id,
-        };
-      });
-      roleEntity.insert().values(roleValues).execute();
+  async updateAuthRole(query: { roleIds?: string; userId?: string | number }) {
+    const userId = +query.userId;
+    if (!Number.isFinite(userId) || userId <= 0) {
+      return ResultData.fail(400, 'userId 无效');
     }
+
+    const raw = query.roleIds;
+    if (raw === undefined || raw === null) {
+      return ResultData.fail(400, 'roleIds 不能为空');
+    }
+
+    let roleIds = String(raw)
+      .split(',')
+      .map((s) => s.trim())
+      .filter((v) => v !== '' && v !== '1');
+
+    await this.sysUserWithRoleEntityRep.delete({ userId });
+
+    if (roleIds.length > 0) {
+      const roleValues = roleIds.map((id) => ({
+        userId,
+        roleId: +id,
+      }));
+      await this.sysUserWithRoleEntityRep
+        .createQueryBuilder()
+        .insert()
+        .values(roleValues)
+        .execute();
+    }
+
     return ResultData.ok();
   }
 

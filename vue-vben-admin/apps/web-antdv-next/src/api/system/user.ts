@@ -81,10 +81,14 @@ export async function getUserAuthRole(userId: number) {
 }
 
 export async function updateUserAuthRole(userId: number, roleIds: number[]) {
-  // 后端用 query.roleIds 逗号串
-  return requestClient.put('/system/user/authRole', null, {
-    params: { userId, roleIds: roleIds.join(',') },
-  });
+  // 后端用 query：与 admin-vue3 一致；勿传 null 作 body，否则会变成 JSON `null` 触发解析问题
+  return requestClient.put(
+    '/system/user/authRole',
+    {},
+    {
+      params: { userId, roleIds: roleIds.join(',') },
+    },
+  );
 }
 
 /** 个人中心（与 admin-vue3 / 若依一致） */
