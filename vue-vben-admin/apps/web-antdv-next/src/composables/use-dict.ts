@@ -18,24 +18,26 @@ export function useDict(...dictTypes: string[]) {
     const cached = store.getDict(dictType);
     if (cached) {
       res[dictType] = cached;
-    } else {
-      listDictDataByType(dictType)
-        .then((raw) => {
-          const rows = Array.isArray(raw) ? raw : [];
-          const opts: DictOption[] = rows.map((p: any) => ({
-            dictSort: p.dictSort,
-            elTagClass: p.cssClass,
-            elTagType: p.listClass || 'default',
-            label: p.dictLabel,
-            value: String(p.dictValue),
-          }));
-          res[dictType] = opts;
-          store.setDict(dictType, opts);
-        })
-        .catch(() => {
-          res[dictType] = [];
-        });
     }
+    /** 始终再请求一次：字典在后台改过（如删掉某项）时不能只读 Pinia 旧缓存 */
+    listDictDataByType(dictType)
+      .then((raw) => {
+        const rows = Array.isArray(raw) ? raw : [];
+        const opts: DictOption[] = rows.map((p: any) => ({
+          dictSort: p.dictSort,
+          elTagClass: p.cssClass,
+          elTagType: p.listClass || 'default',
+          label: p.dictLabel,
+          value: String(p.dictValue),
+        }));
+        res[dictType] = opts;
+        store.setDict(dictType, opts);
+      })
+      .catch(() => {
+        if (!cached) {
+          res[dictType] = [];
+        }
+      });
   }
 
   return toRefs(res);

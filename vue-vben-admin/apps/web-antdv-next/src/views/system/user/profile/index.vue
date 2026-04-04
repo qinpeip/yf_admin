@@ -29,8 +29,17 @@ import {
   updateUserProfile,
   uploadProfileAvatar,
 } from '#/api';
+import { useDict } from '#/composables/use-dict';
 
 defineOptions({ name: 'MigratedUserProfile' });
+
+const { sys_user_sex } = useDict('sys_user_sex');
+const sexRadios = computed(() => {
+  const list = sys_user_sex?.value ?? [];
+  return [...list].toSorted(
+    (a, b) => (a.dictSort ?? 0) - (b.dictSort ?? 0),
+  );
+});
 
 const { apiURL } = useAppConfig(import.meta.env, import.meta.env.PROD);
 const authStore = useAuthStore();
@@ -62,11 +71,20 @@ async function saveProfile() {
     message.warning('请填写昵称');
     return;
   }
+  const allowed = new Set(sexRadios.value.map((o) => o.value));
+  let sex = user.sex;
+  if (allowed.size && (sex == null || sex === '' || !allowed.has(String(sex)))) {
+    message.warning('请选择性别');
+    return;
+  }
+  if (!allowed.size) {
+    sex = user.sex ?? '0';
+  }
   await updateUserProfile({
     nickName: user.nickName,
     email: user.email,
     phonenumber: user.phonenumber,
-    sex: user.sex ?? '0',
+    sex: sex as string,
   });
   message.success('保存成功');
   await authStore.fetchUserInfo();
@@ -98,11 +116,16 @@ async function onAvatarUpload(options: any) {
     message.error('上传失败');
     return;
   }
+  const allowed = new Set(sexRadios.value.map((o) => o.value));
+  const sex =
+    allowed.size && user.sex != null && allowed.has(String(user.sex))
+      ? String(user.sex)
+      : (sexRadios.value[0]?.value ?? '0');
   await updateUserProfile({
     nickName: user.nickName,
     email: user.email,
     phonenumber: user.phonenumber,
-    sex: user.sex ?? '0',
+    sex,
     avatar: imgUrl,
   });
   user.avatar = imgUrl;
@@ -163,8 +186,13 @@ load();
                 </FormItem>
                 <FormItem label="性别">
                   <RadioGroup v-model:value="user.sex">
-                    <Radio value="0">男</Radio>
-                    <Radio value="1">女</Radio>
+                    <Radio
+                      v-for="o in sexRadios"
+                      :key="o.value"
+                      :value="o.value"
+                    >
+                      {{ o.label }}
+                    </Radio>
                   </RadioGroup>
                 </FormItem>
                 <FormItem>

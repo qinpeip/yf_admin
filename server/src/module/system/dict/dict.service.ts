@@ -24,7 +24,7 @@ export class DictService {
   }
 
   async deleteType(dictIds: number[]) {
-    await this.sysDictTypeEntityRep.softDelete({ dictId: In(dictIds) });
+    await this.sysDictTypeEntityRep.delete({ dictId: In(dictIds) });
     return ResultData.ok();
   }
 

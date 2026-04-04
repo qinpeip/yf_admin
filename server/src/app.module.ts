@@ -2,7 +2,8 @@ import { Module, Global } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import configuration from './config/index';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { GlobalOperlogInterceptor } from 'src/common/interceptor/global-operlog.interceptor';
 import { JwtAuthGuard } from 'src/common/guards/auth.guard';
 import { PermissionGuard } from 'src/common/guards/permission.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -57,6 +58,10 @@ import { MonitorModule } from './module/monitor/monitor.module';
     {
       provide: APP_GUARD,
       useClass: PermissionGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: GlobalOperlogInterceptor,
     },
   ],
 })

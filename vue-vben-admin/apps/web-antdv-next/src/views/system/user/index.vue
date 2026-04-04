@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { Page } from '@vben/common-ui';
-import { Plus } from '@vben/icons';
 import { computed, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { SystemProShell } from '#/components/system-pro';
+import { Page } from '@vben/common-ui';
+import { Plus } from '@vben/icons';
 
 import {
   Button,
@@ -36,19 +35,24 @@ import {
   resetUserPwd,
   updateUser,
 } from '#/api';
+import { SystemProShell } from '#/components/system-pro';
+import { useDict } from '#/composables/use-dict';
 
 const router = useRouter();
 
+/** 若依字典 `sys_user_sex`（用户性别） */
+const { sys_user_sex } = useDict('sys_user_sex');
+
 type UserRow = {
-  userId: number;
-  userName: string;
+  createTime?: string;
+  dept?: null | { deptName: string };
+  deptId?: number;
+  email?: string;
   nickName: string;
   phonenumber?: string;
-  email?: string;
   status: '0' | '1';
-  createTime?: string;
-  dept?: { deptName: string } | null;
-  deptId?: number;
+  userId: number;
+  userName: string;
 };
 
 const loading = ref(false);
@@ -60,8 +64,8 @@ const query = reactive({
   pageSize: 10,
   userName: '',
   phonenumber: '',
-  status: undefined as undefined | '0' | '1',
-  deptId: undefined as undefined | number,
+  status: undefined as '0' | '1' | undefined,
+  deptId: undefined as number | undefined,
 });
 
 const dateRange = ref<[string, string] | null>(null);
@@ -71,11 +75,16 @@ const statusOptions = [
   { label: '停用', value: '1' },
 ];
 
-const sexOptions = [
-  { label: '男', value: '0' },
-  { label: '女', value: '1' },
-  { label: '未知', value: '2' },
-];
+const sexOptions = computed(() => {
+  const list = sys_user_sex?.value ?? [];
+  const sorted = [...list].toSorted(
+    (a, b) => (a.dictSort ?? 0) - (b.dictSort ?? 0),
+  );
+  return sorted.map((o) => ({ label: o.label, value: o.value }));
+});
+
+/** 新增/重置默认性别：取字典第一项，避免写死已删除的 dictValue（如原「未知」2） */
+const defaultSex = computed(() => sexOptions.value[0]?.value ?? '0');
 
 function asUserRow(x: any): UserRow {
   return x as UserRow;
@@ -91,7 +100,7 @@ function filterDeptNode(search: string, node: any) {
   return String(node?.label || '').includes(search);
 }
 
-watch(deptSearch, () => {});
+watch(deptSearch, () => { });
 
 async function loadDeptTree() {
   deptTreeData.value = (await deptTree()) as any;
@@ -191,7 +200,7 @@ const editForm = reactive<any>({
   deptId: undefined,
   phonenumber: '',
   email: '',
-  sex: '2',
+  sex: '0',
   status: '0',
   remark: '',
   postIds: [] as number[],
@@ -214,7 +223,7 @@ function resetEditForm() {
     deptId: undefined,
     phonenumber: '',
     email: '',
-    sex: '2',
+    sex: defaultSex.value,
     status: '0',
     remark: '',
     postIds: [],
@@ -246,6 +255,14 @@ async function openEdit(row: UserRow) {
     editForm.postIds = resp?.postIds ?? [];
     editForm.roleIds = resp?.roleIds ?? [];
     editForm.password = '';
+    const allowedSex = new Set(sexOptions.value.map((o) => o.value));
+    if (
+      editForm.sex != null &&
+      editForm.sex !== '' &&
+      !allowedSex.has(String(editForm.sex))
+    ) {
+      editForm.sex = defaultSex.value;
+    }
   } finally {
     editLoading.value = false;
   }
@@ -255,11 +272,7 @@ async function submitEdit() {
   const payload: any = { ...editForm };
   payload.postIds = payload.postIds || [];
   payload.roleIds = payload.roleIds || [];
-  if (payload.userId) {
-    await updateUser(payload);
-  } else {
-    await addUser(payload);
-  }
+  await (payload.userId ? updateUser(payload) : addUser(payload));
   message.success('保存成功');
   editOpen.value = false;
   await fetchList();
@@ -319,32 +332,20 @@ fetchList();
 <template>
   <Page auto-content-height>
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
-      <Card
-        class="lg:col-span-3 rounded-lg border border-[#f0f0f0] bg-card shadow-sm dark:border-white/10"
-        :bordered="false"
-        title="部门"
-      >
+      <Card class="lg:col-span-3 rounded-lg border border-[#f0f0f0] bg-card shadow-sm dark:border-white/10"
+        :bordered="false" title="部门"
+        >
         <Space direction="vertical" style="width: 100%">
           <Input v-model:value="deptSearch" allow-clear placeholder="请输入部门名称" />
-          <Tree
-            :tree-data="deptTreeData"
-            :field-names="{ key: 'id', title: 'label', children: 'children' }"
-            default-expand-all
-            :selected-keys="selectedDeptKey ? [selectedDeptKey] : []"
-            :filter-tree-node="(node) => filterDeptNode(deptSearch, node)"
-            @select="onDeptSelect"
-          />
+          <Tree :tree-data="deptTreeData" :field-names="{ key: 'id', title: 'label', children: 'children' }"
+            default-expand-all :selected-keys="selectedDeptKey ? [selectedDeptKey] : []"
+            :filter-tree-node="(node) => filterDeptNode(deptSearch, node)" @select="onDeptSelect" />
         </Space>
       </Card>
 
       <div class="min-w-0 lg:col-span-9">
-        <SystemProShell
-          table-title="用户列表"
-          :show-column-setting="false"
-          @search="doSearch"
-          @reset="resetQuery"
-          @refresh="fetchList"
-        >
+        <SystemProShell table-title="用户列表" :show-column-setting="false" @search="doSearch" @reset="resetQuery"
+          @refresh="fetchList">
           <template #search>
             <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <FormItem label="用户账号" class="!mb-0">
@@ -354,7 +355,8 @@ fetchList();
                 <Input v-model:value="query.phonenumber" allow-clear placeholder="手机号码" @press-enter="doSearch" />
               </FormItem>
               <FormItem label="状态" class="!mb-0">
-                <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full" :options="statusOptions" />
+                <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full"
+                  :options="statusOptions" />
               </FormItem>
               <FormItem label="创建时间" class="!mb-0 lg:col-span-2">
                 <DatePicker.RangePicker v-model:value="dateRange" class="w-full" value-format="YYYY-MM-DD" />
@@ -369,15 +371,8 @@ fetchList();
             </Button>
           </template>
 
-          <Table
-            row-key="userId"
-            class="system-pro-table"
-            :loading="loading"
-            :columns="columns"
-            :data-source="rows"
-            size="middle"
-            :scroll="{ x: 1280 }"
-            :pagination="{
+          <Table row-key="userId" class="system-pro-table" :loading="loading" :columns="columns" :data-source="rows"
+            size="middle" :scroll="{ x: 1280 }" :pagination="{
               current: query.pageNum,
               pageSize: query.pageSize,
               total,
@@ -389,30 +384,28 @@ fetchList();
                 query.pageSize = pageSize;
                 fetchList();
               },
-            }"
-          >
+            }">
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'status'">
-                <Switch
-                  :checked="asUserRow(record).status === '0'"
-                  checked-children="已启用"
-                  un-checked-children="已禁用"
-                  :disabled="asUserRow(record).userId === 1"
-                  @change="() => onToggleStatus(asUserRow(record))"
-                />
+                <Switch :checked="asUserRow(record).status === '0'" checked-children="已启用" un-checked-children="已禁用"
+                  :disabled="asUserRow(record).userId === 1" @change="() => onToggleStatus(asUserRow(record))" />
               </template>
               <template v-else-if="column.key === 'action'">
                 <div class="flex flex-wrap items-center gap-1">
-                  <Button type="link" size="small" class="!px-1" :disabled="asUserRow(record).userId === 1" @click="openEdit(asUserRow(record))">
+                  <Button type="link" size="small" class="!px-1" :disabled="asUserRow(record).userId === 1"
+                    @click="openEdit(asUserRow(record))">
                     修改
                   </Button>
-                  <Button type="link" size="small" class="!px-1" :disabled="asUserRow(record).userId === 1" @click="openResetPwd(asUserRow(record))">
+                  <Button type="link" size="small" class="!px-1" :disabled="asUserRow(record).userId === 1"
+                    @click="openResetPwd(asUserRow(record))">
                     重置密码
                   </Button>
-                  <Button type="link" size="small" class="!px-1" :disabled="asUserRow(record).userId === 1" @click="openAuthRole(asUserRow(record))">
+                  <Button type="link" size="small" class="!px-1" :disabled="asUserRow(record).userId === 1"
+                    @click="openAuthRole(asUserRow(record))">
                     分配角色
                   </Button>
-                  <Button type="link" size="small" danger class="!px-1" :disabled="asUserRow(record).userId === 1" @click="() => onDelete(asUserRow(record))">
+                  <Button type="link" size="small" danger class="!px-1" :disabled="asUserRow(record).userId === 1"
+                    @click="() => onDelete(asUserRow(record))">
                     删除
                   </Button>
                 </div>
@@ -423,13 +416,8 @@ fetchList();
       </div>
     </div>
 
-    <Modal
-      v-model:open="editOpen"
-      :title="editForm.userId ? '修改用户' : '新增用户'"
-      width="900px"
-      :confirm-loading="editLoading"
-      @ok="submitEdit"
-    >
+    <Modal v-model:open="editOpen" :title="editForm.userId ? '修改用户' : '新增用户'" width="900px"
+      :confirm-loading="editLoading" @ok="submitEdit">
       <Form layout="vertical">
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <FormItem v-if="!editForm.userId" label="用户账号">
@@ -442,14 +430,9 @@ fetchList();
             <Input v-model:value="editForm.nickName" :maxlength="30" />
           </FormItem>
           <FormItem label="归属部门">
-            <TreeSelect
-              v-model:value="editForm.deptId"
-              :tree-data="deptOptions"
-              :field-names="{ value: 'id', label: 'label', children: 'children' }"
-              tree-default-expand-all
-              allow-clear
-              placeholder="请选择归属部门"
-            />
+            <TreeSelect v-model:value="editForm.deptId" :tree-data="deptOptions"
+              :field-names="{ value: 'id', label: 'label', children: 'children' }" tree-default-expand-all allow-clear
+              placeholder="请选择归属部门" />
           </FormItem>
           <FormItem label="手机号码">
             <Input v-model:value="editForm.phonenumber" :maxlength="11" />
@@ -464,10 +447,12 @@ fetchList();
             <Select v-model:value="editForm.status" :options="statusOptions" />
           </FormItem>
           <FormItem label="岗位">
-            <Select v-model:value="editForm.postIds" mode="multiple" :options="postOptions.map((p) => ({ label: p.postName, value: p.postId, disabled: p.status == 1 }))" />
+            <Select v-model:value="editForm.postIds" mode="multiple"
+              :options="postOptions.map((p) => ({ label: p.postName, value: p.postId, disabled: p.status == 1 }))" />
           </FormItem>
           <FormItem label="角色">
-            <Select v-model:value="editForm.roleIds" mode="multiple" :options="roleOptions.map((r) => ({ label: r.roleName, value: r.roleId, disabled: r.status == 1 }))" />
+            <Select v-model:value="editForm.roleIds" mode="multiple"
+              :options="roleOptions.map((r) => ({ label: r.roleName, value: r.roleId, disabled: r.status == 1 }))" />
           </FormItem>
         </div>
         <FormItem label="备注">
@@ -489,4 +474,3 @@ fetchList();
 
   </Page>
 </template>
-

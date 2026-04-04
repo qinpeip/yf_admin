@@ -49,10 +49,10 @@ export class SysOperlogEntity {
   @Column({ type: 'varchar', name: 'oper_location', length: 255, default: '', comment: '操作地点' })
   public operLocation: string;
 
-  @Column({ type: 'varchar', name: 'oper_param', length: 2000, default: '', comment: '请求参数' })
+  @Column({ type: 'longtext', name: 'operParam', comment: '请求参数' })
   public operParam: string;
 
-  @Column({ type: 'varchar', name: 'json_result', length: 2000, default: '', comment: '返回参数' })
+  @Column({ type: 'longtext', name: 'jsonResult', comment: '返回参数' })
   public jsonResult: string;
 
   @CreateDateColumn({ type: 'timestamp', name: 'oper_time', transformer: dateTransformer, comment: '操作时间' })

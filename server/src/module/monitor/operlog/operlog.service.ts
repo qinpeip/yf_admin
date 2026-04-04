@@ -5,12 +5,13 @@ import { SysOperlogEntity } from './entities/operlog.entity';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { ResultData } from 'src/common/utils/result';
-import { AxiosService } from 'src/module/common/axios/axios.service';
 import { QueryOperLogDto } from './dto/operLog.dto';
 import { ExportTable } from 'src/common/utils/export';
 import { Response } from 'express';
 import { DictService } from 'src/module/system/dict/dict.service';
 import { isEmpty } from 'src/common/utils';
+import { OperlogRecordService } from './operlog-record.service';
+import { BusinessType } from 'src/common/constant/business.constant';
 
 @Injectable({ scope: Scope.REQUEST })
 export class OperlogService {
@@ -19,9 +20,9 @@ export class OperlogService {
     private readonly request: Request & { user: any },
     @InjectRepository(SysOperlogEntity)
     private readonly operLogEntityRep: Repository<SysOperlogEntity>,
-    private readonly axiosService: AxiosService,
     @Inject(DictService)
     private readonly dictService: DictService,
+    private readonly operlogRecordService: OperlogRecordService,
   ) {}
 
   async findAll(query: QueryOperLogDto) {
@@ -149,7 +150,6 @@ export class OperlogService {
   }) {
     const { originalUrl, method, ip, body, query } = this.request;
     const { user } = this.request.user;
-    const operLocation = await this.axiosService.getIpAddress(ip);
 
     const params = {
       title,
@@ -160,7 +160,7 @@ export class OperlogService {
       requestMethod: method.toUpperCase(),
       operIp: ip,
       costTime: costTime,
-      operLocation: operLocation,
+      operLocation: '',
       operParam: JSON.stringify({ ...body, ...query }),
       jsonResult: JSON.stringify(resultData),
       errorMsg,

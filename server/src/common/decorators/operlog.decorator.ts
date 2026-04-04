@@ -1,5 +1,4 @@
-import { applyDecorators, SetMetadata, UseInterceptors } from '@nestjs/common';
-import { OperlogInterceptor } from '../interceptor/operlog.interceptor';
+import { SetMetadata } from '@nestjs/common';
 import { BusinessType } from '../constant/business.constant';
 
 export type OperlogConfig =
@@ -8,6 +7,5 @@ export type OperlogConfig =
     }>
   | undefined;
 
-export const Operlog = (logConfig?: OperlogConfig) => {
-  return applyDecorators(SetMetadata('operlog', logConfig), UseInterceptors(OperlogInterceptor));
-};
+/** 仅写入元数据；实际操作日志由 GlobalOperlogInterceptor 统一记录 */
+export const Operlog = (logConfig?: OperlogConfig) => SetMetadata('operlog', logConfig ?? {});
