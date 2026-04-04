@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 
-import { Button, FormItem, Input, message, Modal, Table } from 'antdv-next';
+import { Button, Form, FormItem, Input, message, Modal, Table } from 'antdv-next';
 
 import { authUserSelectAll, unallocatedUserList } from '#/api';
 
@@ -95,12 +95,14 @@ defineExpose({ show });
 <template>
   <Modal v-model:open="open" title="选择用户" width="880px" :footer="null" destroy-on-close>
     <div class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-      <FormItem label="用户账号" class="!mb-0">
-        <Input v-model:value="query.userName" allow-clear placeholder="用户账号" @press-enter="doSearch" />
-      </FormItem>
-      <FormItem label="手机号码" class="!mb-0">
-        <Input v-model:value="query.phonenumber" allow-clear placeholder="手机号码" @press-enter="doSearch" />
-      </FormItem>
+      <Form :model="query" class="contents">
+        <FormItem name="userName" label="用户账号" class="!mb-0">
+          <Input v-model:value="query.userName" allow-clear placeholder="用户账号" @press-enter="doSearch" />
+        </FormItem>
+        <FormItem name="phonenumber" label="手机号码" class="!mb-0">
+          <Input v-model:value="query.phonenumber" allow-clear placeholder="手机号码" @press-enter="doSearch" />
+        </FormItem>
+      </Form>
       <div class="flex items-end gap-2">
         <Button type="primary" @click="doSearch">搜索</Button>
         <Button @click="resetQuery">重置</Button>

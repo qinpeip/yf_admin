@@ -4,7 +4,7 @@ import { computed, reactive, ref } from 'vue';
 
 import { SystemProShell } from '#/components/system-pro';
 
-import { Button, FormItem, Input, message, Modal, Table } from 'antdv-next';
+import { Button, Form, FormItem, Input, message, Modal, Table } from 'antdv-next';
 
 import { forceLogout, listOnline } from '#/api';
 
@@ -100,14 +100,16 @@ fetchList();
       @refresh="fetchList"
     >
       <template #search>
-        <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
-          <FormItem label="登录地址" class="!mb-0">
-            <Input v-model:value="query.ipaddr" allow-clear placeholder="登录地址" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="用户账号" class="!mb-0">
-            <Input v-model:value="query.userName" allow-clear placeholder="用户账号" @press-enter="doSearch" />
-          </FormItem>
-        </div>
+        <Form :model="query" class="contents">
+          <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
+            <FormItem name="ipaddr" label="登录地址" class="!mb-0">
+              <Input v-model:value="query.ipaddr" allow-clear placeholder="登录地址" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="userName" label="用户账号" class="!mb-0">
+              <Input v-model:value="query.userName" allow-clear placeholder="用户账号" @press-enter="doSearch" />
+            </FormItem>
+          </div>
+        </Form>
       </template>
 
       <Table

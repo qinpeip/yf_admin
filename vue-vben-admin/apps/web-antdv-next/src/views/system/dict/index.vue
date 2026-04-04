@@ -449,17 +449,19 @@ fetchTypes();
           @refresh="fetchTypes"
         >
           <template #search>
-            <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
-              <FormItem label="字典名称" class="!mb-0">
-                <Input v-model:value="typeQuery.dictName" allow-clear placeholder="字典名称" />
-              </FormItem>
-              <FormItem label="字典类型" class="!mb-0">
-                <Input v-model:value="typeQuery.dictType" allow-clear placeholder="字典类型" />
-              </FormItem>
-              <FormItem label="状态" class="!mb-0">
-                <Select v-model:value="typeQuery.status" allow-clear placeholder="状态" class="w-full" :options="statusOptions" />
-              </FormItem>
-            </div>
+            <Form :model="typeQuery" class="contents">
+              <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
+                <FormItem name="dictName" label="字典名称" class="!mb-0">
+                  <Input v-model:value="typeQuery.dictName" allow-clear placeholder="字典名称" />
+                </FormItem>
+                <FormItem name="dictType" label="字典类型" class="!mb-0">
+                  <Input v-model:value="typeQuery.dictType" allow-clear placeholder="字典类型" />
+                </FormItem>
+                <FormItem name="status" label="状态" class="!mb-0">
+                  <Select v-model:value="typeQuery.status" allow-clear placeholder="状态" class="w-full" :options="statusOptions" />
+                </FormItem>
+              </div>
+            </Form>
           </template>
 
           <template #toolbar-actions>
@@ -507,11 +509,13 @@ fetchTypes();
           @refresh="fetchData"
         >
           <template #search>
-            <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
-              <FormItem label="状态" class="!mb-0">
-                <Select v-model:value="dataQuery.status" allow-clear placeholder="字典数据状态" class="w-full" :options="statusOptions" />
-              </FormItem>
-            </div>
+            <Form :model="dataQuery" class="contents">
+              <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
+                <FormItem name="status" label="状态" class="!mb-0">
+                  <Select v-model:value="dataQuery.status" allow-clear placeholder="字典数据状态" class="w-full" :options="statusOptions" />
+                </FormItem>
+              </div>
+            </Form>
           </template>
 
           <template #toolbar-actions>

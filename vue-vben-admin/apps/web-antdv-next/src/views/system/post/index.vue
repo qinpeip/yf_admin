@@ -183,17 +183,19 @@ fetchList();
       @refresh="fetchList"
     >
       <template #search>
-        <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
-          <FormItem label="岗位编码" class="!mb-0">
-            <Input v-model:value="query.postCode" allow-clear placeholder="请输入岗位编码" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="岗位名称" class="!mb-0">
-            <Input v-model:value="query.postName" allow-clear placeholder="请输入岗位名称" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="状态" class="!mb-0">
-            <Select v-model:value="query.status" allow-clear placeholder="岗位状态" class="w-full" :options="statusOptions" />
-          </FormItem>
-        </div>
+        <Form :model="query" class="contents">
+          <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
+            <FormItem name="postCode" label="岗位编码" class="!mb-0">
+              <Input v-model:value="query.postCode" allow-clear placeholder="请输入岗位编码" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="postName" label="岗位名称" class="!mb-0">
+              <Input v-model:value="query.postName" allow-clear placeholder="请输入岗位名称" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="status" label="状态" class="!mb-0">
+              <Select v-model:value="query.status" allow-clear placeholder="岗位状态" class="w-full" :options="statusOptions" />
+            </FormItem>
+          </div>
+        </Form>
       </template>
 
       <template #toolbar-actions>

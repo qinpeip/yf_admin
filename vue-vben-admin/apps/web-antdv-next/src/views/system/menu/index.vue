@@ -313,14 +313,16 @@ fetchList();
       @column-setting="colModalOpen = true"
     >
       <template #search>
-        <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
-          <FormItem label="菜单名称" class="!mb-0">
-            <Input v-model:value="query.menuName" allow-clear placeholder="请输入菜单名称" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="状态" class="!mb-0">
-            <Select v-model:value="query.status" allow-clear placeholder="菜单状态" class="w-full" :options="statusOptions" />
-          </FormItem>
-        </div>
+        <Form :model="query" class="contents">
+          <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
+            <FormItem name="menuName" label="菜单名称" class="!mb-0">
+              <Input v-model:value="query.menuName" allow-clear placeholder="请输入菜单名称" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="status" label="状态" class="!mb-0">
+              <Select v-model:value="query.status" allow-clear placeholder="菜单状态" class="w-full" :options="statusOptions" />
+            </FormItem>
+          </div>
+        </Form>
       </template>
 
       <template #toolbar-actions>

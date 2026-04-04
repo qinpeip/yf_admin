@@ -40,9 +40,8 @@ const query = reactive({
   jobName: '',
   jobGroup: '',
   status: undefined as undefined | string,
+  dateRange: null as [string, string] | null,
 });
-
-const dateRange = ref<[string, string] | null>(null);
 
 const statusOptions = [
   { label: '成功', value: '0' },
@@ -78,9 +77,9 @@ function buildListParams() {
     jobGroup: query.jobGroup || undefined,
     status: query.status,
   };
-  if (dateRange.value?.[0] && dateRange.value?.[1]) {
-    p['params[beginTime]'] = dateRange.value[0];
-    p['params[endTime]'] = dateRange.value[1];
+  if (query.dateRange?.[0] && query.dateRange?.[1]) {
+    p['params[beginTime]'] = query.dateRange[0];
+    p['params[endTime]'] = query.dateRange[1];
   }
   return p;
 }
@@ -106,7 +105,7 @@ function resetQuery() {
   query.jobName = '';
   query.jobGroup = '';
   query.status = undefined;
-  dateRange.value = null;
+  query.dateRange = null;
   fetchList();
 }
 
@@ -125,8 +124,8 @@ async function handleExport() {
     jobGroup: query.jobGroup || undefined,
     status: query.status,
   };
-  if (dateRange.value?.[0] && dateRange.value?.[1]) {
-    body.params = { beginTime: dateRange.value[0], endTime: dateRange.value[1] };
+  if (query.dateRange?.[0] && query.dateRange?.[1]) {
+    body.params = { beginTime: query.dateRange[0], endTime: query.dateRange[1] };
   }
   const blob = (await exportJobLog(body)) as Blob;
   downloadFileFromBlob({ fileName: `job_log_${Date.now()}.xlsx`, source: blob });
@@ -185,18 +184,20 @@ onMounted(async () => {
     >
       <template #search>
         <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <FormItem label="任务名称" class="!mb-0">
-            <Input v-model:value="query.jobName" allow-clear placeholder="任务名称" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="任务组名" class="!mb-0">
-            <Input v-model:value="query.jobGroup" allow-clear placeholder="任务组名" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="执行状态" class="!mb-0">
-            <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full" :options="statusOptions" />
-          </FormItem>
-          <FormItem label="执行时间" class="!mb-0 lg:col-span-2">
-            <DatePicker.RangePicker v-model:value="dateRange" class="w-full" value-format="YYYY-MM-DD" />
-          </FormItem>
+          <Form :model="query" class="contents">
+            <FormItem name="jobName" label="任务名称" class="!mb-0">
+              <Input v-model:value="query.jobName" allow-clear placeholder="任务名称" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="jobGroup" label="任务组名" class="!mb-0">
+              <Input v-model:value="query.jobGroup" allow-clear placeholder="任务组名" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="status" label="执行状态" class="!mb-0">
+              <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full" :options="statusOptions" />
+            </FormItem>
+            <FormItem name="dateRange" label="执行时间" class="!mb-0 lg:col-span-2">
+              <DatePicker.RangePicker v-model:value="query.dateRange" class="w-full" value-format="YYYY-MM-DD" />
+            </FormItem>
+          </Form>
         </div>
       </template>
 

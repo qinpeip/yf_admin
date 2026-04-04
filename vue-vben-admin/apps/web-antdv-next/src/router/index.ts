@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import {
   createRouter,
   createWebHashHistory,
@@ -19,11 +20,35 @@ const router = createRouter({
       : createWebHistory(import.meta.env.VITE_BASE),
   // 应该添加到路由的初始路由列表。
   routes,
-  scrollBehavior: (to, _from, savedPosition) => {
-    if (savedPosition) {
-      return savedPosition;
-    }
-    return to.hash ? { behavior: 'smooth', el: to.hash } : { left: 0, top: 0 };
+  /**
+   * 延后到 DOM 稳定再滚动，避免与 Layout Transition/KeepAlive 同一微任务内更新叠在一起，
+   * 触发 handleScroll 时子节点尚未挂载导致 runtime-dom parentNode / subTree 为 null。
+   */
+  scrollBehavior(to, _from, savedPosition) {
+    return new Promise((resolve) => {
+      void nextTick(() => {
+        requestAnimationFrame(() => {
+          try {
+            if (savedPosition) {
+              resolve(savedPosition);
+              return;
+            }
+            if (to.hash) {
+              const el =
+                document.querySelector(to.hash) ??
+                document.getElementById(to.hash.slice(1));
+              if (el) {
+                resolve({ behavior: 'smooth', el: to.hash });
+                return;
+              }
+            }
+            resolve({ left: 0, top: 0 });
+          } catch {
+            resolve(false);
+          }
+        });
+      });
+    });
   },
   // 是否应该禁止尾部斜杠。
   // strict: true,

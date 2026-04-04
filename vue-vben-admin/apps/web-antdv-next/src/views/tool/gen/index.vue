@@ -200,12 +200,14 @@ fetchList();
     >
       <template #search>
         <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
-          <FormItem label="表名称" class="!mb-0">
-            <Input v-model:value="query.tableNames" allow-clear placeholder="表名称" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="表描述" class="!mb-0">
-            <Input v-model:value="query.tableComment" allow-clear placeholder="表描述" @press-enter="doSearch" />
-          </FormItem>
+          <Form :model="query" class="contents">
+            <FormItem name="tableNames" label="表名称" class="!mb-0">
+              <Input v-model:value="query.tableNames" allow-clear placeholder="表名称" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="tableComment" label="表描述" class="!mb-0">
+              <Input v-model:value="query.tableComment" allow-clear placeholder="表描述" @press-enter="doSearch" />
+            </FormItem>
+          </Form>
         </div>
       </template>
 

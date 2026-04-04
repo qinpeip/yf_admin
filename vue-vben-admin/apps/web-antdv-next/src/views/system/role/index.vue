@@ -60,9 +60,8 @@ const query = reactive({
   roleId: '',
   remark: '',
   status: undefined as undefined | '0' | '1',
+  dateRange: null as [string, string] | null,
 });
-
-const dateRange = ref<[string, string] | null>(null);
 
 const statusOptions = [
   { label: '正常', value: '0' },
@@ -233,9 +232,9 @@ function listParams() {
     remark: query.remark || undefined,
     status: query.status,
   };
-  if (dateRange.value?.[0] && dateRange.value?.[1]) {
-    p['params[beginTime]'] = dateRange.value[0];
-    p['params[endTime]'] = dateRange.value[1];
+  if (query.dateRange?.[0] && query.dateRange?.[1]) {
+    p['params[beginTime]'] = query.dateRange[0];
+    p['params[endTime]'] = query.dateRange[1];
   }
   return p;
 }
@@ -259,7 +258,7 @@ function resetQuery() {
   query.roleId = '';
   query.remark = '';
   query.status = undefined;
-  dateRange.value = null;
+  query.dateRange = null;
   fetchList();
 }
 
@@ -340,24 +339,26 @@ fetchList();
     >
       <template #search>
         <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <FormItem label="角色名称" class="!mb-0">
-            <Input v-model:value="query.roleName" allow-clear placeholder="请输入角色名称" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="角色编号" class="!mb-0">
-            <Input v-model:value="query.roleId" allow-clear placeholder="角色 ID" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="权限字符" class="!mb-0">
-            <Input v-model:value="query.roleKey" allow-clear placeholder="请输入权限字符" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="状态" class="!mb-0">
-            <Select v-model:value="query.status" allow-clear placeholder="角色状态" class="w-full" :options="statusOptions" />
-          </FormItem>
-          <FormItem label="备注" class="!mb-0">
-            <Input v-model:value="query.remark" allow-clear placeholder="备注关键词" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="创建时间" class="!mb-0 lg:col-span-2">
-            <DatePicker.RangePicker v-model:value="dateRange" class="w-full" value-format="YYYY-MM-DD" />
-          </FormItem>
+          <Form :model="query" class="contents">
+            <FormItem name="roleName" label="角色名称" class="!mb-0">
+              <Input v-model:value="query.roleName" allow-clear placeholder="请输入角色名称" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="roleId" label="角色编号" class="!mb-0">
+              <Input v-model:value="query.roleId" allow-clear placeholder="角色 ID" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="roleKey" label="权限字符" class="!mb-0">
+              <Input v-model:value="query.roleKey" allow-clear placeholder="请输入权限字符" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="status" label="状态" class="!mb-0">
+              <Select v-model:value="query.status" allow-clear placeholder="角色状态" class="w-full" :options="statusOptions" />
+            </FormItem>
+            <FormItem name="remark" label="备注" class="!mb-0">
+              <Input v-model:value="query.remark" allow-clear placeholder="备注关键词" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="dateRange" label="创建时间" class="!mb-0 lg:col-span-2">
+              <DatePicker.RangePicker v-model:value="query.dateRange" class="w-full" value-format="YYYY-MM-DD" />
+            </FormItem>
+          </Form>
         </div>
       </template>
 

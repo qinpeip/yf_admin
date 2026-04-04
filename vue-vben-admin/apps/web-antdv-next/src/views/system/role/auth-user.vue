@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { SystemProShell } from '#/components/system-pro';
 
-import { Button, FormItem, Input, message, Modal, Table } from 'antdv-next';
+import { Button, Form, FormItem, Input, message, Modal, Table } from 'antdv-next';
 
 import { allocatedUserList, authUserCancel, authUserCancelAll } from '#/api';
 
@@ -132,12 +132,14 @@ onMounted(() => {
     >
       <template #search>
         <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
-          <FormItem label="用户账号" class="!mb-0">
-            <Input v-model:value="query.userName" allow-clear placeholder="用户账号" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="手机号码" class="!mb-0">
-            <Input v-model:value="query.phonenumber" allow-clear placeholder="手机号码" @press-enter="doSearch" />
-          </FormItem>
+          <Form :model="query" class="contents">
+            <FormItem name="userName" label="用户账号" class="!mb-0">
+              <Input v-model:value="query.userName" allow-clear placeholder="用户账号" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="phonenumber" label="手机号码" class="!mb-0">
+              <Input v-model:value="query.phonenumber" allow-clear placeholder="手机号码" @press-enter="doSearch" />
+            </FormItem>
+          </Form>
         </div>
       </template>
 

@@ -194,17 +194,19 @@ fetchList();
       @refresh="fetchList"
     >
       <template #search>
-        <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
-          <FormItem label="标题" class="!mb-0">
-            <Input v-model:value="query.noticeTitle" allow-clear placeholder="请输入标题" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="类型" class="!mb-0">
-            <Select v-model:value="query.noticeType" allow-clear placeholder="类型" class="w-full" :options="noticeTypeOptions" />
-          </FormItem>
-          <FormItem label="状态" class="!mb-0">
-            <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full" :options="statusOptions" />
-          </FormItem>
-        </div>
+        <Form :model="query" class="contents">
+          <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
+            <FormItem name="noticeTitle" label="标题" class="!mb-0">
+              <Input v-model:value="query.noticeTitle" allow-clear placeholder="请输入标题" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="noticeType" label="类型" class="!mb-0">
+              <Select v-model:value="query.noticeType" allow-clear placeholder="类型" class="w-full" :options="noticeTypeOptions" />
+            </FormItem>
+            <FormItem name="status" label="状态" class="!mb-0">
+              <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full" :options="statusOptions" />
+            </FormItem>
+          </div>
+        </Form>
       </template>
 
       <template #toolbar-actions>

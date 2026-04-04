@@ -5,7 +5,7 @@ import { computed, reactive, ref } from 'vue';
 
 import { SystemProShell } from '#/components/system-pro';
 
-import { Button, DatePicker, FormItem, Input, message, Modal, Select, Table, Tag } from 'antdv-next';
+import { Button, DatePicker, Form, FormItem, Input, message, Modal, Select, Table, Tag } from 'antdv-next';
 
 import { cleanLogininfor, delLogininfor, exportLogininfor, listLogininfor } from '#/api';
 
@@ -31,9 +31,8 @@ const query = reactive({
   ipaddr: '',
   userName: '',
   status: undefined as undefined | string,
+  dateRange: undefined as [string, string] | undefined,
 });
-
-const dateRange = ref<[string, string] | null>(null);
 
 const statusOptions = [
   { label: '成功', value: '0' },
@@ -52,9 +51,9 @@ function listParams() {
     userName: query.userName || undefined,
     status: query.status,
   };
-  if (dateRange.value?.[0] && dateRange.value?.[1]) {
-    p['params[beginTime]'] = dateRange.value[0];
-    p['params[endTime]'] = dateRange.value[1];
+  if (query.dateRange?.[0] && query.dateRange?.[1]) {
+    p['params[beginTime]'] = query.dateRange[0];
+    p['params[endTime]'] = query.dateRange[1];
   }
   return p;
 }
@@ -76,7 +75,7 @@ function resetQuery() {
   query.ipaddr = '';
   query.userName = '';
   query.status = undefined;
-  dateRange.value = null;
+  query.dateRange = undefined;
   fetchList();
 }
 
@@ -111,8 +110,8 @@ async function onBatchDelete() {
 }
 
 async function handleExport() {
-  const beginTime = dateRange.value?.[0];
-  const endTime = dateRange.value?.[1];
+  const beginTime = query.dateRange?.[0];
+  const endTime = query.dateRange?.[1];
   const blob = (await exportLogininfor({
     ipaddr: query.ipaddr || undefined,
     userName: query.userName || undefined,
@@ -172,20 +171,22 @@ fetchList();
       @refresh="fetchList"
     >
       <template #search>
-        <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <FormItem label="登录地址" class="!mb-0">
-            <Input v-model:value="query.ipaddr" allow-clear placeholder="登录地址" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="用户账号" class="!mb-0">
-            <Input v-model:value="query.userName" allow-clear placeholder="用户账号" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="状态" class="!mb-0">
-            <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full" :options="statusOptions" />
-          </FormItem>
-          <FormItem label="访问时间" class="!mb-0 lg:col-span-2">
-            <DatePicker.RangePicker v-model:value="dateRange" class="w-full" value-format="YYYY-MM-DD" />
-          </FormItem>
-        </div>
+        <Form :model="query">
+          <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <FormItem name="ipaddr" label="登录地址" class="!mb-0">
+              <Input v-model:value="query.ipaddr" allow-clear placeholder="登录地址" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="userName" label="用户账号" class="!mb-0">
+              <Input v-model:value="query.userName" allow-clear placeholder="用户账号" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="status" label="状态" class="!mb-0">
+              <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full" :options="statusOptions" />
+            </FormItem>
+            <FormItem name="dateRange" label="访问时间" class="!mb-0 lg:col-span-2">
+              <DatePicker.RangePicker v-model:value="query.dateRange" class="w-full" value-format="YYYY-MM-DD" />
+            </FormItem>
+          </div>
+        </Form>
       </template>
 
       <template #toolbar-actions>

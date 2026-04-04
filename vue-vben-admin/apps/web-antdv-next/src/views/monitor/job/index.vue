@@ -321,17 +321,19 @@ fetchList();
       @refresh="fetchList"
     >
       <template #search>
-        <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
-          <FormItem label="任务名称" class="!mb-0">
-            <Input v-model:value="query.jobName" allow-clear placeholder="任务名称" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="任务组名" class="!mb-0">
-            <Input v-model:value="query.jobGroup" allow-clear placeholder="任务组名" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="状态" class="!mb-0">
-            <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full" :options="statusOptions" />
-          </FormItem>
-        </div>
+        <Form :model="query" class="contents">
+          <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
+            <FormItem name="jobName" label="任务名称" class="!mb-0">
+              <Input v-model:value="query.jobName" allow-clear placeholder="任务名称" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="jobGroup" label="任务组名" class="!mb-0">
+              <Input v-model:value="query.jobGroup" allow-clear placeholder="任务组名" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="status" label="状态" class="!mb-0">
+              <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full" :options="statusOptions" />
+            </FormItem>
+          </div>
+        </Form>
       </template>
 
       <template #toolbar-actions>

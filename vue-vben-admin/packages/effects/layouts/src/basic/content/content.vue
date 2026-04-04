@@ -28,6 +28,12 @@ const { getEnabledTransition, getTransitionName } = useLayoutHook();
 const showComponent = (route: RouteLocationNormalizedLoadedGeneric) => {
   return !route.meta.domCached && unref(renderRouteView);
 };
+
+/** 路由切换或懒加载首屏时 Component 可能短暂为 null，仍渲染会触发 patch parentNode null */
+const canRenderPage = (
+  route: RouteLocationNormalizedLoadedGeneric,
+  Component: unknown,
+) => showComponent(route) && !!Component;
 </script>
 
 <template>
@@ -53,14 +59,14 @@ const showComponent = (route: RouteLocationNormalizedLoadedGeneric) => {
         >
           <component
             :is="transformComponent(Component, route)"
-            v-if="showComponent(route)"
+            v-if="canRenderPage(route, Component)"
             v-show="!route.meta.iframeSrc"
             :key="getTabKey(route)"
           />
         </KeepAlive>
         <component
           :is="Component"
-          v-else-if="showComponent(route)"
+          v-else-if="canRenderPage(route, Component)"
           :key="getTabKey(route)"
         />
       </Transition>
@@ -72,14 +78,14 @@ const showComponent = (route: RouteLocationNormalizedLoadedGeneric) => {
         >
           <component
             :is="transformComponent(Component, route)"
-            v-if="showComponent(route)"
+            v-if="canRenderPage(route, Component)"
             v-show="!route.meta.iframeSrc"
             :key="getTabKey(route)"
           />
         </KeepAlive>
         <component
           :is="Component"
-          v-else-if="showComponent(route)"
+          v-else-if="canRenderPage(route, Component)"
           :key="getTabKey(route)"
         />
       </template>

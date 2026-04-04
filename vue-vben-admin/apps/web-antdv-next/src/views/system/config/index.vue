@@ -187,14 +187,16 @@ fetchList();
       @refresh="fetchList"
     >
       <template #search>
-        <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
-          <FormItem label="参数名称" class="!mb-0">
-            <Input v-model:value="query.configName" allow-clear placeholder="请输入参数名称" @press-enter="doSearch" />
-          </FormItem>
-          <FormItem label="参数键名" class="!mb-0">
-            <Input v-model:value="query.configKey" allow-clear placeholder="请输入参数键名" @press-enter="doSearch" />
-          </FormItem>
-        </div>
+        <Form :model="query" class="contents">
+          <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
+            <FormItem name="configName" label="参数名称" class="!mb-0">
+              <Input v-model:value="query.configName" allow-clear placeholder="请输入参数名称" @press-enter="doSearch" />
+            </FormItem>
+            <FormItem name="configKey" label="参数键名" class="!mb-0">
+              <Input v-model:value="query.configKey" allow-clear placeholder="请输入参数键名" @press-enter="doSearch" />
+            </FormItem>
+          </div>
+        </Form>
       </template>
 
       <template #toolbar-actions>

@@ -66,9 +66,8 @@ const query = reactive({
   phonenumber: '',
   status: undefined as '0' | '1' | undefined,
   deptId: undefined as number | undefined,
+  dateRange: null as [string, string] | null,
 });
-
-const dateRange = ref<[string, string] | null>(null);
 
 const statusOptions = [
   { label: '正常', value: '0' },
@@ -119,8 +118,8 @@ function onDeptSelect(_keys: any, info: any) {
 async function fetchList() {
   loading.value = true;
   try {
-    const beginTime = dateRange.value?.[0];
-    const endTime = dateRange.value?.[1];
+    const beginTime = query.dateRange?.[0];
+    const endTime = query.dateRange?.[1];
     const data = await listUser({
       pageNum: query.pageNum,
       pageSize: query.pageSize,
@@ -148,7 +147,7 @@ function resetQuery() {
   query.status = undefined;
   query.deptId = undefined;
   selectedDeptKey.value = null;
-  dateRange.value = null;
+  query.dateRange = null;
   fetchList();
 }
 
@@ -348,19 +347,21 @@ fetchList();
           @refresh="fetchList">
           <template #search>
             <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              <FormItem label="用户账号" class="!mb-0">
-                <Input v-model:value="query.userName" allow-clear placeholder="用户账号" @press-enter="doSearch" />
-              </FormItem>
-              <FormItem label="手机号码" class="!mb-0">
-                <Input v-model:value="query.phonenumber" allow-clear placeholder="手机号码" @press-enter="doSearch" />
-              </FormItem>
-              <FormItem label="状态" class="!mb-0">
-                <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full"
-                  :options="statusOptions" />
-              </FormItem>
-              <FormItem label="创建时间" class="!mb-0 lg:col-span-2">
-                <DatePicker.RangePicker v-model:value="dateRange" class="w-full" value-format="YYYY-MM-DD" />
-              </FormItem>
+              <Form :model="query" class="contents">
+                <FormItem name="userName" label="用户账号" class="!mb-0">
+                  <Input v-model:value="query.userName" allow-clear placeholder="用户账号" @press-enter="doSearch" />
+                </FormItem>
+                <FormItem name="phonenumber" label="手机号码" class="!mb-0">
+                  <Input v-model:value="query.phonenumber" allow-clear placeholder="手机号码" @press-enter="doSearch" />
+                </FormItem>
+                <FormItem name="status" label="状态" class="!mb-0">
+                  <Select v-model:value="query.status" allow-clear placeholder="状态" class="w-full"
+                    :options="statusOptions" />
+                </FormItem>
+                <FormItem name="dateRange" label="创建时间" class="!mb-0 lg:col-span-2">
+                  <DatePicker.RangePicker v-model:value="query.dateRange" class="w-full" value-format="YYYY-MM-DD" />
+                </FormItem>
+              </Form>
             </div>
           </template>
 

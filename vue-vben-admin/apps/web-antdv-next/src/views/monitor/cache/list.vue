@@ -159,14 +159,14 @@ fetchNames();
         <div class="mb-3 flex justify-end">
           <Button danger size="small" @click="onClearAll">清理全部</Button>
         </div>
-        <Form layout="vertical">
-          <FormItem label="缓存名称">
+        <Form layout="vertical" :model="cacheForm">
+          <FormItem name="cacheName" label="缓存名称">
             <Input v-model:value="cacheForm.cacheName" readonly />
           </FormItem>
-          <FormItem label="缓存键名">
+          <FormItem name="cacheKey" label="缓存键名">
             <Input v-model:value="cacheForm.cacheKey" readonly />
           </FormItem>
-          <FormItem label="缓存内容">
+          <FormItem name="cacheValue" label="缓存内容">
             <TextArea v-model:value="cacheForm.cacheValue" :rows="10" readonly />
           </FormItem>
         </Form>
