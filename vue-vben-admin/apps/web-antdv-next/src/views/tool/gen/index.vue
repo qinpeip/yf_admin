@@ -160,7 +160,7 @@ async function onGenZip(names: string) {
     message.warning('请选择表');
     return;
   }
-  const blob = (await batchGenCodeZip(names)) as Blob;
+  const blob = await batchGenCodeZip(names);
   downloadFileFromBlob({ fileName: `gen_${Date.now()}.zip`, source: blob });
 }
 

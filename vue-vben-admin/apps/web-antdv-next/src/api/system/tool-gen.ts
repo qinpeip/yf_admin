@@ -42,9 +42,14 @@ export async function previewGenCode(tableId: number) {
   return requestClient.get<Record<string, string>>(`/tool/gen/preview/${tableId}`);
 }
 
-export async function batchGenCodeZip(tableNames: string) {
-  return baseRequestClient.get('/tool/gen/batchGenCode/zip', {
-    params: { tableNames },
-    responseType: 'blob',
-  });
+/** Vben RequestClient.request 返回的是 AxiosResponse，二进制在 data 上 */
+export async function batchGenCodeZip(tableNames: string): Promise<Blob> {
+  const { data } = await baseRequestClient.instance.get<Blob>(
+    '/tool/gen/batchGenCode/zip',
+    {
+      params: { tableNames },
+      responseType: 'blob',
+    },
+  );
+  return data;
 }

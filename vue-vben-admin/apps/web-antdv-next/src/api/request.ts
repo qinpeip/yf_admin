@@ -40,6 +40,27 @@ function pickBizData(responseData: Record<string, unknown>): unknown {
   return Object.keys(rest).length > 0 ? rest : responseData;
 }
 
+function formatToken(token: null | string) {
+  return token ? `Bearer ${token}` : null;
+}
+
+/** 与 requestClient 一致：导出 / 二进制请求走 baseRequestClient 时也必须带 Token，否则后端 JwtAuthGuard 返回 403 */
+function addAuthRequestInterceptor(client: RequestClient) {
+  client.addRequestInterceptor({
+    fulfilled: async (config) => {
+      const accessStore = useAccessStore();
+      const skipAuth = (config.headers as Record<string, unknown>)?.isToken === false;
+      if (skipAuth) {
+        delete config.headers.Authorization;
+      } else {
+        config.headers.Authorization = formatToken(accessStore.accessToken);
+      }
+      config.headers['Accept-Language'] = preferences.app.locale;
+      return config;
+    },
+  });
+}
+
 function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   const client = new RequestClient({
     ...options,
@@ -69,23 +90,7 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
     return newToken;
   }
 
-  function formatToken(token: null | string) {
-    return token ? `Bearer ${token}` : null;
-  }
-
-  client.addRequestInterceptor({
-    fulfilled: async (config) => {
-      const accessStore = useAccessStore();
-      const skipAuth = (config.headers as Record<string, unknown>)?.isToken === false;
-      if (!skipAuth) {
-        config.headers.Authorization = formatToken(accessStore.accessToken);
-      } else {
-        delete config.headers.Authorization;
-      }
-      config.headers['Accept-Language'] = preferences.app.locale;
-      return config;
-    },
-  });
+  addAuthRequestInterceptor(client);
 
   client.addResponseInterceptor(
     defaultResponseInterceptor({
@@ -126,3 +131,4 @@ export const requestClient = createRequestClient(apiURL, {
 });
 
 export const baseRequestClient = new RequestClient({ baseURL: apiURL });
+addAuthRequestInterceptor(baseRequestClient);
