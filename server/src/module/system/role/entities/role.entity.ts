@@ -36,4 +36,6 @@ export class SysRoleEntity extends BaseEntity {
   @ApiProperty({ type: String, description: '状态' })
   @Column({ type: 'char', name: 'status', default: '0', length: 1, comment: '状态' })
   public status: string;
+  @Column({ type: 'varchar', name: 'remark', length: 500, comment: '备注' })
+  public remark: string;
 }
