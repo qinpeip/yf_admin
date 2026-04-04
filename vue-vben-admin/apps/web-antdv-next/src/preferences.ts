@@ -9,13 +9,13 @@ export const overridesPreferences = defineOverridesPreferences({
   // overrides
   app: {
     name: import.meta.env.VITE_APP_TITLE,
-    /** 与 admin-vue3 首页 `/index` 对齐（见 `router/routes/modules/admin-vue3-parity.ts`） */
+    /** 与 admin-vue3 首页 `/index` 对齐（见 `router/routes/core.ts` Root 子路由） */
     defaultHomePath: '/index',
     /**
-     * - `frontend`：仅用前端路由（如 `migrated.ts`），不请求 `/getRouters`。
-     * - `backend`：菜单与路由完全来自 `GET /getRouters`（已与 Nest 若依格式对接）。
-     * - `mixed`：前后端路由按 name 合并；若仍保留整棵 `migrated` 与数据库菜单重复，可能出现重复菜单，需自行取舍。
+     * - `frontend`：仅用前端路由模块，不请求 `/getRouters`（与 admin-vue3 动态菜单不一致）。
+     * - `backend`：菜单与路由完全来自 `GET /getRouters`。
+     * - `mixed`：每次登录后请求 `/getRouters` 并与前端补充路由合并（默认，对齐 admin-vue3 动态路由 + 隐藏页补充）。
      */
-    accessMode: 'frontend',
+    accessMode: 'mixed',
   },
 });

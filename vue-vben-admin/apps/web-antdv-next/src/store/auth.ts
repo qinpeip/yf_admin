@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { LOGIN_PATH } from '@vben/constants';
-import { preferences } from '@vben/preferences';
+import { getPreferences } from '@vben/preferences';
 import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 
 import { notification } from 'antdv-next';
@@ -23,6 +23,34 @@ export const useAuthStore = defineStore('auth', () => {
   const router = useRouter();
 
   const loginLoading = ref(false);
+
+  /**
+   * 与 admin-vue3 一致：登录拿到 token + getInfo 后立即请求 `/getRouters` 并注册动态路由，
+   * 避免仅依赖路由守卫时序导致未发起菜单请求。
+   */
+  async function syncDynamicRoutesAfterSession() {
+    accessStore.setIsAccessChecked(false);
+    try {
+      const [{ generateAccess }, { accessRoutes }, { router: appRouter }] =
+        await Promise.all([
+          import('#/router/access'),
+          import('#/router/routes'),
+          import('#/router'),
+        ]);
+      const userRoles = userStore.userInfo?.roles ?? [];
+      const { accessibleMenus, accessibleRoutes } = await generateAccess({
+        roles: userRoles,
+        router: appRouter,
+        routes: accessRoutes,
+      });
+      accessStore.setAccessMenus(accessibleMenus);
+      accessStore.setAccessRoutes(accessibleRoutes);
+      accessStore.setIsAccessChecked(true);
+    } catch (e) {
+      accessStore.setIsAccessChecked(false);
+      throw e;
+    }
+  }
 
   async function authLogin(
     params: Recordable<any>,
@@ -48,13 +76,24 @@ export const useAuthStore = defineStore('auth', () => {
       userStore.setUserInfo(userInfo);
       accessStore.setAccessCodes(raw.permissions ?? []);
 
+      try {
+        await syncDynamicRoutesAfterSession();
+      } catch (e) {
+        console.error(e);
+        notification.error({
+          title: '菜单加载失败',
+          description: '无法拉取路由菜单，请检查网络或后端 /getRouters',
+        });
+        return { userInfo };
+      }
+
       if (accessStore.loginExpired) {
         accessStore.setLoginExpired(false);
       } else {
         onSuccess
           ? await onSuccess?.()
           : await router.push(
-              userInfo.homePath || preferences.app.defaultHomePath,
+              userInfo.homePath || getPreferences().app.defaultHomePath,
             );
       }
 
@@ -82,6 +121,10 @@ export const useAuthStore = defineStore('auth', () => {
     }
     resetAllStores();
     accessStore.setLoginExpired(false);
+    accessStore.setIsAccessChecked(false);
+
+    const { resetRoutes } = await import('#/router');
+    resetRoutes();
 
     await router.replace({
       path: LOGIN_PATH,

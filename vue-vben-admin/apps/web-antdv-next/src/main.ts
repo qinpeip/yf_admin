@@ -1,4 +1,4 @@
-import { initPreferences } from '@vben/preferences';
+import { initPreferences, updatePreferences } from '@vben/preferences';
 import { unmountGlobalLoading } from '@vben/utils';
 
 import { overridesPreferences } from './preferences';
@@ -18,6 +18,13 @@ async function initApplication() {
     namespace,
     overrides: overridesPreferences,
   });
+
+  /**
+   * `PreferenceManager` 使用 defu 合并时：**已缓存的 preferences 会覆盖 overrides**。
+   * 旧缓存里若仍是 vben 默认 `accessMode: 'frontend'`，将永远不会请求 `/getRouters`。
+   * 若依项目固定走后端菜单，启动后强制写回 `mixed` 并持久化，避免被脏缓存锁死。
+   */
+  updatePreferences({ app: { accessMode: 'mixed' } });
 
   // 启动应用并挂载
   // vue应用主要逻辑及视图
