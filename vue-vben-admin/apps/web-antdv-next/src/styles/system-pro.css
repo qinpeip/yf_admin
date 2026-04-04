@@ -1,0 +1,45 @@
+/**
+ * Global styles for SystemProShell + `.system-pro-table` (Ant Design Vue / antdv-next).
+ * Keeps scrollable body cells from painting over fixed columns on hover.
+ */
+
+.system-pro-table .ant-table-tbody > tr > td:not(.ant-table-cell-fix-left):not(.ant-table-cell-fix-right) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.system-pro-table .ant-table-cell-fix-left,
+.system-pro-table .ant-table-cell-fix-right {
+  z-index: 2;
+  background: var(--ant-color-bg-container, #fff);
+}
+
+.system-pro-table .ant-table-thead > tr > th.ant-table-cell-fix-left,
+.system-pro-table .ant-table-thead > tr > th.ant-table-cell-fix-right {
+  z-index: 3;
+  background: var(--ant-color-bg-container, #fafafa);
+}
+
+.system-pro-table .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left,
+.system-pro-table .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-right,
+.system-pro-table .ant-table-tbody > tr:hover > td.ant-table-cell-fix-left,
+.system-pro-table .ant-table-tbody > tr:hover > td.ant-table-cell-fix-right {
+  background: var(--ant-color-bg-container, #fff);
+}
+
+.dark .system-pro-table .ant-table-cell-fix-left,
+.dark .system-pro-table .ant-table-cell-fix-right {
+  background: var(--ant-color-bg-container, hsl(0 0% 7%));
+}
+
+.dark .system-pro-table .ant-table-thead > tr > th.ant-table-cell-fix-left,
+.dark .system-pro-table .ant-table-thead > tr > th.ant-table-cell-fix-right {
+  background: var(--ant-color-bg-container, hsl(0 0% 10%));
+}
+
+.dark .system-pro-table .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left,
+.dark .system-pro-table .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-right,
+.dark .system-pro-table .ant-table-tbody > tr:hover > td.ant-table-cell-fix-left,
+.dark .system-pro-table .ant-table-tbody > tr:hover > td.ant-table-cell-fix-right {
+  background: var(--ant-color-bg-container, hsl(0 0% 7%));
+}
