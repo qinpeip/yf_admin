@@ -26,6 +26,20 @@ export class RegionController {
     return this.regionService.findAll(query);
   }
 
+  @ApiOperation({ summary: '地区表-省份列表' })
+  @ApiDataResponse(ListRegionDto, true, true)
+  @Get('province-list')
+  provinceList() {
+    return this.regionService.provinceList();
+  }
+
+  @ApiOperation({ summary: '地区表-城市列表' })
+  @ApiDataResponse(ListRegionDto, true, true)
+  @Get('city-list')
+  cityList() {
+    return this.regionService.cityList();
+  }
+
   @ApiOperation({ summary: '地区表-详情' })
   @ApiDataResponse(BaseRegionDto)
   @RequirePermission('system:region:query')

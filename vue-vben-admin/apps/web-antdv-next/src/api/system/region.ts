@@ -76,3 +76,11 @@ export async function delRegion(pk: number | number[]) {
   const idStr = Array.isArray(pk) ? pk.join(',') : String(pk);
   return requestClient.delete(`/system/region/${idStr}`);
 }
+
+export async function  getProvinceList() {
+  return requestClient.get<{id: number, name: string}[]>(`/system/region/province-list`);
+}
+
+export async function getCityList() {
+  return requestClient.get<{id: number, name: string, pid: number}[]>(`/system/region/city-list`);
+}

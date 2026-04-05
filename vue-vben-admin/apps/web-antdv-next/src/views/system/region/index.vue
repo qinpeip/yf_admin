@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watchEffect } from 'vue';
 
 import { Page } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
-import { Button, Form, FormItem, Input, message, Modal, Select, Table } from 'antdv-next';
+import { Button, Form, FormItem, Input, message, Modal, Radio, RadioGroup, Select, Table, Space } from 'antdv-next';
 
 import {
   addRegion,
   delRegion,
+  getCityList,
+  getProvinceList,
   getRegion,
   listRegion,
   type RegionRow,
@@ -104,36 +106,75 @@ async function onDelete(row: Row) {
 const editOpen = ref(false);
 const editForm = reactive<Partial<Row>>({});
 
+const provinceList = ref<{ label: string; value: number, }[]>([]);
+const currentProvinceId = ref<number | undefined>(undefined);
+const loadProvinceList = async () => {
+  const res = await getProvinceList();
+  provinceList.value = res.map((item) => ({ value: item.id, label: item.name }));
+};
+const cityList = ref<{ label: string; pid: number; value: number, }[]>([]);
+const currentCityId = ref<number | undefined>(undefined);
+const cityOptions = computed(() => cityList.value.filter((item) => item.pid === currentProvinceId.value));
+const loadCityList = async () => {
+  const res = await getCityList();
+  cityList.value = res.map((item) => ({ value: item.id, label: item.name, pid: item.pid }));
+}
+const handleLevelChange = () => {
+  currentProvinceId.value = undefined;
+  currentCityId.value = undefined;
+}
 function openAdd() {
   Object.keys(editForm).forEach((k) => delete (editForm as any)[k]);
-  (editForm as any).tenantId = undefined;
-  (editForm as any).ownerUserId = undefined;
-  (editForm as any).updateBy = '';
-  (editForm as any).updateTime = '';
-  (editForm as any).deleteTime = '';
-  (editForm as any).pid = undefined;
+  (editForm as any).pid = 0;
   (editForm as any).shortname = '';
   (editForm as any).name = '';
   (editForm as any).mergerName = '';
-  (editForm as any).level = undefined;
+  (editForm as any).level = 1;
   (editForm as any).pinyin = '';
   (editForm as any).code = '';
   (editForm as any).zipCode = '';
   (editForm as any).first = '';
   (editForm as any).lng = '';
   (editForm as any).lat = '';
-  (editForm as any).sort = undefined;
+  (editForm as any).sort = 0;
   editOpen.value = true;
+  loadProvinceList();
+  loadCityList();
 }
 
 async function openEdit(row: Row) {
   Object.keys(editForm).forEach((k) => delete (editForm as any)[k]);
   const detail = await getRegion(row.id as any);
   Object.assign(editForm, detail as object);
+  delete editForm.updateTime;
+  delete editForm.createTime;
+  delete editForm.deleteTime;
+  delete editForm.tenantId;
+  delete editForm.ownerUserId;
   editOpen.value = true;
+  loadProvinceList();
+  loadCityList();
+  Promise.all([loadProvinceList(), loadCityList()]).then(() => {
+    if (editForm.level !== 1 && editForm.id && provinceList.value.length > 0 && cityList.value.length > 0 && editForm.pid) {
+      if (editForm.level === 3) {
+        currentCityId.value = editForm.pid;
+        currentProvinceId.value = cityList.value.find((item) => item.value === editForm.pid)?.pid;
+      } else {
+        currentProvinceId.value = editForm.pid;
+      }
+    }
+  })
 }
 
 async function submitEdit() {
+  if (editForm.level === 2 && !currentProvinceId.value) return message.warning('请选择省');
+  if (editForm.level === 3 && !currentCityId.value) return message.warning('请选择市');
+  (editForm as any).pid = 0;
+  if (editForm.level === 2) {
+    (editForm as any).pid = currentProvinceId.value;
+  } else if (editForm.level === 3) {
+    (editForm as any).pid = currentCityId.value;
+  }
   await (editForm.id ? updateRegion(editForm as any) : addRegion(editForm as any));
   message.success('保存成功');
   editOpen.value = false;
@@ -200,7 +241,7 @@ const region_type_options = computed(() => region_type.region_type?.value?.map((
         }">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'level'">
-            <span>{{ region_type_options?.find((item: any) => +item.value === +record.level)?.label ?? '—' }}</span>
+            <span>{{region_type_options?.find((item: any) => +item.value === +record.level)?.label ?? '—'}}</span>
           </template>
           <template v-if="column.key === 'action'">
             <div class="flex flex-wrap items-center gap-1">
@@ -216,38 +257,30 @@ const region_type_options = computed(() => region_type.region_type?.value?.map((
       </Table>
     </SystemProShell>
 
-    <Modal v-model:open="editOpen" :title="editForm.id ? '修改地区表' : '新增地区表'" @ok="submitEdit">
-      <Form layout="vertical">
-
-        <FormItem label="租户ID">
-          <Input v-model:value="(editForm as any).tenantId" placeholder="请输入租户ID" />
+    <Modal v-model:open="editOpen" :title="editForm.id ? '修改地区' : '新增地区'" @ok="submitEdit">
+      <Form :model="editForm" :label-col="{ span: 4 }">
+        <FormItem label="地区类型">
+          <RadioGroup v-model:value="(editForm as any).level" @change="handleLevelChange">
+            <Radio v-for="item in region_type_options?.slice(1)" :key="item.value" :value="+item.value">{{ item.label }}
+            </Radio>
+          </RadioGroup>
         </FormItem>
-        <FormItem label="数据所有者用户ID">
-          <Input v-model:value="(editForm as any).ownerUserId" placeholder="请输入数据所有者用户ID" />
+        <FormItem label="选择上级" v-if="editForm.level !== 1">
+          <Space>
+            <Select v-model:value="currentProvinceId" allow-clear placeholder="请选择省" :options="provinceList"
+              class="w-[150px]!" @change="currentCityId = undefined" />
+            <Select v-model:value="currentCityId" allow-clear placeholder="请选择市" :options="cityOptions"
+              class="w-[150px]!" v-if="editForm.level === 3" />
+          </Space>
         </FormItem>
-        <FormItem label="更新者">
-          <Input v-model:value="(editForm as any).updateBy" placeholder="请输入更新者" />
-        </FormItem>
-        <FormItem label="更新时间">
-          <Input v-model:value="(editForm as any).updateTime" placeholder="YYYY-MM-DD 或带时间" />
-        </FormItem>
-        <FormItem label="删除时间">
-          <Input v-model:value="(editForm as any).deleteTime" placeholder="YYYY-MM-DD 或带时间" />
-        </FormItem>
-        <FormItem label="父ID">
-          <Input v-model:value="(editForm as any).pid" placeholder="请输入父ID" />
+        <FormItem label="名称" prop="name" :rules="[{ required: true, message: '请输入名称' }]">
+          <Input v-model:value="(editForm as any).name" placeholder="请输入名称" />
         </FormItem>
         <FormItem label="简称">
           <Input v-model:value="(editForm as any).shortname" placeholder="请输入简称" />
         </FormItem>
-        <FormItem label="名称">
-          <Input v-model:value="(editForm as any).name" placeholder="请输入名称" />
-        </FormItem>
         <FormItem label="全称">
           <Input v-model:value="(editForm as any).mergerName" placeholder="请输入全称" />
-        </FormItem>
-        <FormItem label="层级 1 2 3 省市区县">
-          <Input v-model:value="(editForm as any).level" placeholder="请输入层级 1 2 3 省市区县" />
         </FormItem>
         <FormItem label="拼音">
           <Input v-model:value="(editForm as any).pinyin" placeholder="请输入拼音" />

@@ -20,65 +20,15 @@ export class RegionService {
 
   async findAll(query: QueryRegionDto) {
     const entity = this.regionEntityRep.createQueryBuilder('entity');
-    if (!isEmpty(query.id)) {
-      entity.andWhere('entity.id = :id', { id: query.id });
-    }
-    if (!isEmpty(query.tenantId)) {
-      entity.andWhere('entity.tenantId = :tenantId', { tenantId: query.tenantId });
-    }
-    if (!isEmpty(query.ownerUserId)) {
-      entity.andWhere('entity.ownerUserId = :ownerUserId', { ownerUserId: query.ownerUserId });
-    }
-    if (!isEmpty(query.createBy)) {
-      entity.andWhere('entity.createBy = :createBy', { createBy: query.createBy });
-    }
-    if (!isEmpty(query.createTime)) {
-      entity.andWhere('entity.createTime BETWEEN :start AND :end', { start: query.createTime[0], end: query.createTime[1] });
-    }
-    if (!isEmpty(query.updateBy)) {
-      entity.andWhere('entity.updateBy = :updateBy', { updateBy: query.updateBy });
-    }
-    if (!isEmpty(query.updateTime)) {
-      entity.andWhere('entity.updateTime BETWEEN :start AND :end', { start: query.updateTime[0], end: query.updateTime[1] });
-    }
-    if (!isEmpty(query.deleteTime)) {
-      entity.andWhere('entity.deleteTime BETWEEN :start AND :end', { start: query.deleteTime[0], end: query.deleteTime[1] });
-    }
-    if (!isEmpty(query.pid)) {
-      entity.andWhere('entity.pid = :pid', { pid: query.pid });
-    }
-    if (!isEmpty(query.shortname)) {
-      entity.andWhere('entity.shortname LIKE :shortname', { shortname: `%${query.shortname}%` });
-    }
     if (!isEmpty(query.name)) {
-      entity.andWhere('entity.name LIKE :name', { name: `%${query.name}%` });
-    }
-    if (!isEmpty(query.mergerName)) {
-      entity.andWhere('entity.mergerName LIKE :mergerName', { mergerName: `%${query.mergerName}%` });
+      entity.where('(entity.name LIKE :name OR entity.mergerName LIKE :mergerName OR entity.shortname LIKE :shortname)', {
+        name: `%${query.name}%`,
+        mergerName: `%${query.name}%`,
+        shortname: `%${query.name}%`,
+      });
     }
     if (!isEmpty(query.level)) {
       entity.andWhere('entity.level = :level', { level: query.level });
-    }
-    if (!isEmpty(query.pinyin)) {
-      entity.andWhere('entity.pinyin = :pinyin', { pinyin: query.pinyin });
-    }
-    if (!isEmpty(query.code)) {
-      entity.andWhere('entity.code = :code', { code: query.code });
-    }
-    if (!isEmpty(query.zipCode)) {
-      entity.andWhere('entity.zipCode = :zipCode', { zipCode: query.zipCode });
-    }
-    if (!isEmpty(query.first)) {
-      entity.andWhere('entity.first = :first', { first: query.first });
-    }
-    if (!isEmpty(query.lng)) {
-      entity.andWhere('entity.lng = :lng', { lng: query.lng });
-    }
-    if (!isEmpty(query.lat)) {
-      entity.andWhere('entity.lat = :lat', { lat: query.lat });
-    }
-    if (!isEmpty(query.sort)) {
-      entity.andWhere('entity.sort = :sort', { sort: query.sort });
     }
     entity.select([
       'entity.id',
@@ -114,6 +64,33 @@ export class RegionService {
       list,
       total,
     });
+  }
+
+  async provinceList() {
+    const list = await this.regionEntityRep.find({
+      where: {
+        level: 1,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+    return ResultData.ok(list);
+  }
+
+  async cityList() {
+    const list = await this.regionEntityRep.find({
+      where: {
+        level: 2,
+      },
+      select: {
+        id: true,
+        name: true,
+        pid: true,
+      },
+    });
+    return ResultData.ok(list);
   }
 
   async findOne(id: number) {
