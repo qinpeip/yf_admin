@@ -24,7 +24,7 @@ import {
 } from '@vben-core/shadcn-ui';
 import { isFunction } from '@vben-core/shared/utils';
 
-import { objectOmit, refDebounced, watchDebounced } from '@vueuse/core';
+import { objectOmit, watchDebounced } from '@vueuse/core';
 
 import { fetchIconsData } from './icons';
 
@@ -72,7 +72,6 @@ const modelValue = defineModel({ default: '', type: String });
 const visible = ref(false);
 const currentSelect = ref('');
 const keyword = ref('');
-const keywordDebounce = refDebounced(keyword, 300);
 const innerIcons = ref<string[]>([]);
 
 watchDebounced(
@@ -110,8 +109,12 @@ const currentList = computed(() => {
 });
 
 const showList = computed(() => {
+  const q = keyword.value.trim().toLowerCase();
+  if (!q) {
+    return currentList.value;
+  }
   return currentList.value.filter((item) =>
-    item.includes(keywordDebounce.value),
+    item.toLowerCase().includes(q),
   );
 });
 

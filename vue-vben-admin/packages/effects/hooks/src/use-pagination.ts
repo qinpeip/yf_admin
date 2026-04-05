@@ -8,7 +8,7 @@ import { computed, ref, unref, watch } from 'vue';
  * @param pageNo The current page number (1-based)
  * @param pageSize Number of items per page
  * @returns Paginated array slice
- * @throws {Error} If pageNo or pageSize are invalid
+ * @throws {Error} When pageNo or pageSize is invalid
  */
 function pagination<T = any>(list: T[], pageNo: number, pageSize: number): T[] {
   if (pageNo < 1) throw new Error('Page number must be positive');
@@ -30,12 +30,21 @@ export function usePagination<T = any>(
   const currentPage = ref(1);
   const pageSizeRef = ref(pageSize);
 
-  const totalPages = computed(() =>
-    Math.ceil(unref(list).length / unref(pageSizeRef)),
-  );
+  const totalPages = computed(() => {
+    const n = unref(list).length;
+    const ps = unref(pageSizeRef);
+    if (n === 0) return 0;
+    return Math.ceil(n / ps);
+  });
 
   const paginationList = computed(() => {
-    return pagination(unref(list), unref(currentPage), unref(pageSizeRef));
+    const listVal = unref(list);
+    const ps = unref(pageSizeRef);
+    const page = unref(currentPage);
+    if (listVal.length === 0) {
+      return [];
+    }
+    return pagination(listVal, page, ps);
   });
 
   const total = computed(() => {
@@ -48,15 +57,31 @@ export function usePagination<T = any>(
     });
   }
 
-  function setCurrentPage(page: number) {
-    if (page === 1 && unref(totalPages) === 0) {
-      currentPage.value = 1;
-    } else {
-      if (page < 1 || page > unref(totalPages)) {
-        throw new Error('Invalid page number');
+  /** 列表变短时当前页可能越界（如 IconPicker 搜索后），同步钳制到末页 */
+  watch(
+    [totalPages, currentPage],
+    () => {
+      const tp = unref(totalPages);
+      if (tp === 0) {
+        currentPage.value = 1;
+        return;
       }
-      currentPage.value = page;
+      if (unref(currentPage) > tp) {
+        currentPage.value = tp;
+      }
+    },
+    { flush: 'sync' },
+  );
+
+  function setCurrentPage(page: number) {
+    const n = unref(list).length;
+    const ps = unref(pageSizeRef);
+    if (n === 0) {
+      currentPage.value = 1;
+      return;
     }
+    const maxPage = Math.ceil(n / ps) || 1;
+    currentPage.value = Math.min(Math.max(1, page), maxPage);
   }
 
   function setPageSize(pageSize: number) {
@@ -64,7 +89,6 @@ export function usePagination<T = any>(
       throw new Error('Page size must be positive');
     }
     pageSizeRef.value = pageSize;
-    // Reset to first page to prevent invalid state
     currentPage.value = 1;
   }
 

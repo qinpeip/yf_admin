@@ -1,5 +1,7 @@
 import type { RouteRecordStringComponent } from '@vben/types';
 
+import { normalizeMenuIconToIconify } from '#/utils/menu-icon';
+
 /**
  * 将本仓库 Nest / 若依风格的 `GET /getRouters` 数据转为 Vben `accessMode: backend|mixed` 所需结构。
  * 来源参考：`server/src/module/system/menu/utils.ts` → `buildMenus` / `formatTreeNodeBuildMenus`。
@@ -69,11 +71,18 @@ function joinFullPath(parent: string, seg: string): string {
 
 function normalizeMeta(raw: any, routeName: string): Record<string, any> {
   if (raw.meta === null || raw.meta === undefined) {
-    return { title: routeName };
+    const icon = normalizeMenuIconToIconify(raw.icon);
+    return { title: routeName, icon };
   }
   const m = { ...raw.meta };
   if (m.title === undefined || m.title === null || m.title === '') {
     m.title = routeName;
+  }
+  const iconSource = m.icon ?? raw.icon;
+  if (iconSource !== undefined && iconSource !== null && String(iconSource).trim() !== '') {
+    m.icon = normalizeMenuIconToIconify(String(iconSource));
+  } else {
+    m.icon = normalizeMenuIconToIconify('');
   }
   if (raw.hidden === true) {
     m.hideInMenu = true;

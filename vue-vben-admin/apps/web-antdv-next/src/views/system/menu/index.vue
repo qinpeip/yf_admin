@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Page } from '@vben/common-ui';
-import { Plus } from '@vben/icons';
+import { IconPicker, Page } from '@vben/common-ui';
+import { IconifyIcon, Plus } from '@vben/icons';
 import { computed, reactive, ref, watch } from 'vue';
 
 import { SystemProShell } from '#/components/system-pro';
+import { normalizeMenuIconToIconify } from '#/utils/menu-icon';
 
 import {
   Button,
@@ -347,13 +348,18 @@ fetchList();
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'icon'">
-            <span
-              v-if="asMenuRow(record).icon"
-              class="inline-block max-w-[5rem] truncate font-mono text-xs text-foreground/75"
-              :title="asMenuRow(record).icon"
-            >
-              {{ asMenuRow(record).icon }}
-            </span>
+            <div v-if="asMenuRow(record).icon" class="flex items-center gap-2">
+              <IconifyIcon
+                :icon="normalizeMenuIconToIconify(asMenuRow(record).icon)"
+                class="size-4 shrink-0 text-foreground"
+              />
+              <span
+                class="inline-block max-w-[6rem] truncate font-mono text-xs text-foreground/70"
+                :title="asMenuRow(record).icon || ''"
+              >
+                {{ asMenuRow(record).icon }}
+              </span>
+            </div>
             <span v-else class="text-muted-foreground">—</span>
           </template>
           <template v-else-if="column.dataIndex === 'status'">
@@ -424,6 +430,17 @@ fetchList();
 
           <FormItem label="菜单名称">
             <Input v-model:value="form.menuName" placeholder="请输入菜单名称" />
+          </FormItem>
+
+          <FormItem v-if="form.menuType !== 'F'" label="菜单图标">
+            <div class="flex flex-col gap-2">
+              <IconPicker v-model="form.icon" prefix="lucide" class="w-full max-w-md" />
+              <span class="text-xs text-foreground/60">
+                与侧栏一致使用 Iconify（默认 lucide）。可直接输入如
+                <code class="rounded bg-muted px-1">ant-design:user-outlined</code>
+                ；若依旧短名（如 user）保存后也会自动映射。
+              </span>
+            </div>
           </FormItem>
 
           <FormItem label="显示排序">
