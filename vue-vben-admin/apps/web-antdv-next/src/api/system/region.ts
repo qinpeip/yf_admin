@@ -43,7 +43,7 @@ export interface ListRegionQuery {
   shortname?: string;
   name?: string;
   mergerName?: string;
-  level?: number;
+  level?: string;
   pinyin?: string;
   code?: string;
   zipCode?: string;

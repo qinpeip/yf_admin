@@ -4,7 +4,7 @@ import { computed, reactive, ref } from 'vue';
 import { Page } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
-import { Button, DatePicker, Form, FormItem, Input, message, Modal, Table } from 'antdv-next';
+import { Button, Form, FormItem, Input, message, Modal, Select, Table } from 'antdv-next';
 
 import {
   addRegion,
@@ -15,6 +15,7 @@ import {
   updateRegion,
 } from '#/api/system/region';
 import { SystemProShell } from '#/components/system-pro';
+import { useDict } from '#/composables/use-dict';
 
 /** 地区表 */
 type Row = RegionRow;
@@ -30,26 +31,8 @@ const total = ref(0);
 const query = reactive({
   pageNum: 1,
   pageSize: 10,
-  id: undefined as number | undefined,
-  tenantId: undefined as number | undefined,
-  ownerUserId: undefined as number | undefined,
-  createBy: '',
-  createTime: undefined as [string, string] | undefined,
-  updateBy: '',
-  updateTime: undefined as [string, string] | undefined,
-  deleteTime: undefined as [string, string] | undefined,
-  pid: undefined as number | undefined,
-  shortname: '',
   name: '',
-  mergerName: '',
-  level: undefined as number | undefined,
-  pinyin: '',
-  code: '',
-  zipCode: '',
-  first: '',
-  lng: '',
-  lat: '',
-  sort: undefined as number | undefined,
+  level: '0',
 });
 
 const selectedRowKeys = ref<(number | string)[]>([]);
@@ -66,26 +49,8 @@ async function fetchList() {
     const data = await listRegion({
       pageNum: query.pageNum,
       pageSize: query.pageSize,
-      id: query.id,
-      tenantId: query.tenantId,
-      ownerUserId: query.ownerUserId,
-      createBy: query.createBy || undefined,
-      ...(query.createTime?.[0] && query.createTime?.[1] ? { createTime: query.createTime } : {}),
-      updateBy: query.updateBy || undefined,
-      ...(query.updateTime?.[0] && query.updateTime?.[1] ? { updateTime: query.updateTime } : {}),
-      ...(query.deleteTime?.[0] && query.deleteTime?.[1] ? { deleteTime: query.deleteTime } : {}),
-      pid: query.pid,
-      shortname: query.shortname || undefined,
-      name: query.name || undefined,
-      mergerName: query.mergerName || undefined,
-      level: query.level,
-      pinyin: query.pinyin || undefined,
-      code: query.code || undefined,
-      zipCode: query.zipCode || undefined,
-      first: query.first || undefined,
-      lng: query.lng || undefined,
-      lat: query.lat || undefined,
-      sort: query.sort,
+      name: query.name,
+      ...(query.level === '0' ? {} : { level: query.level }),
     });
     rows.value = (data?.list ?? []) as Row[];
     total.value = Number(data?.total ?? 0);
@@ -97,26 +62,8 @@ async function fetchList() {
 function resetQuery() {
   query.pageNum = 1;
   query.pageSize = 10;
-  query.id = undefined;
-  query.tenantId = undefined;
-  query.ownerUserId = undefined;
-  query.createBy = '';
-  query.createTime = undefined;
-  query.updateBy = '';
-  query.updateTime = undefined;
-  query.deleteTime = undefined;
-  query.pid = undefined;
-  query.shortname = '';
   query.name = '';
-  query.mergerName = '';
-  query.level = undefined;
-  query.pinyin = '';
-  query.code = '';
-  query.zipCode = '';
-  query.first = '';
-  query.lng = '';
-  query.lat = '';
-  query.sort = undefined;
+  query.level = '0';
   fetchList();
 }
 
@@ -194,95 +141,36 @@ async function submitEdit() {
 }
 
 const columns = computed(() => [
-  { title: '地区ID', dataIndex: 'id', width: 90 },
-  { title: '租户ID', dataIndex: 'tenantId' },
-  { title: '数据所有者用户ID', dataIndex: 'ownerUserId' },
-  { title: '删除时间', dataIndex: 'deleteTime' },
-  { title: '父ID', dataIndex: 'pid' },
   { title: '简称', dataIndex: 'shortname' },
   { title: '名称', dataIndex: 'name' },
   { title: '全称', dataIndex: 'mergerName' },
-  { title: '层级 1 2 3 省市区县', dataIndex: 'level' },
+  { title: '省市区', dataIndex: 'level', key: 'level' },
   { title: '拼音', dataIndex: 'pinyin' },
-  { title: '长途区号', dataIndex: 'code' },
-  { title: '邮编', dataIndex: 'zipCode' },
   { title: '首字母', dataIndex: 'first' },
-  { title: '经度', dataIndex: 'lng' },
-  { title: '纬度', dataIndex: 'lat' },
   { title: '排序', dataIndex: 'sort' },
   { title: '操作', key: 'action', width: 200 },
 ]);
 
 fetchList();
+
+const region_type = useDict('region_type');
+const region_type_options = computed(() => region_type.region_type?.value?.map((item: any) => ({ label: item.label, value: item.value })));
 </script>
 
 <template>
   <Page auto-content-height>
     <SystemProShell table-title="地区表" :show-column-setting="false" @search="doSearch" @reset="resetQuery"
-      @refresh="fetchList"
->
+      @refresh="fetchList">
       <template #search>
         <Form :model="query">
           <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
-<FormItem name="id" label="地区ID" class="!mb-0">
-              <Input v-model:value="query.id" allow-clear placeholder="请输入地区ID" @press-enter="doSearch" />
+            <FormItem name="name" label="地区名称" class="!mb-0">
+              <Input v-model:value="query.name" allow-clear placeholder="请输入地区名称" @press-enter="doSearch" />
             </FormItem>
-            <FormItem name="tenantId" label="租户ID" class="!mb-0">
-              <Input v-model:value="query.tenantId" allow-clear placeholder="请输入租户ID" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="ownerUserId" label="数据所有者用户ID" class="!mb-0">
-              <Input v-model:value="query.ownerUserId" allow-clear placeholder="请输入数据所有者用户ID" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="createBy" label="创建者" class="!mb-0">
-              <Input v-model:value="query.createBy" allow-clear placeholder="请输入创建者" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="createTime" label="创建时间" class="!mb-0">
-              <DatePicker.RangePicker v-model:value="query.createTime" class="w-full" value-format="YYYY-MM-DD" />
-            </FormItem>
-            <FormItem name="updateBy" label="更新者" class="!mb-0">
-              <Input v-model:value="query.updateBy" allow-clear placeholder="请输入更新者" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="updateTime" label="更新时间" class="!mb-0">
-              <DatePicker.RangePicker v-model:value="query.updateTime" class="w-full" value-format="YYYY-MM-DD" />
-            </FormItem>
-            <FormItem name="deleteTime" label="删除时间" class="!mb-0">
-              <DatePicker.RangePicker v-model:value="query.deleteTime" class="w-full" value-format="YYYY-MM-DD" />
-            </FormItem>
-            <FormItem name="pid" label="父ID" class="!mb-0">
-              <Input v-model:value="query.pid" allow-clear placeholder="请输入父ID" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="shortname" label="简称" class="!mb-0">
-              <Input v-model:value="query.shortname" allow-clear placeholder="请输入简称" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="name" label="名称" class="!mb-0">
-              <Input v-model:value="query.name" allow-clear placeholder="请输入名称" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="mergerName" label="全称" class="!mb-0">
-              <Input v-model:value="query.mergerName" allow-clear placeholder="请输入全称" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="level" label="层级 1 2 3 省市区县" class="!mb-0">
-              <Input v-model:value="query.level" allow-clear placeholder="请输入层级 1 2 3 省市区县" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="pinyin" label="拼音" class="!mb-0">
-              <Input v-model:value="query.pinyin" allow-clear placeholder="请输入拼音" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="code" label="长途区号" class="!mb-0">
-              <Input v-model:value="query.code" allow-clear placeholder="请输入长途区号" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="zipCode" label="邮编" class="!mb-0">
-              <Input v-model:value="query.zipCode" allow-clear placeholder="请输入邮编" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="first" label="首字母" class="!mb-0">
-              <Input v-model:value="query.first" allow-clear placeholder="请输入首字母" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="lng" label="经度" class="!mb-0">
-              <Input v-model:value="query.lng" allow-clear placeholder="请输入经度" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="lat" label="纬度" class="!mb-0">
-              <Input v-model:value="query.lat" allow-clear placeholder="请输入纬度" @press-enter="doSearch" />
-            </FormItem>
-            <FormItem name="sort" label="排序" class="!mb-0">
-              <Input v-model:value="query.sort" allow-clear placeholder="请输入排序" @press-enter="doSearch" />
+            <FormItem name="level" label="地区类型" class="!mb-0">
+              <Select v-model:value="query.level" allow-clear placeholder="请选择地区类型" class="w-full"
+                :options="region_type_options" />
+              <!-- <Input v-model:value="query.level" allow-clear placeholder="请输入层级 1 2 3 省市区县" @press-enter="doSearch" /> -->
             </FormItem>
           </div>
         </Form>
@@ -311,6 +199,9 @@ fetchList();
           },
         }">
         <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'level'">
+            <span>{{ region_type_options?.find((item: any) => +item.value === +record.level)?.label ?? '—' }}</span>
+          </template>
           <template v-if="column.key === 'action'">
             <div class="flex flex-wrap items-center gap-1">
               <Button type="link" size="small" class="!px-1" @click="openEdit(asRow(record))">修改</Button>
