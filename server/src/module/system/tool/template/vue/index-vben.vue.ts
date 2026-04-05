@@ -257,7 +257,6 @@ export function indexVbenVue(options: any): string {
     'message',
     'Modal',
     'Select',
-    'Table',
     'Tag',
     'TextArea',
   ];
@@ -271,7 +270,7 @@ import { Plus } from '@vben/icons';
 import { computed, reactive, ref } from 'vue';
 ${dictImport}
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
 import { ${antImports.join(', ')} } from 'antdv-next';
 
@@ -405,7 +404,7 @@ fetchList();
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="${functionName}"
       :show-column-setting="false"
@@ -414,7 +413,7 @@ fetchList();
       @refresh="fetchList"
     >
       <template #search>
-        <Form :model="query">
+        <Form :model="query" class="contents">
           <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
 ${buildSearchFormItems(columns)}
           </div>
@@ -429,14 +428,14 @@ ${buildSearchFormItems(columns)}
         <Button danger :disabled="!selectedRowKeys.length" @click="onBatchDelete">删除</Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="${primaryKey}"
         class="system-pro-table"
         :row-selection="rowSelection"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
+        :scroll="{ x: 1200 }"
         :pagination="{
           current: query.pageNum,
           pageSize: query.pageSize,
@@ -460,7 +459,7 @@ ${buildSearchFormItems(columns)}
           </template>
 ${buildBodyCellBranches(columns)}
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal
