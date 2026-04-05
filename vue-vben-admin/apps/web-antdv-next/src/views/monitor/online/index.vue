@@ -2,9 +2,9 @@
 import { Page } from '@vben/common-ui';
 import { computed, reactive, ref } from 'vue';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
-import { Button, Form, FormItem, Input, message, Modal, Table } from 'antdv-next';
+import { Button, Form, FormItem, Input, message, Modal } from 'antdv-next';
 
 import { forceLogout, listOnline } from '#/api';
 
@@ -91,7 +91,7 @@ fetchList();
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="在线用户"
       :show-column-setting="false"
@@ -112,13 +112,12 @@ fetchList();
         </Form>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="tokenId"
         class="system-pro-table"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :scroll="{ x: 1200 }"
         :pagination="{
           current: query.pageNum,
@@ -139,7 +138,7 @@ fetchList();
             <Button type="link" size="small" danger class="!px-1" @click="onForceLogout(asOnlineRow(record))">强退</Button>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
   </Page>
 </template>

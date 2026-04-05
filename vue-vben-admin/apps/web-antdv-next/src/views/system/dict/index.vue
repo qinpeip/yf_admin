@@ -4,7 +4,7 @@ import { Plus, RotateCw } from '@vben/icons';
 import { downloadFileFromBlob } from '@vben/utils';
 import { computed, reactive, ref } from 'vue';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
 import {
   Button,
@@ -17,7 +17,6 @@ import {
   Modal,
   Select,
   Space,
-  Table,
   Tag,
   Tree,
 } from 'antdv-next';
@@ -409,8 +408,8 @@ fetchTypes();
 </script>
 
 <template>
-  <Page auto-content-height>
-    <div class="flex gap-4">
+  <Page auto-content-height content-stable-layout>
+    <div class="flex min-h-0 flex-1 gap-4">
       <Card
         class="w-[280px] shrink-0 rounded-lg border border-[#f0f0f0] bg-card shadow-sm dark:border-white/10"
         :bordered="false"
@@ -438,10 +437,12 @@ fetchTypes();
         </Space>
       </Card>
 
-      <div class="min-w-0 flex-1">
+      <div class="flex min-h-0 min-w-0 flex-1 flex-col">
         <!-- 默认：全部字典项 → 字典类型列表（与图1一致） -->
         <SystemProShell
           v-if="showAllTypes"
+          class="min-h-0 flex-1"
+          :scroll-bottom-reserve="64"
           table-title="字典类型"
           :show-column-setting="false"
           @search="doSearchType"
@@ -474,14 +475,13 @@ fetchTypes();
             <Button class="border-amber-500/80 text-amber-600" @click="onRefreshCache">刷新缓存</Button>
           </template>
 
-          <Table
+          <SystemProTable
             row-key="dictId"
             class="system-pro-table"
             :row-selection="typeRowSelection"
             :loading="loading"
             :columns="typeColumns"
             :data-source="typeRows"
-            size="middle"
             :pagination="false"
           >
             <template #bodyCell="{ column, record }">
@@ -496,12 +496,14 @@ fetchTypes();
                 </div>
               </template>
             </template>
-          </Table>
+          </SystemProTable>
         </SystemProShell>
 
         <!-- 选中某一分类：字典数据详情（与图2一致） -->
         <SystemProShell
           v-else
+          class="min-h-0 flex-1"
+          :scroll-bottom-reserve="64"
           table-title="数据字典详情"
           :show-column-setting="false"
           @search="doSearchData"
@@ -546,14 +548,13 @@ fetchTypes();
             </span>
           </div>
 
-          <Table
+          <SystemProTable
             row-key="dictCode"
             class="system-pro-table"
             :row-selection="dataRowSelection"
             :loading="loading"
             :columns="dataColumns"
             :data-source="dataRows"
-            size="middle"
             :pagination="false"
           >
             <template #bodyCell="{ column, record }">
@@ -574,7 +575,7 @@ fetchTypes();
                 </div>
               </template>
             </template>
-          </Table>
+          </SystemProTable>
         </SystemProShell>
       </div>
     </div>

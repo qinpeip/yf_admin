@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watchEffect } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
-import { Button, Form, FormItem, Input, message, Modal, Radio, RadioGroup, Select, Table, Space } from 'antdv-next';
+import { Button, Form, FormItem, Input, message, Modal, Radio, RadioGroup, Select, Space } from 'antdv-next';
 
 import {
   addRegion,
@@ -16,7 +16,7 @@ import {
   type RegionRow,
   updateRegion,
 } from '#/api/system/region';
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 import { useDict } from '#/composables/use-dict';
 
 /** 地区表 */
@@ -196,10 +196,11 @@ fetchList();
 
 const region_type = useDict('region_type');
 const region_type_options = computed(() => region_type.region_type?.value?.map((item: any) => ({ label: item.label, value: item.value })));
+
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell table-title="地区表" :show-column-setting="false" @search="doSearch" @reset="resetQuery"
       @refresh="fetchList">
       <template #search>
@@ -225,8 +226,8 @@ const region_type_options = computed(() => region_type.region_type?.value?.map((
         <Button danger :disabled="selectedRowKeys.length === 0" @click="onBatchDelete">删除</Button>
       </template>
 
-      <Table row-key="id" class="system-pro-table" :row-selection="rowSelection" :loading="loading" :columns="columns"
-        :data-source="rows" size="middle" :pagination="{
+      <SystemProTable row-key="id" class="system-pro-table" :row-selection="rowSelection" :loading="loading" :columns="columns"
+        :data-source="rows" :pagination="{
           current: query.pageNum,
           pageSize: query.pageSize,
           total,
@@ -254,7 +255,7 @@ const region_type_options = computed(() => region_type.region_type?.value?.map((
             <span>{{ asRow(record).deleteTime ?? '—' }}</span>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal v-model:open="editOpen" :title="editForm.id ? '修改地区' : '新增地区'" @ok="submitEdit">

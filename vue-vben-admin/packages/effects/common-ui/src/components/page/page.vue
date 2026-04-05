@@ -12,8 +12,11 @@ defineOptions({
   name: 'Page',
 });
 
-const { autoContentHeight = false, heightOffset = 0 } =
-  defineProps<PageProps>();
+const props = withDefaults(defineProps<PageProps>(), {
+  heightOffset: 0,
+  autoContentHeight: false,
+  contentStableLayout: false,
+});
 
 const headerHeight = ref(0);
 const footerHeight = ref(0);
@@ -23,17 +26,37 @@ const headerRef = useTemplateRef<HTMLDivElement>('headerRef');
 const footerRef = useTemplateRef<HTMLDivElement>('footerRef');
 
 const contentStyle = computed<StyleValue>(() => {
-  if (autoContentHeight) {
+  if (!props.autoContentHeight) {
+    return {};
+  }
+  const heightExpr = `calc(var(${CSS_VARIABLE_LAYOUT_CONTENT_HEIGHT}) - ${headerHeight.value}px - ${footerHeight.value}px - ${typeof props.heightOffset === 'number' ? `${props.heightOffset}px` : props.heightOffset})`;
+  if (props.contentStableLayout) {
     return {
-      height: `calc(var(${CSS_VARIABLE_LAYOUT_CONTENT_HEIGHT}) - ${headerHeight.value}px - ${footerHeight.value}px - ${typeof heightOffset === 'number' ? `${heightOffset}px` : heightOffset})`,
-      overflowY: shouldAutoHeight.value ? 'auto' : 'unset',
+      height: heightExpr,
+      minHeight: 0,
+      overflowY: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
     };
   }
-  return {};
+  return {
+    height: heightExpr,
+    overflowY: shouldAutoHeight.value ? 'auto' : 'unset',
+  };
 });
 
+const mergedContentClass = computed(() =>
+  cn(
+    'h-full p-4',
+    props.contentClass,
+    props.autoContentHeight &&
+      props.contentStableLayout &&
+      'min-h-0 flex flex-col overflow-hidden',
+  ),
+);
+
 async function calcContentHeight() {
-  if (!autoContentHeight) {
+  if (!props.autoContentHeight) {
     return;
   }
   await nextTick();
@@ -86,7 +109,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div :class="cn('h-full p-4', contentClass)" :style="contentStyle">
+    <div :class="mergedContentClass" :style="contentStyle">
       <slot></slot>
     </div>
     <div

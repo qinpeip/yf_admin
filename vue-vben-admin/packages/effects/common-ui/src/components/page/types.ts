@@ -14,4 +14,9 @@ export interface PageProps {
    * @default 0
    */
   heightOffset?: number;
+  /**
+   * 与 autoContentHeight 配合：内容区不整体纵向滚动，由内部（如表格 body）自行滚动，
+   * 便于搜索区与分页条常驻可视区域。
+   */
+  contentStableLayout?: boolean;
 }

@@ -3,6 +3,22 @@
  * Keeps scrollable body cells from painting over fixed columns on hover.
  */
 
+/* 紧凑型：列表统一略小于 Ant Table small 默认内边距（不依赖具体 size 类名） */
+.system-pro-table .ant-table-thead > tr > th,
+.system-pro-table .ant-table-tbody > tr > td {
+  padding-block: 5px;
+  padding-inline: 8px;
+}
+
+.system-pro-table .ant-table-tbody > tr > td.ant-table-selection-column {
+  padding-inline: 6px;
+}
+
+.system-pro-table .ant-pagination {
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
 .system-pro-table .ant-table-tbody > tr > td:not(.ant-table-cell-fix-left):not(.ant-table-cell-fix-right) {
   overflow: hidden;
   text-overflow: ellipsis;

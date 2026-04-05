@@ -3,9 +3,9 @@ import { Page } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 import { computed, reactive, ref } from 'vue';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
-import { Button, Form, FormItem, Input, message, Modal, Select, Table, Tag, TextArea } from 'antdv-next';
+import { Button, Form, FormItem, Input, message, Modal, Select, Tag, TextArea } from 'antdv-next';
 
 import { addNotice, delNotice, listNotice, updateNotice } from '#/api';
 
@@ -185,7 +185,7 @@ fetchList();
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="通知公告列表"
       :show-column-setting="false"
@@ -217,14 +217,13 @@ fetchList();
         <Button danger :disabled="!selectedRowKeys.length" @click="onBatchDelete">删除</Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="noticeId"
         class="system-pro-table"
         :row-selection="rowSelection"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :pagination="{
           current: query.pageNum,
           pageSize: query.pageSize,
@@ -257,7 +256,7 @@ fetchList();
             </div>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal v-model:open="detailOpen" title="公告详情" :footer="null" width="720px">

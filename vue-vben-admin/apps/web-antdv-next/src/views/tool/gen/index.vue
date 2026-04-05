@@ -5,7 +5,7 @@ import { downloadFileFromBlob } from '@vben/utils';
 import { computed, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
 import { Button, Form, FormItem, Input, message, Modal, Table, Tabs, TabPane } from 'antdv-next';
 
@@ -190,7 +190,7 @@ fetchList();
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="代码生成"
       :show-column-setting="false"
@@ -219,14 +219,13 @@ fetchList();
         <Button @click="batchGenSelected">生成代码</Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="tableId"
         class="system-pro-table"
         :row-selection="rowSelection"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :pagination="{
           current: query.pageNum,
           pageSize: query.pageSize,
@@ -251,7 +250,7 @@ fetchList();
             </div>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal v-model:open="importOpen" title="导入表" width="900px" @ok="submitImport">

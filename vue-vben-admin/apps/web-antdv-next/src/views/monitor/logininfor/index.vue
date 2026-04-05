@@ -3,9 +3,9 @@ import { Page } from '@vben/common-ui';
 import { downloadFileFromBlob } from '@vben/utils';
 import { computed, reactive, ref } from 'vue';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
-import { Button, DatePicker, Form, FormItem, Input, message, Modal, Select, Table, Tag } from 'antdv-next';
+import { Button, DatePicker, Form, FormItem, Input, message, Modal, Select, Tag } from 'antdv-next';
 
 import { cleanLogininfor, delLogininfor, exportLogininfor, listLogininfor } from '#/api';
 
@@ -162,7 +162,7 @@ fetchList();
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="登录日志"
       :show-column-setting="false"
@@ -195,14 +195,13 @@ fetchList();
         <Button danger @click="onClean">清空</Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="infoId"
         class="system-pro-table"
         :row-selection="rowSelection"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :scroll="{ x: 1400 }"
         :pagination="{
           current: query.pageNum,
@@ -227,7 +226,7 @@ fetchList();
             <Button type="link" size="small" danger class="!px-1" @click="onDelete(asLoginRow(record))">删除</Button>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
   </Page>
 </template>

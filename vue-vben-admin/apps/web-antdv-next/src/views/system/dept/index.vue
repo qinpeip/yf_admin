@@ -3,7 +3,7 @@ import { Page } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 import { computed, reactive, ref } from 'vue';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
 import {
   Button,
@@ -16,7 +16,6 @@ import {
   Modal,
   RadioGroup,
   Select,
-  Table,
   Tag,
   TreeSelect,
 } from 'antdv-next';
@@ -258,13 +257,12 @@ fetchList();
         <Button @click="expandAll = !expandAll">{{ expandAll ? '全部折叠' : '全部展开' }}</Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="deptId"
         class="system-pro-table"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :pagination="false"
         :default-expand-all-rows="expandAll"
         :scroll="{ x: 1100 }"
@@ -291,7 +289,7 @@ fetchList();
             </div>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal v-model:open="colModalOpen" title="列设置" @ok="colModalOpen = false">

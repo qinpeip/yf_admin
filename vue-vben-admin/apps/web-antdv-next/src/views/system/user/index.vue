@@ -18,7 +18,6 @@ import {
   Select,
   Space,
   Switch,
-  Table,
   TextArea,
   Tree,
   TreeSelect,
@@ -35,7 +34,7 @@ import {
   resetUserPwd,
   updateUser,
 } from '#/api';
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 import { useDict } from '#/composables/use-dict';
 
 const router = useRouter();
@@ -342,9 +341,15 @@ fetchList();
         </Space>
       </Card>
 
-      <div class="min-w-0 lg:col-span-9">
-        <SystemProShell table-title="用户列表" :show-column-setting="false" @search="doSearch" @reset="resetQuery"
-          @refresh="fetchList">
+      <div class="flex min-h-0 min-w-0 flex-col lg:col-span-9">
+        <SystemProShell
+          class="min-h-0 flex-1"
+          table-title="用户列表"
+          :show-column-setting="false"
+          @search="doSearch"
+          @reset="resetQuery"
+          @refresh="fetchList"
+        >
           <template #search>
             <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <Form :model="query" class="contents">
@@ -372,8 +377,14 @@ fetchList();
             </Button>
           </template>
 
-          <Table row-key="userId" class="system-pro-table" :loading="loading" :columns="columns" :data-source="rows"
-            size="middle" :scroll="{ x: 1280 }" :pagination="{
+          <SystemProTable
+            row-key="userId"
+            class="system-pro-table"
+            :loading="loading"
+            :columns="columns"
+            :data-source="rows"
+            :scroll="{ x: 1280 }"
+            :pagination="{
               current: query.pageNum,
               pageSize: query.pageSize,
               total,
@@ -385,7 +396,8 @@ fetchList();
                 query.pageSize = pageSize;
                 fetchList();
               },
-            }">
+            }"
+          >
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'status'">
                 <Switch :checked="asUserRow(record).status === '0'" checked-children="已启用" un-checked-children="已禁用"
@@ -412,7 +424,7 @@ fetchList();
                 </div>
               </template>
             </template>
-          </Table>
+          </SystemProTable>
         </SystemProShell>
       </div>
     </div>

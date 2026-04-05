@@ -4,9 +4,9 @@ import { Plus } from '@vben/icons';
 import { downloadFileFromBlob } from '@vben/utils';
 import { computed, reactive, ref } from 'vue';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
-import { Button, Form, FormItem, Input, InputNumber, message, Modal, Select, Table, Tag, TextArea } from 'antdv-next';
+import { Button, Form, FormItem, Input, InputNumber, message, Modal, Select, Tag, TextArea } from 'antdv-next';
 
 import { addPost, delPost, exportPost, listPost, updatePost } from '#/api';
 
@@ -174,7 +174,7 @@ fetchList();
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="岗位列表"
       :show-column-setting="false"
@@ -207,14 +207,13 @@ fetchList();
         <Button @click="handleExport">导出</Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="postId"
         class="system-pro-table"
         :row-selection="rowSelection"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :pagination="{
           current: query.pageNum,
           pageSize: query.pageSize,
@@ -241,7 +240,7 @@ fetchList();
             </div>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal v-model:open="editOpen" :title="editForm.postId ? '修改岗位' : '新增岗位'" @ok="submitEdit">

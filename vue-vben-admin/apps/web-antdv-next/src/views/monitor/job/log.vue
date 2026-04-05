@@ -4,7 +4,7 @@ import { downloadFileFromBlob } from '@vben/utils';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
 import {
   Button,
@@ -15,7 +15,6 @@ import {
   message,
   Modal,
   Select,
-  Table,
 } from 'antdv-next';
 
 import {
@@ -174,7 +173,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="调度日志"
       :show-column-setting="false"
@@ -208,13 +207,12 @@ onMounted(async () => {
         <Button @click="goBack">关闭</Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="jobLogId"
         class="system-pro-table"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :row-selection="rowSelection"
         :scroll="{ x: 1200 }"
         :pagination="{
@@ -239,7 +237,7 @@ onMounted(async () => {
             <Button type="link" size="small" class="!px-1" @click="openDetail(record)">详细</Button>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal v-model:open="detailOpen" title="调度日志详细" width="720px" :footer="null">

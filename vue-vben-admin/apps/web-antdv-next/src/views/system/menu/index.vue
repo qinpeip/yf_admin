@@ -3,7 +3,7 @@ import { IconPicker, Page } from '@vben/common-ui';
 import { IconifyIcon, Plus } from '@vben/icons';
 import { computed, reactive, ref, watch } from 'vue';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 import { normalizeMenuIconToIconify } from '#/utils/menu-icon';
 
 import {
@@ -17,7 +17,6 @@ import {
   Modal,
   RadioGroup,
   Select,
-  Table,
   TreeSelect,
 } from 'antdv-next';
 
@@ -305,8 +304,9 @@ fetchList();
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
+      :scroll-bottom-reserve="64"
       table-title="菜单列表"
       @search="doSearch"
       @reset="resetQuery"
@@ -334,14 +334,13 @@ fetchList();
         <Button @click="expandAll = !expandAll">{{ expandAll ? '折叠' : '展开' }}</Button>
       </template>
 
-      <Table
+      <SystemProTable
         :key="tableRenderKey"
         row-key="menuId"
         class="system-pro-table"
         :loading="loading"
         :columns="columns"
         :data-source="menuTreeData"
-        size="middle"
         :pagination="false"
         :default-expand-all-rows="expandAll"
         :scroll="{ x: 1320 }"
@@ -377,7 +376,7 @@ fetchList();
             </div>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal v-model:open="colModalOpen" title="列设置" @ok="colModalOpen = false">

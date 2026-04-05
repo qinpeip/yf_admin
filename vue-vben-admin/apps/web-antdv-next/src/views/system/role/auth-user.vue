@@ -3,9 +3,9 @@ import { Page } from '@vben/common-ui';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
-import { Button, Form, FormItem, Input, message, Modal, Table } from 'antdv-next';
+import { Button, Form, FormItem, Input, message, Modal } from 'antdv-next';
 
 import { allocatedUserList, authUserCancel, authUserCancelAll } from '#/api';
 
@@ -122,7 +122,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="分配用户"
       :show-column-setting="false"
@@ -149,13 +149,12 @@ onMounted(() => {
         <Button @click="goBack">关闭</Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="userId"
         class="system-pro-table"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :row-selection="rowSelection"
         :scroll="{ x: 1000 }"
         :pagination="{
@@ -180,7 +179,7 @@ onMounted(() => {
             <Button type="link" size="small" class="!px-1" danger @click="cancelOne(record)">取消授权</Button>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <RoleSelectUser v-if="roleId" ref="selectRef" :role-id="roleId" @ok="fetchList" />

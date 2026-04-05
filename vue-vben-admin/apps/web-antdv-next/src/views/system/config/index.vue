@@ -4,9 +4,9 @@ import { Plus } from '@vben/icons';
 import { downloadFileFromBlob } from '@vben/utils';
 import { computed, reactive, ref } from 'vue';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
-import { Button, Form, FormItem, Input, message, Modal, Select, Table, TextArea } from 'antdv-next';
+import { Button, Form, FormItem, Input, message, Modal, Select, TextArea } from 'antdv-next';
 
 import { addConfig, delConfig, exportConfig, listConfig, refreshConfigCache, updateConfig } from '#/api';
 
@@ -178,7 +178,7 @@ fetchList();
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="参数列表"
       :show-column-setting="false"
@@ -209,14 +209,13 @@ fetchList();
         <Button @click="onRefreshCache">刷新缓存</Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="configId"
         class="system-pro-table"
         :row-selection="rowSelection"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :pagination="{
           current: query.pageNum,
           pageSize: query.pageSize,
@@ -239,7 +238,7 @@ fetchList();
             </div>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal v-model:open="editOpen" :title="editForm.configId ? '修改参数' : '新增参数'" @ok="submitEdit">

@@ -4,7 +4,7 @@ import { Plus } from '@vben/icons';
 import { computed, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
 import {
   Button,
@@ -18,7 +18,6 @@ import {
   Modal,
   Select,
   Switch,
-  Table,
   TextArea,
   Tree,
 } from 'antdv-next';
@@ -329,7 +328,7 @@ fetchList();
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="角色列表"
       @search="doSearch"
@@ -369,13 +368,12 @@ fetchList();
         </Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="roleId"
         class="system-pro-table"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :scroll="{ x: 1280 }"
         :pagination="{
           current: query.pageNum,
@@ -431,7 +429,7 @@ fetchList();
             </div>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal v-model:open="colModalOpen" title="列设置" @ok="colModalOpen = false">

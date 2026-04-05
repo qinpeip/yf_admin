@@ -113,7 +113,6 @@ defineExpose({ show });
       :loading="loading"
       :columns="columns"
       :data-source="rows"
-      size="middle"
       :row-selection="rowSelection"
       :scroll="{ y: 260 }"
       :pagination="{

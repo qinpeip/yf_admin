@@ -3,9 +3,9 @@ import { Page } from '@vben/common-ui';
 import { downloadFileFromBlob } from '@vben/utils';
 import { computed, reactive, ref } from 'vue';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
-import { Button, DatePicker, Form, FormItem, Input, message, Modal, Select, Table, Tag } from 'antdv-next';
+import { Button, DatePicker, Form, FormItem, Input, message, Modal, Select, Tag } from 'antdv-next';
 
 import { cleanOperlog, delOperlog, exportOperlog, listOperlog } from '#/api';
 
@@ -190,7 +190,7 @@ fetchList();
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="操作日志"
       :show-column-setting="false"
@@ -232,14 +232,13 @@ fetchList();
         <Button danger @click="onClean">清空</Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="operId"
         class="system-pro-table"
         :row-selection="rowSelection"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :scroll="{ x: 1200 }"
         :pagination="{
           current: query.pageNum,
@@ -267,7 +266,7 @@ fetchList();
             </div>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal v-model:open="viewOpen" title="操作日志详情" :footer="null" width="820px">

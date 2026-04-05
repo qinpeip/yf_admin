@@ -5,7 +5,7 @@ import { downloadFileFromBlob } from '@vben/utils';
 import { computed, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { SystemProShell } from '#/components/system-pro';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
 import {
   Button,
@@ -312,7 +312,7 @@ fetchList();
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height content-stable-layout>
     <SystemProShell
       table-title="定时任务列表"
       :show-column-setting="false"
@@ -345,13 +345,12 @@ fetchList();
         <Button @click="openJobLogs">调度日志</Button>
       </template>
 
-      <Table
+      <SystemProTable
         row-key="jobId"
         class="system-pro-table"
         :loading="loading"
         :columns="columns"
         :data-source="rows"
-        size="middle"
         :scroll="{ x: 1100 }"
         :pagination="{
           current: query.pageNum,
@@ -392,7 +391,7 @@ fetchList();
             </div>
           </template>
         </template>
-      </Table>
+      </SystemProTable>
     </SystemProShell>
 
     <Modal

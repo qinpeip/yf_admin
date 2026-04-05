@@ -112,7 +112,6 @@ onMounted(load);
         :columns="columns"
         :data-source="pagedRoles"
         :row-selection="rowSelection"
-        size="middle"
         :pagination="{
           current: pageNum,
           pageSize,
