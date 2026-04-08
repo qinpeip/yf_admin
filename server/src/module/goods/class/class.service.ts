@@ -92,17 +92,22 @@ export class ClassService {
       const key = query.isAsc === 'ascending' ? 'ASC' : 'DESC';
       entity.orderBy(`entity.${query.orderByColumn}`, key);
     }
-
-    if (query.pageNum && query.pageSize) {
-      entity.skip(query.pageSize * (query.pageNum - 1)).take(query.pageSize);
-    }
-
-    const [list, total] = await entity.getManyAndCount();
-
+    const list = await entity.getMany();
+    console.log(list);
     return ResultData.ok({
-      list,
-      total,
+      list: this.buildTree(list, 0),
     });
+  }
+
+  buildTree(data: GoodsClassEntity[], parentId: number) {
+    return data
+      .filter((item) => item.parentId === parentId)
+      .map((item) => {
+        return {
+          ...item,
+          children: this.buildTree(data, item.classId),
+        };
+      });
   }
 
   async findOne(classId: number) {
