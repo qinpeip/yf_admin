@@ -13,6 +13,7 @@ import { UploadModule } from './module/upload/upload.module';
 import { SystemModule } from './module/system/system.module';
 import { CommonModule } from './module/common/common.module';
 import { MonitorModule } from './module/monitor/monitor.module';
+import { GoodsModule } from './module/goods/goods.module';
 
 @Global()
 @Module({
@@ -45,6 +46,7 @@ import { MonitorModule } from './module/monitor/monitor.module';
     CommonModule,
     SystemModule,
     MonitorModule,
+    GoodsModule,
   ],
   providers: [
     {

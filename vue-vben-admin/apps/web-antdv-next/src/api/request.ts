@@ -101,6 +101,21 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
     }),
   );
 
+  /**
+   * 兼容“业务 code=401 但 HTTP=200”的登录过期场景：
+   * - defaultResponseInterceptor 会抛出 error（response.status 仍是 200）
+   * - authenticateResponseInterceptor 仅处理 HTTP 401，因此这里补一层
+   */
+  client.addResponseInterceptor({
+    rejected: async (error) => {
+      const responseData = error?.response?.data;
+      if (responseData?.code === 401) {
+        await doReAuthenticate();
+      }
+      throw error;
+    },
+  });
+
   client.addResponseInterceptor(
     authenticateResponseInterceptor({
       client,

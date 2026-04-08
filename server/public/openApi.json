@@ -4921,6 +4921,822 @@
           }
         ]
       }
+    },
+    "/goods/category": {
+      "post": {
+        "operationId": "CategoryController_create",
+        "summary": "商品分类-创建",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/BaseCategoryDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "商品分类"
+        ]
+      },
+      "put": {
+        "operationId": "CategoryController_update",
+        "summary": "商品分类-修改",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "boolean",
+                              "default": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "商品分类"
+        ]
+      }
+    },
+    "/goods/category/list": {
+      "get": {
+        "operationId": "CategoryController_findAll",
+        "summary": "商品分类-列表",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "description": "分类ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": false,
+            "in": "query",
+            "description": "租户ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "ownerUserId",
+            "required": false,
+            "in": "query",
+            "description": "数据所有者用户ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "createBy",
+            "required": false,
+            "in": "query",
+            "description": "创建者",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "createTime",
+            "required": false,
+            "in": "query",
+            "description": "创建时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "updateBy",
+            "required": false,
+            "in": "query",
+            "description": "更新者",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "updateTime",
+            "required": false,
+            "in": "query",
+            "description": "更新时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "deleteTime",
+            "required": false,
+            "in": "query",
+            "description": "删除时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "名称",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "parentId",
+            "required": false,
+            "in": "query",
+            "description": "父ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "排序",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "icon",
+            "required": false,
+            "in": "query",
+            "description": "图标",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "description",
+            "required": false,
+            "in": "query",
+            "description": "描述",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "状态",
+            "schema": {
+              "enum": [
+                "0",
+                "1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNum",
+            "required": true,
+            "in": "query",
+            "description": "当前分页",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": true,
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderByColumn",
+            "required": false,
+            "in": "query",
+            "description": "排序字段",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isAsc",
+            "required": false,
+            "in": "query",
+            "description": "排序规则",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ListCategoryDto"
+                              }
+                            },
+                            "total": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "商品分类"
+        ]
+      }
+    },
+    "/goods/category/tree": {
+      "get": {
+        "operationId": "CategoryController_listTree",
+        "summary": "商品分类-树形列表",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ListCategoryDto"
+                              }
+                            },
+                            "total": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "商品分类"
+        ]
+      }
+    },
+    "/goods/category/{categoryId}": {
+      "get": {
+        "operationId": "CategoryController_findOne",
+        "summary": "商品分类-详情",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/BaseCategoryDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "商品分类"
+        ]
+      },
+      "delete": {
+        "operationId": "CategoryController_remove",
+        "summary": "商品分类-删除",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "boolean",
+                              "default": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "商品分类"
+        ]
+      }
+    },
+    "/goods/craftsmanship": {
+      "post": {
+        "operationId": "CraftsmanshipController_create",
+        "summary": "工艺-创建",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCraftsmanshipDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/BaseCraftsmanshipDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "工艺"
+        ]
+      },
+      "put": {
+        "operationId": "CraftsmanshipController_update",
+        "summary": "工艺-修改",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCraftsmanshipDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "boolean",
+                              "default": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "工艺"
+        ]
+      }
+    },
+    "/goods/craftsmanship/list": {
+      "get": {
+        "operationId": "CraftsmanshipController_findAll",
+        "summary": "工艺-列表",
+        "parameters": [
+          {
+            "name": "craftsmanshipId",
+            "required": false,
+            "in": "query",
+            "description": "工艺ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": false,
+            "in": "query",
+            "description": "租户ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "ownerUserId",
+            "required": false,
+            "in": "query",
+            "description": "数据所有者用户ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "createBy",
+            "required": false,
+            "in": "query",
+            "description": "创建者",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "createTime",
+            "required": false,
+            "in": "query",
+            "description": "创建时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "updateBy",
+            "required": false,
+            "in": "query",
+            "description": "更新者",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "updateTime",
+            "required": false,
+            "in": "query",
+            "description": "更新时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "deleteTime",
+            "required": false,
+            "in": "query",
+            "description": "删除时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "名称",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "排序",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "description",
+            "required": false,
+            "in": "query",
+            "description": "描述",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNum",
+            "required": true,
+            "in": "query",
+            "description": "当前分页",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": true,
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderByColumn",
+            "required": false,
+            "in": "query",
+            "description": "排序字段",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isAsc",
+            "required": false,
+            "in": "query",
+            "description": "排序规则",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ListCraftsmanshipDto"
+                              }
+                            },
+                            "total": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "工艺"
+        ]
+      }
+    },
+    "/goods/craftsmanship/{craftsmanshipId}": {
+      "get": {
+        "operationId": "CraftsmanshipController_findOne",
+        "summary": "工艺-详情",
+        "parameters": [
+          {
+            "name": "craftsmanshipId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/BaseCraftsmanshipDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "工艺"
+        ]
+      },
+      "delete": {
+        "operationId": "CraftsmanshipController_remove",
+        "summary": "工艺-删除",
+        "parameters": [
+          {
+            "name": "craftsmanshipId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "boolean",
+                              "default": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "工艺"
+        ]
+      }
     }
   },
   "info": {
@@ -6666,6 +7482,438 @@
           "costTime": {
             "type": "number",
             "description": "消耗时间"
+          }
+        }
+      },
+      "BaseCategoryDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "number",
+            "description": "分类ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建者"
+          },
+          "createTime": {
+            "description": "创建时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "icon": {
+            "type": "string",
+            "description": "图标"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "description": "状态"
+          }
+        }
+      },
+      "CreateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "icon": {
+            "type": "string",
+            "description": "图标"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "description": "状态"
+          }
+        }
+      },
+      "ListCategoryDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "number",
+            "description": "分类ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "icon": {
+            "type": "string",
+            "description": "图标"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "description": "状态"
+          }
+        }
+      },
+      "UpdateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "number",
+            "description": "分类ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "icon": {
+            "type": "string",
+            "description": "图标"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "description": "状态"
+          }
+        }
+      },
+      "BaseCraftsmanshipDto": {
+        "type": "object",
+        "properties": {
+          "craftsmanshipId": {
+            "type": "number",
+            "description": "工艺ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建者"
+          },
+          "createTime": {
+            "description": "创建时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
+          }
+        }
+      },
+      "CreateCraftsmanshipDto": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
+          }
+        }
+      },
+      "ListCraftsmanshipDto": {
+        "type": "object",
+        "properties": {
+          "craftsmanshipId": {
+            "type": "number",
+            "description": "工艺ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
+          }
+        }
+      },
+      "UpdateCraftsmanshipDto": {
+        "type": "object",
+        "properties": {
+          "craftsmanshipId": {
+            "type": "number",
+            "description": "工艺ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
           }
         }
       }

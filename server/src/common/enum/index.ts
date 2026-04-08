@@ -56,6 +56,11 @@ export enum CacheEnum {
    * 部门
    */
   SYS_DEPT_KEY = 'sys_dept:',
+
+  /**
+   * 商品分类
+   */
+  SYS_GOODS_CATEGORY_KEY = 'goods_category:',
 }
 
 /**
