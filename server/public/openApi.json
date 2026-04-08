@@ -5737,6 +5737,416 @@
           "工艺"
         ]
       }
+    },
+    "/goods/class": {
+      "post": {
+        "operationId": "ClassController_create",
+        "summary": "商品类目-创建",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/BaseClassDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "商品类目"
+        ]
+      },
+      "put": {
+        "operationId": "ClassController_update",
+        "summary": "商品类目-修改",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClassDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "boolean",
+                              "default": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "商品类目"
+        ]
+      }
+    },
+    "/goods/class/list": {
+      "get": {
+        "operationId": "ClassController_findAll",
+        "summary": "商品类目-列表",
+        "parameters": [
+          {
+            "name": "classId",
+            "required": false,
+            "in": "query",
+            "description": "类目ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": false,
+            "in": "query",
+            "description": "租户ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "ownerUserId",
+            "required": false,
+            "in": "query",
+            "description": "数据所有者用户ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "createBy",
+            "required": false,
+            "in": "query",
+            "description": "创建者",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "createTime",
+            "required": false,
+            "in": "query",
+            "description": "创建时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "updateBy",
+            "required": false,
+            "in": "query",
+            "description": "更新者",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "updateTime",
+            "required": false,
+            "in": "query",
+            "description": "更新时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "deleteTime",
+            "required": false,
+            "in": "query",
+            "description": "删除时间",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "名称",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "parentId",
+            "required": false,
+            "in": "query",
+            "description": "父ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "排序",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "deptId",
+            "required": false,
+            "in": "query",
+            "description": "部门ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "类目类型：1-定制性商品，2-非定制型商品",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "状态",
+            "schema": {
+              "enum": [
+                "0",
+                "1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "description",
+            "required": false,
+            "in": "query",
+            "description": "描述",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNum",
+            "required": true,
+            "in": "query",
+            "description": "当前分页",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": true,
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderByColumn",
+            "required": false,
+            "in": "query",
+            "description": "排序字段",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isAsc",
+            "required": false,
+            "in": "query",
+            "description": "排序规则",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ListClassDto"
+                              }
+                            },
+                            "total": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "商品类目"
+        ]
+      }
+    },
+    "/goods/class/{classId}": {
+      "get": {
+        "operationId": "ClassController_findOne",
+        "summary": "商品类目-详情",
+        "parameters": [
+          {
+            "name": "classId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/BaseClassDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "商品类目"
+        ]
+      },
+      "delete": {
+        "operationId": "ClassController_remove",
+        "summary": "商品类目-删除",
+        "parameters": [
+          {
+            "name": "classId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "boolean",
+                              "default": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "商品类目"
+        ]
+      }
     }
   },
   "info": {
@@ -7914,6 +8324,284 @@
           "description": {
             "type": "string",
             "description": "描述"
+          }
+        }
+      },
+      "BaseClassDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "number",
+            "description": "类目ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建者"
+          },
+          "createTime": {
+            "description": "创建时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "deptId": {
+            "type": "number",
+            "description": "部门ID"
+          },
+          "type": {
+            "type": "string",
+            "description": "类目类型：1-定制性商品，2-非定制型商品"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "description": "状态"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
+          }
+        }
+      },
+      "CreateClassDto": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "deptId": {
+            "type": "number",
+            "description": "部门ID"
+          },
+          "type": {
+            "type": "string",
+            "description": "类目类型：1-定制性商品，2-非定制型商品"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "description": "状态"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
+          },
+          "attrs": {
+            "description": "属性列表",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ListClassDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "number",
+            "description": "类目ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "deptId": {
+            "type": "number",
+            "description": "部门ID"
+          },
+          "type": {
+            "type": "string",
+            "description": "类目类型：1-定制性商品，2-非定制型商品"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "description": "状态"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
+          }
+        }
+      },
+      "UpdateClassDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "number",
+            "description": "类目ID"
+          },
+          "tenantId": {
+            "type": "number",
+            "description": "租户ID"
+          },
+          "ownerUserId": {
+            "type": "number",
+            "description": "数据所有者用户ID"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新者"
+          },
+          "updateTime": {
+            "description": "更新时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteTime": {
+            "description": "删除时间",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "名称"
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父ID"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序"
+          },
+          "deptId": {
+            "type": "number",
+            "description": "部门ID"
+          },
+          "type": {
+            "type": "string",
+            "description": "类目类型：1-定制性商品，2-非定制型商品"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "description": "状态"
+          },
+          "description": {
+            "type": "string",
+            "description": "描述"
+          },
+          "attrs": {
+            "description": "属性列表",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }

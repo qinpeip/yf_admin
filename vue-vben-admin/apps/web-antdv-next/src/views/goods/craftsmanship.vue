@@ -137,7 +137,8 @@ fetchList();
 <template>
   <Page auto-content-height content-stable-layout>
     <SystemProShell table-title="工艺" :show-column-setting="false" @search="doSearch" @reset="resetQuery"
-      @refresh="fetchList">
+      @refresh="fetchList"
+      class_type_options>
       <template #search>
         <Form :model="query" class="contents">
           <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">

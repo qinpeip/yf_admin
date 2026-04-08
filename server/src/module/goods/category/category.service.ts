@@ -113,7 +113,13 @@ export class GoodsCategoryService {
       return ResultData.ok({ value: false });
     }
     const { categoryId, ...payload } = updateCategoryDto;
-    await this.categoryEntityRep.update({ categoryId }, payload);
+    await this.categoryEntityRep.update(
+      { categoryId },
+      {
+        ...payload,
+        updateBy: user.userName,
+      },
+    );
     return ResultData.ok({ value: true });
   }
 

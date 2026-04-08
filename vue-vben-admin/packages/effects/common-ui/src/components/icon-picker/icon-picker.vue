@@ -180,6 +180,9 @@ const getBindAttrs = computed(() => {
   return objectOmit(attrs, [`onUpdate:${props.modelValueProp}`]);
 });
 
+const handleChange = (e: { target: { value: string; }; }) => {
+  updateCurrentSelect(e.target.value);
+}
 defineExpose({ toggleOpenState, open, close });
 </script>
 <template>
@@ -219,6 +222,7 @@ defineExpose({ toggleOpenState, open, close });
             role="combobox"
             :aria-label="$t('ui.iconPicker.placeholder')"
             aria-expanded="visible"
+            @change="handleChange"
           />
           <VbenIcon
             :icon="currentSelect || Grip"
@@ -241,7 +245,6 @@ defineExpose({ toggleOpenState, open, close });
         v-bind="searchInputProps"
       />
       <Input
-        v-else
         class="mx-2 h-8 w-full"
         :placeholder="$t('ui.iconPicker.search')"
         v-model="keyword"
