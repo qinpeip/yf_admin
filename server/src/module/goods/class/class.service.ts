@@ -6,6 +6,7 @@ import { CreateClassDto, UpdateClassDto, QueryClassDto } from './dto/class.dto';
 import { GoodsClassEntity } from './entities/class.entity';
 import { GoodsClassAttrsEntity } from './entities/class-attrs.entity';
 import { isEmpty } from 'src/common/utils';
+import { UserType } from 'src/module/system/user/dto/user';
 
 @Injectable()
 export class ClassService {
@@ -16,12 +17,15 @@ export class ClassService {
     private readonly classAttrsEntityRep: Repository<GoodsClassAttrsEntity>,
   ) {}
 
-  async create(createClassDto: CreateClassDto) {
+  async create(createClassDto: CreateClassDto, user: UserType['user']) {
     const { attrs, ...classPayload } = createClassDto as any;
     const attrText = attrs.map((a) => `${a.attrName}`).join(';');
     const res = await this.classEntityRep.save({
       ...createClassDto,
       attrText,
+      ownerUserId: user.userId,
+      deptId: user.deptId,
+      createBy: user.userName,
     });
     return ResultData.ok(res);
   }
@@ -93,7 +97,6 @@ export class ClassService {
       entity.orderBy(`entity.${query.orderByColumn}`, key);
     }
     const list = await entity.getMany();
-    console.log(list);
     return ResultData.ok({
       list: this.buildTree(list, 0),
     });
@@ -103,9 +106,10 @@ export class ClassService {
     return data
       .filter((item) => item.parentId === parentId)
       .map((item) => {
+        const children = this.buildTree(data, item.classId);
         return {
           ...item,
-          children: this.buildTree(data, item.classId),
+          children: children.length > 0 ? children : undefined,
         };
       });
   }
@@ -122,7 +126,7 @@ export class ClassService {
     return ResultData.ok(res);
   }
 
-  async update(updateClassDto: UpdateClassDto) {
+  async update(updateClassDto: UpdateClassDto, user: UserType['user']) {
     const { classId } = updateClassDto;
     const exist = await this.classEntityRep.findOne({
       where: { classId },
@@ -137,6 +141,7 @@ export class ClassService {
     Object.assign(exist, classPayload);
     const attrText = _attrs.map((a) => `${a.attrName}`).join(';');
     exist.attrText = attrText;
+    exist.updateBy = user.userName;
     // 2) 同步 attrs：insert/update + 删除不再存在的行
     const incomingAttrs: any[] = Array.isArray(updateClassDto.attrs) ? updateClassDto.attrs : [];
     const normalizedAttrs = incomingAttrs.map((a) => ({
@@ -163,6 +168,14 @@ export class ClassService {
   }
 
   async remove(classIds: number[]) {
+    const hasChildren = await this.classEntityRep.exist({
+      where: {
+        parentId: In(classIds),
+      },
+    });
+    if (hasChildren) {
+      return ResultData.fail(500, '该类目下有子类目，不能删除');
+    }
     const res = await this.classEntityRep.delete({ classId: In(classIds) });
     return ResultData.ok({ value: res.affected >= 1 });
   }

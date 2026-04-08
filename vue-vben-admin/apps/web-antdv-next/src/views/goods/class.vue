@@ -5,7 +5,17 @@ import { Page } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 import { cloneDeep, generateUUID } from '@vben/utils';
 
-import { Button, Form, FormItem, Input, message, Modal, Radio, RadioGroup } from 'antdv-next';
+import {
+  Button,
+  Form,
+  FormItem,
+  Input,
+  message,
+  Modal,
+  Radio,
+  RadioGroup,
+  TreeSelect,
+} from 'antdv-next';
 
 import {
   addClass,
@@ -109,7 +119,7 @@ const editForm = reactive<EditForm>({ attrs: [] });
 function openAdd() {
   Object.keys(editForm).forEach((k) => delete (editForm as any)[k]);
   (editForm as any).name = '';
-  (editForm as any).parentId = undefined;
+  (editForm as any).parentId = 0;
   (editForm as any).sort = 0;
   (editForm as any).type = '1';
   (editForm as any).description = '';
@@ -144,6 +154,10 @@ async function submitEdit() {
   );
   if (hasDuplicateAttrName) {
     message.warning('属性名称不能重复');
+    return;
+  }
+  if (editForm.parentId === editForm.classId) {
+    message.warning('所属类目不能与自身相同');
     return;
   }
   await (editForm.classId ? updateClass(editForm as any) : addClass(editForm as any));
@@ -181,6 +195,7 @@ const handleTypeChange = () => {
             enable: true,
           },
         ];
+  editForm.parentId = 0;
 };
 
 fetchList();
@@ -226,19 +241,7 @@ fetchList();
         :columns="columns"
         :data-source="rows"
         :scroll="{ x: 1200 }"
-        :pagination="{
-          current: query.pageNum,
-          pageSize: query.pageSize,
-          total,
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (t: any) => `共 ${t} 条`,
-          onChange: (page: number, pageSize: number) => {
-            query.pageNum = page;
-            query.pageSize = pageSize;
-            fetchList();
-          },
-        }"
+        :pagination="false"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'type'">
@@ -285,16 +288,28 @@ fetchList();
             </Radio>
           </RadioGroup>
         </FormItem>
+        <FormItem label="所属类目">
+          <TreeSelect
+            v-model:value="(editForm as any).parentId"
+            placeholder="请选择所属类目"
+            :tree-data="[
+              {
+                name: '1级类目',
+                classId: 0,
+                children: rows.filter((item) => item.type === editForm.type),
+              },
+            ]"
+            :field-names="{ value: 'classId', label: 'name', children: 'children' }"
+          />
+        </FormItem>
         <FormItem label="名称">
           <Input v-model:value="(editForm as any).name" placeholder="请输入名称" />
         </FormItem>
-        <FormItem label="父ID">
-          <Input v-model:value="(editForm as any).parentId" placeholder="请输入父ID" />
-        </FormItem>
+
         <FormItem label="排序">
           <Input v-model:value="(editForm as any).sort" placeholder="请输入排序" />
         </FormItem>
-        <ClassAttrsTable v-model="editForm.attrs" :type="editForm.type as string" />
+        <ClassAttrsTable v-model="editForm.attrs" :type="editForm.type as string" :list="rows" />
       </Form>
     </Modal>
   </Page>

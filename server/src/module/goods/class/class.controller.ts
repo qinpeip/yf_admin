@@ -4,6 +4,8 @@ import { RequirePermission } from 'src/common/decorators/require-premission.deco
 import { ClassService } from './class.service';
 import { CreateClassDto, BaseClassDto, UpdateClassDto, QueryClassDto, ListClassDto } from './dto/class.dto';
 import { ApiDataResponse } from 'src/common/decorators/apiDataResponse.decorator';
+import { User } from 'src/module/system/user/user.decorator';
+import { UserType } from 'src/module/system/user/dto/user';
 
 @ApiTags('商品类目')
 @Controller('goods/class')
@@ -14,8 +16,8 @@ export class ClassController {
   @ApiDataResponse(BaseClassDto)
   @RequirePermission('goods:class:add')
   @Post()
-  create(@Body() body: CreateClassDto) {
-    return this.classService.create(body);
+  create(@Body() body: CreateClassDto, @User() user: UserType) {
+    return this.classService.create(body, user.user);
   }
 
   @ApiOperation({ summary: '商品类目-列表' })
@@ -38,8 +40,8 @@ export class ClassController {
   @ApiDataResponse()
   @RequirePermission('goods:class:edit')
   @Put()
-  update(@Body() body: UpdateClassDto) {
-    return this.classService.update(body);
+  update(@Body() body: UpdateClassDto, @User() user: UserType) {
+    return this.classService.update(body, user.user);
   }
 
   @ApiOperation({ summary: '商品类目-删除' })
