@@ -4,19 +4,19 @@
 import type { RequestClientOptions } from '@vben/request';
 
 import { useAppConfig } from '@vben/hooks';
-import { preferences } from '@vben/preferences';
 import {
   authenticateResponseInterceptor,
   defaultResponseInterceptor,
   errorMessageResponseInterceptor,
   RequestClient,
 } from '@vben/request';
-import { useAccessStore } from '@vben/stores';
 
 import { message } from 'antdv-next';
 
 import { useAuthStore } from '#/store';
 
+import { preferences } from '../../node_modules/@vben/preferences/src/index';
+import { useAccessStore } from '../../node_modules/@vben/stores/src/index';
 import { refreshTokenApi } from './core';
 
 const { apiURL } = useAppConfig(import.meta.env, import.meta.env.PROD);

@@ -149,8 +149,13 @@ fetchList();
 
 <template>
   <Page auto-content-height content-stable-layout>
-    <SystemProShell table-title="商品分类" :show-column-setting="false" @search="doSearch" @reset="resetQuery"
-      @refresh="fetchList">
+    <SystemProShell
+      table-title="商品分类"
+      :show-column-setting="false"
+      @search="doSearch"
+      @reset="resetQuery"
+      @refresh="fetchList"
+    >
       <template #search>
         <Form :model="query" class="contents">
           <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
@@ -169,8 +174,15 @@ fetchList();
         <Button danger :disabled="selectedRowKeys.length === 0" @click="onBatchDelete">删除</Button>
       </template>
 
-      <SystemProTable row-key="categoryId" class="system-pro-table" :row-selection="rowSelection" :loading="loading"
-        :columns="columns" :data-source="rows" :scroll="{ x: 1200 }" :pagination="{
+      <SystemProTable
+        row-key="categoryId"
+        class="system-pro-table"
+        :row-selection="rowSelection"
+        :loading="loading"
+        :columns="columns"
+        :data-source="rows"
+        :scroll="{ x: 1200 }"
+        :pagination="{
           current: query.pageNum,
           pageSize: query.pageSize,
           total,
@@ -182,7 +194,8 @@ fetchList();
             query.pageSize = pageSize;
             fetchList();
           },
-        }">
+        }"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'action'">
             <div class="flex flex-wrap items-center gap-1">
@@ -204,9 +217,12 @@ fetchList();
           <Input v-model:value="(editForm as any).name" placeholder="请输入名称" />
         </FormItem>
         <FormItem label="所属分类">
-          <TreeSelect 
-          v-model:value="(editForm as any).parentId" :tree-data="categoryTree" placeholder="请选择父分类"
-            :field-names="{ value: 'categoryId', label: 'name' }" />
+          <TreeSelect
+            v-model:value="(editForm as any).parentId"
+            :tree-data="categoryTree"
+            placeholder="请选择父分类"
+            :field-names="{ value: 'categoryId', label: 'name' }"
+          />
         </FormItem>
         <FormItem label="排序">
           <Input v-model:value="(editForm as any).sort" placeholder="请输入排序" />

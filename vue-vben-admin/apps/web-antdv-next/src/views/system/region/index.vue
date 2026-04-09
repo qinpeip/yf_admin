@@ -4,7 +4,18 @@ import { computed, reactive, ref } from 'vue';
 import { Page } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
-import { Button, Form, FormItem, Input, message, Modal, Radio, RadioGroup, Select, Space } from 'antdv-next';
+import {
+  Button,
+  Form,
+  FormItem,
+  Input,
+  message,
+  Modal,
+  Radio,
+  RadioGroup,
+  Select,
+  Space,
+} from 'antdv-next';
 
 import {
   addRegion,
@@ -106,23 +117,25 @@ async function onDelete(row: Row) {
 const editOpen = ref(false);
 const editForm = reactive<Partial<Row>>({});
 
-const provinceList = ref<{ label: string; value: number, }[]>([]);
+const provinceList = ref<{ label: string; value: number }[]>([]);
 const currentProvinceId = ref<number | undefined>(undefined);
 const loadProvinceList = async () => {
   const res = await getProvinceList();
   provinceList.value = res.map((item) => ({ value: item.id, label: item.name }));
 };
-const cityList = ref<{ label: string; pid: number; value: number, }[]>([]);
+const cityList = ref<{ label: string; pid: number; value: number }[]>([]);
 const currentCityId = ref<number | undefined>(undefined);
-const cityOptions = computed(() => cityList.value.filter((item) => item.pid === currentProvinceId.value));
+const cityOptions = computed(() =>
+  cityList.value.filter((item) => item.pid === currentProvinceId.value),
+);
 const loadCityList = async () => {
   const res = await getCityList();
   cityList.value = res.map((item) => ({ value: item.id, label: item.name, pid: item.pid }));
-}
+};
 const handleLevelChange = () => {
   currentProvinceId.value = undefined;
   currentCityId.value = undefined;
-}
+};
 function openAdd() {
   Object.keys(editForm).forEach((k) => delete (editForm as any)[k]);
   (editForm as any).pid = 0;
@@ -155,7 +168,13 @@ async function openEdit(row: Row) {
   loadProvinceList();
   loadCityList();
   Promise.all([loadProvinceList(), loadCityList()]).then(() => {
-    if (editForm.level !== 1 && editForm.id && provinceList.value.length > 0 && cityList.value.length > 0 && editForm.pid) {
+    if (
+      editForm.level !== 1 &&
+      editForm.id &&
+      provinceList.value.length > 0 &&
+      cityList.value.length > 0 &&
+      editForm.pid
+    ) {
       if (editForm.level === 3) {
         currentCityId.value = editForm.pid;
         currentProvinceId.value = cityList.value.find((item) => item.value === editForm.pid)?.pid;
@@ -163,7 +182,7 @@ async function openEdit(row: Row) {
         currentProvinceId.value = editForm.pid;
       }
     }
-  })
+  });
 }
 
 async function submitEdit() {
@@ -195,23 +214,39 @@ const columns = computed(() => [
 fetchList();
 
 const region_type = useDict('region_type');
-const region_type_options = computed(() => region_type.region_type?.value?.map((item: any) => ({ label: item.label, value: item.value })));
-
+const region_type_options = computed(() =>
+  region_type.region_type?.value?.map((item: any) => ({ label: item.label, value: item.value })),
+);
 </script>
 
 <template>
   <Page auto-content-height content-stable-layout>
-    <SystemProShell table-title="地区表" :show-column-setting="false" @search="doSearch" @reset="resetQuery"
-      @refresh="fetchList">
+    <SystemProShell
+      table-title="地区表"
+      :show-column-setting="false"
+      @search="doSearch"
+      @reset="resetQuery"
+      @refresh="fetchList"
+    >
       <template #search>
         <Form :model="query">
           <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
             <FormItem name="name" label="地区名称" class="!mb-0">
-              <Input v-model:value="query.name" allow-clear placeholder="请输入地区名称" @press-enter="doSearch" />
+              <Input
+                v-model:value="query.name"
+                allow-clear
+                placeholder="请输入地区名称"
+                @press-enter="doSearch"
+              />
             </FormItem>
             <FormItem name="level" label="地区类型" class="!mb-0">
-              <Select v-model:value="query.level" allow-clear placeholder="请选择地区类型" class="w-full"
-                :options="region_type_options" />
+              <Select
+                v-model:value="query.level"
+                allow-clear
+                placeholder="请选择地区类型"
+                class="w-full"
+                :options="region_type_options"
+              />
               <!-- <Input v-model:value="query.level" allow-clear placeholder="请输入层级 1 2 3 省市区县" @press-enter="doSearch" /> -->
             </FormItem>
           </div>
@@ -226,28 +261,47 @@ const region_type_options = computed(() => region_type.region_type?.value?.map((
         <Button danger :disabled="selectedRowKeys.length === 0" @click="onBatchDelete">删除</Button>
       </template>
 
-      <SystemProTable row-key="id" class="system-pro-table" :row-selection="rowSelection" :loading="loading" :columns="columns"
-        :data-source="rows" :pagination="{
+      <SystemProTable
+        row-key="id"
+        class="system-pro-table"
+        :row-selection="rowSelection"
+        :loading="loading"
+        :columns="columns"
+        :data-source="rows"
+        :pagination="{
           current: query.pageNum,
           pageSize: query.pageSize,
           total,
           showSizeChanger: true,
           showQuickJumper: true,
-          showTotal: (t) => `共 ${t} 条`,
-          onChange: (page, pageSize) => {
+          showTotal: (t: any) => `共 ${t} 条`,
+          onChange: (page: number, pageSize: number) => {
             query.pageNum = page;
             query.pageSize = pageSize;
             fetchList();
           },
-        }">
+        }"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'level'">
-            <span>{{region_type_options?.find((item: any) => +item.value === +record.level)?.label ?? '—'}}</span>
+            <span>{{
+              region_type_options?.find((item: any) => +item.value === +record.level)?.label ?? '—'
+            }}</span>
           </template>
           <template v-if="column.key === 'action'">
             <div class="flex flex-wrap items-center gap-1">
-              <Button type="link" size="small" class="!px-1" @click="openEdit(asRow(record))">修改</Button>
-              <Button type="link" size="small" danger class="!px-1" @click="onDelete(asRow(record))">删除</Button>
+              <Button type="link" size="small" class="!px-1" @click="openEdit(asRow(record))">
+                修改
+              </Button>
+              <Button
+                type="link"
+                size="small"
+                danger
+                class="!px-1"
+                @click="onDelete(asRow(record))"
+              >
+                删除
+              </Button>
             </div>
           </template>
 
@@ -262,16 +316,33 @@ const region_type_options = computed(() => region_type.region_type?.value?.map((
       <Form :model="editForm" :label-col="{ span: 4 }">
         <FormItem label="地区类型">
           <RadioGroup v-model:value="(editForm as any).level" @change="handleLevelChange">
-            <Radio v-for="item in region_type_options?.slice(1)" :key="item.value" :value="+item.value">{{ item.label }}
+            <Radio
+              v-for="item in region_type_options?.slice(1)"
+              :key="item.value"
+              :value="+item.value"
+            >
+              {{ item.label }}
             </Radio>
           </RadioGroup>
         </FormItem>
         <FormItem label="选择上级" v-if="editForm.level !== 1">
           <Space>
-            <Select v-model:value="currentProvinceId" allow-clear placeholder="请选择省" :options="provinceList"
-              class="w-[150px]!" @change="currentCityId = undefined" />
-            <Select v-model:value="currentCityId" allow-clear placeholder="请选择市" :options="cityOptions"
-              class="w-[150px]!" v-if="editForm.level === 3" />
+            <Select
+              v-model:value="currentProvinceId"
+              allow-clear
+              placeholder="请选择省"
+              :options="provinceList"
+              class="w-[150px]!"
+              @change="currentCityId = undefined"
+            />
+            <Select
+              v-model:value="currentCityId"
+              allow-clear
+              placeholder="请选择市"
+              :options="cityOptions"
+              class="w-[150px]!"
+              v-if="editForm.level === 3"
+            />
           </Space>
         </FormItem>
         <FormItem label="名称" prop="name" :rules="[{ required: true, message: '请输入名称' }]">

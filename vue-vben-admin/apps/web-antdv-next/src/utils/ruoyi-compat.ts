@@ -2,11 +2,10 @@
  * 与 admin-vue3 `utils/ruoyi.js` 对齐的通用方法（供 globalProperties 与业务复用）
  */
 
-export function parseTime(time: any, pattern?: string): null | string {
+export function parseTime(time: any, format = '{y}-{m}-{d} {h}:{i}:{s}'): null | string {
   if (arguments.length === 0 || !time) {
     return null;
   }
-  const format = pattern || '{y}-{m}-{d} {h}:{i}:{s}';
   let date: Date;
   if (typeof time === 'object') {
     date = time as Date;
@@ -18,7 +17,7 @@ export function parseTime(time: any, pattern?: string): null | string {
       t = t
         .replaceAll('-', '/')
         .replace('T', ' ')
-        .replace(/\.[\d]{3}/g, '');
+        .replaceAll(/\.[\d]{3}/g, '');
     }
     if (typeof t === 'number' && t.toString().length === 10) {
       t = t * 1000;
@@ -34,7 +33,7 @@ export function parseTime(time: any, pattern?: string): null | string {
     s: date.getSeconds(),
     y: date.getFullYear(),
   };
-  return format.replace(/{(y|m|d|h|i|s|a)+}/g, (result, key: string) => {
+  return format.replaceAll(/{(y|m|d|h|i|s|a)+}/g, (result, key: string) => {
     let value: number | string = formatObj[key] as number;
     if (key === 'a') {
       return ['日', '一', '二', '三', '四', '五', '六'][value as number] ?? '';
@@ -52,20 +51,14 @@ export function resetForm(this: any, refName: string) {
   }
 }
 
-export function addDateRange(
-  params: any,
-  dateRange: any,
-  propName?: string,
-): any {
+export function addDateRange(params: any, dateRange: any, propName?: string): any {
   const search = params;
   search.params =
-    typeof search.params === 'object' &&
-    search.params !== null &&
-    !Array.isArray(search.params)
+    typeof search.params === 'object' && search.params !== null && !Array.isArray(search.params)
       ? search.params
       : {};
   const range = Array.isArray(dateRange) ? dateRange : [];
-  if (typeof propName === 'undefined') {
+  if (propName === undefined) {
     search.params.beginTime = range[0];
     search.params.endTime = range[1];
   } else {
@@ -93,11 +86,7 @@ export function selectDictLabel(datas: Record<string, any>, value: unknown) {
   return actions.join('');
 }
 
-export function selectDictLabels(
-  datas: Record<string, any>,
-  value: unknown,
-  separator?: string,
-) {
+export function selectDictLabels(datas: Record<string, any>, value: unknown, separator?: string) {
   if (value === undefined || (Array.isArray(value) && value.length === 0)) {
     return '';
   }
@@ -108,10 +97,10 @@ export function selectDictLabels(
   const actions: string[] = [];
   const sep = separator === undefined ? ',' : separator;
   const temp = String(v).split(sep);
-  for (let i = 0; i < temp.length; i++) {
+  for (const element of temp) {
     let match = false;
     Object.keys(datas).some((key) => {
-      if (datas[key].value === `${temp[i]}`) {
+      if (datas[key].value === `${element}`) {
         actions.push(datas[key].label + sep);
         match = true;
         return true;
@@ -119,7 +108,7 @@ export function selectDictLabels(
       return false;
     });
     if (!match) {
-      actions.push(temp[i] + sep);
+      actions.push(element + sep);
     }
   }
   const joined = actions.join('');
@@ -131,7 +120,7 @@ export function sprintf(str: string, ...args: any[]) {
   let i = 1;
   const out = str.replaceAll('%s', () => {
     const arg = args[i++];
-    if (typeof arg === 'undefined') {
+    if (arg === undefined) {
       flag = false;
       return '';
     }
@@ -150,11 +139,7 @@ export function parseStrEmpty(str: unknown) {
 export function mergeRecursive(source: any, target: any) {
   for (const p in target) {
     try {
-      if (target[p].constructor === Object) {
-        source[p] = mergeRecursive(source[p] || {}, target[p]);
-      } else {
-        source[p] = target[p];
-      }
+      source[p] = target[p].constructor === Object ? mergeRecursive(source[p] || {}, target[p]) : target[p];
     } catch {
       source[p] = target[p];
     }
@@ -162,12 +147,7 @@ export function mergeRecursive(source: any, target: any) {
   return source;
 }
 
-export function handleTree(
-  data: any[],
-  id?: string,
-  parentId?: string,
-  children?: string,
-) {
+export function handleTree(data: any[], id?: string, parentId?: string, children?: string) {
   const config = {
     childrenList: children || 'children',
     id: id || 'id',
@@ -216,14 +196,10 @@ export function tansParams(params: Record<string, any>) {
   for (const propName of Object.keys(params)) {
     const value = params[propName];
     const part = `${encodeURIComponent(propName)}=`;
-    if (value !== null && value !== '' && typeof value !== 'undefined') {
+    if (value !== null && value !== '' && value !== undefined) {
       if (typeof value === 'object') {
         for (const key of Object.keys(value)) {
-          if (
-            value[key] !== null &&
-            value[key] !== '' &&
-            typeof value[key] !== 'undefined'
-          ) {
+          if (value[key] !== null && value[key] !== '' && value[key] !== undefined) {
             const subKey = `${propName}[${key}]`;
             const subPart = `${encodeURIComponent(subKey)}=`;
             result += subPart + encodeURIComponent(value[key]) + '&';
@@ -241,9 +217,9 @@ export function getNormalPath(p: string) {
   if (p.length === 0 || !p || p === 'undefined') {
     return p;
   }
-  let res = p.replace('//', '/');
+  const res = p.replace('//', '/');
   if (res[res.length - 1] === '/') {
-    return res.slice(0, res.length - 1);
+    return res.slice(0, - 1);
   }
   return res;
 }

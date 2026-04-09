@@ -1,4 +1,6 @@
-/// <reference types="vite/client" />
+// / <reference types="vite/client" />
+
+import 'vue';
 
 declare module 'vue' {
   interface ComponentCustomProperties {
@@ -16,4 +18,4 @@ declare module 'vue' {
   }
 }
 
-export {};
+

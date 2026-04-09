@@ -3,7 +3,6 @@ import type { IExpress } from '#/global';
 
 import { computed, reactive, ref } from 'vue';
 
-import { Page } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
 import {
@@ -31,6 +30,7 @@ import {
 } from '#/api/system/shipping-template';
 import { SystemProShell, SystemProTable } from '#/components/system-pro';
 
+import { Page } from '../../../../node_modules/@vben/common-ui/src/index';
 import AreaTable from './area-table.vue';
 
 /** 商品类目 */

@@ -4,6 +4,9 @@
   "compilerOptions": {
     "moduleResolution": "bundler",
     "paths": {
+      "@vben/common-ui": ["../../packages/effects/common-ui/src/index.ts"],
+      "@vben/preferences": ["../../packages/preferences/src/index.ts"],
+      "@vben/stores": ["../../packages/stores/src/index.ts"],
       "#/*": ["./src/*"]
     }
   },

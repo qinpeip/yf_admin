@@ -10,6 +10,10 @@ import { SYSTEM_PRO_SHELL_TABLE_SCROLL_Y } from './injection';
 
 const props = withDefaults(
   defineProps<{
+    /**
+     * 从表格可视区域高度中预留的像素（表头、分页、边距），用于计算 Table scroll.y
+     */
+    scrollBottomReserve?: number;
     /** 查询区标题 */
     searchTitle?: string;
     /** 是否展示列设置按钮 */
@@ -18,10 +22,6 @@ const props = withDefaults(
     showSearch?: boolean;
     /** 表格卡片标题，如「角色列表」 */
     tableTitle: string;
-    /**
-     * 从表格可视区域高度中预留的像素（表头、分页、边距），用于计算 Table scroll.y
-     */
-    scrollBottomReserve?: number;
   }>(),
   {
     searchTitle: '查询',
@@ -72,11 +72,16 @@ function toggleSearch() {
 
 <template>
   <div class="system-pro-shell flex h-full min-h-0 w-full flex-1 flex-col">
-    <Card v-if="showSearch"
+    <Card
+      v-if="showSearch"
       class="system-pro-search-card mb-2! shrink-0 rounded-lg border border-[#f0f0f0] bg-card shadow-sm dark:border-white/10 search-card-small"
-      :class="{ 'searchExpanded': searchExpanded }" :bordered="false" size="small">
+      :class="{ searchExpanded }"
+      :bordered="false"
+      size="small"
+    >
       <div
-        class="flex items-center justify-between border-[#f0f0f0] bg-[#fafafa] px-5 py-1 dark:border-white/10 dark:bg-white/[0.04]">
+        class="flex items-center justify-between border-[#f0f0f0] bg-[#fafafa] px-5 py-1 dark:border-white/10 dark:bg-white/[0.04]"
+      >
         <span class="text-sm font-medium text-foreground/90">{{ searchTitle }}</span>
         <Button type="link" class="!h-auto !px-1 !py-0 text-primary" @click="toggleSearch">
           <span class="inline-flex items-center gap-1">
@@ -86,7 +91,7 @@ function toggleSearch() {
         </Button>
       </div>
       <div v-show="searchExpanded" class="px-3 pb-2 pt-2">
-        <slot name="search" />
+        <slot name="search"></slot>
         <div class="mt-2 flex flex-wrap justify-end gap-2 border-t border-[#f0f0f0] pt-2 dark:border-white/10">
           <Button @click="emit('reset')">重置</Button>
           <Button type="primary" @click="emit('search')">
@@ -97,13 +102,16 @@ function toggleSearch() {
       </div>
     </Card>
 
-    <div ref="panelRef"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-[#f0f0f0] bg-card shadow-sm dark:border-white/10">
+    <div
+      ref="panelRef"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-[#f0f0f0] bg-card shadow-sm dark:border-white/10"
+    >
       <div
-        class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#f0f0f0] bg-[#fafafa] px-4 py-2 dark:border-white/10 dark:bg-white/[0.04]">
+        class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#f0f0f0] bg-[#fafafa] px-4 py-2 dark:border-white/10 dark:bg-white/[0.04]"
+      >
         <span class="text-sm font-semibold tracking-tight text-foreground">{{ tableTitle }}</span>
         <div class="flex flex-wrap items-center gap-1.5">
-          <slot name="toolbar-actions" />
+          <slot name="toolbar-actions"></slot>
           <Button shape="circle" type="text" title="刷新" @click="emit('refresh')">
             <RotateCw class="size-4 text-foreground/70" />
           </Button>
@@ -118,7 +126,7 @@ function toggleSearch() {
       </div>
       <div class="flex min-h-0 flex-1 flex-col p-3">
         <div ref="tableHostRef" class="table-host min-h-0 flex-1 overflow-hidden">
-          <slot />
+          <slot></slot>
         </div>
       </div>
     </div>

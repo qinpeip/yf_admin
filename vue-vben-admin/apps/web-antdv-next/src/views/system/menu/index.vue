@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { IconPicker, Page } from '@vben/common-ui';
-import { IconifyIcon, Plus } from '@vben/icons';
 import { computed, reactive, ref, watch } from 'vue';
 
-import { SystemProShell, SystemProTable } from '#/components/system-pro';
-import { normalizeMenuIconToIconify } from '#/utils/menu-icon';
+import { IconPicker, Page } from '@vben/common-ui';
+import { IconifyIcon, Plus } from '@vben/icons';
 
 import {
   Button,
@@ -21,19 +19,21 @@ import {
 } from 'antdv-next';
 
 import { addMenu, delMenu, getMenu, listMenu, menuTreeSelect, updateMenu } from '#/api';
+import { SystemProShell, SystemProTable } from '#/components/system-pro';
+import { normalizeMenuIconToIconify } from '#/utils/menu-icon';
 
 type MenuRow = {
-  menuId: number;
-  parentId: number;
-  menuName: string;
-  orderNum?: number;
-  path?: string;
-  component?: string;
-  perms?: string;
-  menuType?: string;
-  status?: string;
-  icon?: string;
   children?: MenuRow[];
+  component?: string;
+  icon?: string;
+  menuId: number;
+  menuName: string;
+  menuType?: string;
+  orderNum?: number;
+  parentId: number;
+  path?: string;
+  perms?: string;
+  status?: string;
 };
 
 function asMenuRow(x: any): MenuRow {
@@ -46,7 +46,7 @@ const menuFlatList = ref<MenuRow[]>([]);
 
 const query = reactive({
   menuName: '',
-  status: undefined as undefined | '0' | '1',
+  status: undefined as '0' | '1' | undefined,
 });
 
 const statusOptions = [
@@ -74,22 +74,22 @@ function handleMenuTree<T extends Record<string, any>>(
   const nodeIds: Record<string, T> = {};
 
   for (const d of data) {
-    const pid = String(d[parentKey] as string | number);
+    const pid = String(d[parentKey] as number | string);
     if (childrenListMap[pid] == null) childrenListMap[pid] = [];
-    nodeIds[String(d[idKey] as string | number)] = d;
+    nodeIds[String(d[idKey] as number | string)] = d;
     childrenListMap[pid].push(d);
   }
 
   const tree: T[] = [];
   for (const d of data) {
-    const pid = String(d[parentKey] as string | number);
+    const pid = String(d[parentKey] as number | string);
     if (nodeIds[pid] == null) {
       tree.push(d);
     }
   }
 
   function adapt(o: T) {
-    const id = String(o[idKey] as string | number);
+    const id = String(o[idKey] as number | string);
     const list = childrenListMap[id];
     if (list != null && list.length > 0) {
       (o as any)[childrenKey] = list;
@@ -199,8 +199,7 @@ async function submitForm() {
 
   dialogLoading.value = true;
   try {
-    if (payload.menuId) await updateMenu(payload);
-    else await addMenu(payload);
+    await (payload.menuId ? updateMenu(payload) : addMenu(payload));
     message.success('保存成功');
     dialogOpen.value = false;
     await fetchList();
@@ -246,13 +245,11 @@ async function onDelete(row: MenuRow) {
 
 // 先留一个极简“快速编辑名称/状态”的弹窗
 const editOpen = ref(false);
-const editForm = reactive<{ menuId?: number; menuName: string; status: '0' | '1' }>(
-  {
-    menuId: undefined,
-    menuName: '',
-    status: '0',
-  },
-);
+const editForm = reactive<{ menuId?: number; menuName: string; status: '0' | '1' }>({
+  menuId: undefined,
+  menuName: '',
+  status: '0',
+});
 
 // quick edit removed (full form covers it)
 
@@ -317,10 +314,21 @@ fetchList();
         <Form :model="query" class="contents">
           <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
             <FormItem name="menuName" label="菜单名称" class="!mb-0">
-              <Input v-model:value="query.menuName" allow-clear placeholder="请输入菜单名称" @press-enter="doSearch" />
+              <Input
+                v-model:value="query.menuName"
+                allow-clear
+                placeholder="请输入菜单名称"
+                @press-enter="doSearch"
+              />
             </FormItem>
             <FormItem name="status" label="状态" class="!mb-0">
-              <Select v-model:value="query.status" allow-clear placeholder="菜单状态" class="w-full" :options="statusOptions" />
+              <Select
+                v-model:value="query.status"
+                allow-clear
+                placeholder="菜单状态"
+                class="w-full"
+                :options="statusOptions"
+              />
             </FormItem>
           </div>
         </Form>
@@ -365,14 +373,33 @@ fetchList();
             <span
               v-if="asMenuRow(record).status === '0' || asMenuRow(record).status == null"
               class="text-primary"
-            >正常</span>
+            >
+              正常
+            </span>
             <span v-else class="text-destructive">停用</span>
           </template>
           <template v-else-if="column.key === 'action'">
             <div class="flex flex-wrap items-center gap-1">
-              <Button type="link" size="small" class="!px-1" @click="openEditFull(asMenuRow(record))">修改</Button>
-              <Button type="link" size="small" class="!px-1" @click="openAdd(asMenuRow(record))">新增</Button>
-              <Button type="link" size="small" danger class="!px-1" @click="onDelete(asMenuRow(record))">删除</Button>
+              <Button
+                type="link"
+                size="small"
+                class="!px-1"
+                @click="openEditFull(asMenuRow(record))"
+              >
+                修改
+              </Button>
+              <Button type="link" size="small" class="!px-1" @click="openAdd(asMenuRow(record))">
+                新增
+              </Button>
+              <Button
+                type="link"
+                size="small"
+                danger
+                class="!px-1"
+                @click="onDelete(asMenuRow(record))"
+              >
+                删除
+              </Button>
             </div>
           </template>
         </template>
@@ -424,7 +451,11 @@ fetchList();
           </FormItem>
 
           <FormItem label="菜单类型">
-            <RadioGroup v-model:value="form.menuType" :options="menuTypeOptions" option-type="button" />
+            <RadioGroup
+              v-model:value="form.menuType"
+              :options="menuTypeOptions"
+              option-type="button"
+            />
           </FormItem>
 
           <FormItem label="菜单名称">
@@ -443,11 +474,18 @@ fetchList();
           </FormItem>
 
           <FormItem label="显示排序">
-            <InputNumber v-model:value="(form.orderNum as any)" :min="0" style="width: 100%" />
+            <InputNumber v-model:value="form.orderNum as any" :min="0" style="width: 100%" />
           </FormItem>
 
           <FormItem v-if="form.menuType !== 'F'" label="是否外链">
-            <RadioGroup v-model:value="form.isFrame" :options="[{ label: '是', value: '0' }, { label: '否', value: '1' }]" option-type="button" />
+            <RadioGroup
+              v-model:value="form.isFrame"
+              :options="[
+                { label: '是', value: '0' },
+                { label: '否', value: '1' },
+              ]"
+              option-type="button"
+            />
           </FormItem>
 
           <FormItem v-if="form.menuType !== 'F'" label="路由地址">
@@ -463,23 +501,40 @@ fetchList();
           </FormItem>
 
           <FormItem v-if="form.menuType === 'C'" label="路由参数">
-            <Input v-model:value="form.query" placeholder='如：{"id":1}' />
+            <Input v-model:value="form.query" placeholder="如：{&quot;id&quot;:1}" />
           </FormItem>
 
           <FormItem v-if="form.menuType === 'C'" label="是否缓存">
-            <RadioGroup v-model:value="form.isCache" :options="[{ label: '缓存', value: '0' }, { label: '不缓存', value: '1' }]" option-type="button" />
+            <RadioGroup
+              v-model:value="form.isCache"
+              :options="[
+                { label: '缓存', value: '0' },
+                { label: '不缓存', value: '1' },
+              ]"
+              option-type="button"
+            />
           </FormItem>
 
           <FormItem v-if="form.menuType !== 'F'" label="显示状态">
-            <RadioGroup v-model:value="form.visible" :options="[{ label: '显示', value: '0' }, { label: '隐藏', value: '1' }]" option-type="button" />
+            <RadioGroup
+              v-model:value="form.visible"
+              :options="[
+                { label: '显示', value: '0' },
+                { label: '隐藏', value: '1' },
+              ]"
+              option-type="button"
+            />
           </FormItem>
 
           <FormItem v-if="form.menuType !== 'F'" label="菜单状态">
-            <RadioGroup v-model:value="form.status" :options="statusOptions2" option-type="button" />
+            <RadioGroup
+              v-model:value="form.status"
+              :options="statusOptions2"
+              option-type="button"
+            />
           </FormItem>
         </div>
       </Form>
     </Modal>
   </Page>
 </template>
-
