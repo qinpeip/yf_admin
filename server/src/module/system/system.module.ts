@@ -10,6 +10,7 @@ import { RoleModule } from './role/role.module';
 import { ToolModule } from './tool/tool.module';
 import { UserModule } from './user/user.module';
 import { RegionModule } from './region/region.module';
+import { ShippingTemplateModule } from './shipping-template/shipping-template.module';
 
 @Global()
 @Module({
@@ -25,6 +26,7 @@ import { RegionModule } from './region/region.module';
     ToolModule,
     UserModule,
     RegionModule,
+    ShippingTemplateModule,
   ],
 })
 export class SystemModule {}

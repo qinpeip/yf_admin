@@ -3802,6 +3802,150 @@
         ]
       }
     },
+    "/system/shipping-template": {
+      "post": {
+        "operationId": "ShippingTemplateController_create",
+        "summary": "运费模板-创建",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShippingTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "运费模板"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "ShippingTemplateController_update",
+        "summary": "运费模板-修改",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShippingTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "运费模板"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      }
+    },
+    "/system/shipping-template/list": {
+      "get": {
+        "operationId": "ShippingTemplateController_list",
+        "summary": "运费模板-列表",
+        "parameters": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListShippingTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "运费模板"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      }
+    },
+    "/system/shipping-template/{shippingTemplateId}": {
+      "get": {
+        "operationId": "ShippingTemplateController_findOne",
+        "summary": "运费模板-详情",
+        "parameters": [
+          {
+            "name": "shippingTemplateId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "运费模板"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "ShippingTemplateController_remove",
+        "summary": "运费模板-删除",
+        "parameters": [
+          {
+            "name": "shippingTemplateId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "运费模板"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      }
+    },
     "/monitor/job/list": {
       "get": {
         "operationId": "JobController_list",
@@ -7531,6 +7675,108 @@
             "description": "排序"
           }
         }
+      },
+      "CreateShippingTemplateDto": {
+        "type": "object",
+        "properties": {
+          "shippingTemplateName": {
+            "type": "string"
+          },
+          "feeType": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "number"
+          },
+          "expressId": {
+            "type": "number"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "shippingTemplateName",
+          "feeType",
+          "sort",
+          "expressId",
+          "rules"
+        ]
+      },
+      "UpdateShippingTemplateDto": {
+        "type": "object",
+        "properties": {
+          "shippingTemplateName": {
+            "type": "string"
+          },
+          "feeType": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "number"
+          },
+          "expressId": {
+            "type": "number"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "shippingTemplateId": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "shippingTemplateName",
+          "feeType",
+          "sort",
+          "expressId",
+          "rules",
+          "shippingTemplateId"
+        ]
+      },
+      "ListShippingTemplateDto": {
+        "type": "object",
+        "properties": {
+          "pageNum": {
+            "type": "number",
+            "description": "当前分页",
+            "default": 1
+          },
+          "pageSize": {
+            "type": "number",
+            "description": "每页数量",
+            "default": 10
+          },
+          "params": {
+            "description": "时间范围",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DateParamsDTO"
+              }
+            ]
+          },
+          "orderByColumn": {
+            "type": "string",
+            "description": "排序字段"
+          },
+          "isAsc": {
+            "type": "string",
+            "description": "排序规则"
+          },
+          "shippingTemplateName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pageNum",
+          "pageSize"
+        ]
       },
       "CreateJobDto": {
         "type": "object",

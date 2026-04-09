@@ -45,20 +45,25 @@ export class DataPermissionService {
       })
       .getRawMany<{ deptId: string }>();
 
-    return rows.map((r) => +r.deptId);
+    return rows.map((r) => Number(r.deptId)).filter((n) => Number.isFinite(n));
   }
 
   private uniq(nums: number[]) {
     return Array.from(new Set(nums));
   }
 
+  private toFiniteNumber(value: unknown): number | null {
+    const n = typeof value === 'number' ? value : Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+
   /**
    * 生成 scope SQL（不负责 add tenant 过滤）
    */
   private async buildScopeCondition(alias: string, user: UserEntity, roles: Array<SysRoleEntity>) {
-    const tenantId = user.tenantId;
-    const userId = user.userId;
-    const userDeptId = user.deptId;
+    const tenantId = this.toFiniteNumber(user.tenantId) ?? 0;
+    const userId = this.toFiniteNumber(user.userId) ?? 0;
+    const userDeptId = this.toFiniteNumber(user.deptId);
 
     // 超级管理员：放开部门/owner 数据范围
     if (this.isSuperAdmin(roles)) {
@@ -96,7 +101,7 @@ export class DataPermissionService {
             },
             select: ['deptId'],
           });
-          allowedDeptIds.push(...list.map((x) => x.deptId));
+          allowedDeptIds.push(...list.map((x) => this.toFiniteNumber(x.deptId)).filter((n): n is number => n != null));
           break;
         }
         default:
@@ -110,7 +115,9 @@ export class DataPermissionService {
       return { scopeSql: '1=1', scopeParams: {} as Record<string, any>, skipScope: true };
     }
 
-    const deptIds = this.uniq(allowedDeptIds).filter((id) => id != null);
+    const deptIds = this.uniq(allowedDeptIds)
+      .map((id) => this.toFiniteNumber(id))
+      .filter((n): n is number => n != null);
 
     if (deptIds.length > 0 && allowSelf) {
       return {
@@ -155,7 +162,7 @@ export class DataPermissionService {
       return;
     }
 
-    const tenantId = user.tenantId;
+    const tenantId = this.toFiniteNumber(user.tenantId);
     if (tenantId != null) {
       qb.andWhere(`${alias}.tenantId = :tenantId`, { tenantId });
     }

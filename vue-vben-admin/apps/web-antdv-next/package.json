@@ -43,8 +43,13 @@
     "@vueuse/core": "catalog:",
     "antdv-next": "catalog:",
     "dayjs": "catalog:",
+    "element-plus": "catalog:",
+    "lodash-es": "^4.18.1",
     "pinia": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12"
   }
 }

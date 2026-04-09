@@ -150,10 +150,7 @@ export class RoleService {
   async remove(roleIds: number[], currentUser: UserType['user']) {
     if (!roleIds?.length) return ResultData.ok();
 
-    const qb = this.sysRoleEntityRep
-      .createQueryBuilder('entity')
-      .select('entity.roleId', 'roleId')
-      .where('entity.roleId IN (:...ids)', { ids: roleIds });
+    const qb = this.sysRoleEntityRep.createQueryBuilder('entity').select('entity.roleId', 'roleId').where('entity.roleId IN (:...ids)', { ids: roleIds });
     await this.dataPermissionService.applyTenantAndScope(qb, 'entity', currentUser as any);
     const rows = await qb.getRawMany<{ roleId: string }>();
     const allowedIds = rows.map((r) => +r.roleId);
