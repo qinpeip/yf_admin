@@ -81,6 +81,14 @@ export class ShippingTemplateService {
     const expressList = await this.expressService.list();
     return ResultData.ok({ list, total, expressList });
   }
+
+  async enums(user: UserDto['user']) {
+    const qb = this.shippingTemplateRepository.createQueryBuilder('entity');
+    await this.dataPermissionService.applyTenantAndScope(qb, 'entity', user as any);
+    qb.select(['entity.shippingTemplateId', 'entity.shippingTemplateName']);
+    const list = await qb.getMany();
+    return ResultData.ok(list.map((item) => ({ label: item.shippingTemplateName, value: item.shippingTemplateId })));
+  }
   async findOne(shippingTemplateId: number, user: UserDto['user']) {
     const qb = this.shippingTemplateRepository.createQueryBuilder('entity');
     await this.dataPermissionService.applyTenantAndScope(qb, 'entity', user as any);

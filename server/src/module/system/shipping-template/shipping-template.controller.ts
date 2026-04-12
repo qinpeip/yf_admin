@@ -49,6 +49,13 @@ export class ShippingTemplateController {
     return this.shippingTemplateService.findAll(listShippingTemplateDto, user.user);
   }
 
+  @ApiOperation({
+    summary: '运费模板-枚举',
+  })
+  @Get('enums')
+  enums(@User() user: UserDto) {
+    return this.shippingTemplateService.enums(user.user);
+  }
   @ApiQuery({
     name: 'shippingTemplateId',
     type: Number,

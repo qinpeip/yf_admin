@@ -15,3 +15,14 @@ export const enum SYS_USER_TYPE {
   CUSTOM = '10',
   CLIENT = '20',
 }
+
+/**
+ * 平台类型
+ */
+export enum PLATFORM_TYPE {
+  PDD = '100',
+  TB = '200',
+  DY = '300',
+  KS = '400',
+  JD = '500',
+}

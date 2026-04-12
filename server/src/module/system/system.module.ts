@@ -11,6 +11,7 @@ import { ToolModule } from './tool/tool.module';
 import { UserModule } from './user/user.module';
 import { RegionModule } from './region/region.module';
 import { ShippingTemplateModule } from './shipping-template/shipping-template.module';
+import { ExpressModule } from './express/express.module';
 
 @Global()
 @Module({
@@ -27,6 +28,7 @@ import { ShippingTemplateModule } from './shipping-template/shipping-template.mo
     UserModule,
     RegionModule,
     ShippingTemplateModule,
+    ExpressModule,
   ],
 })
 export class SystemModule {}

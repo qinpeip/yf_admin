@@ -4,10 +4,11 @@ import type { RouteLocationRaw } from 'vue-router';
 import { useAppConfig } from '@vben/hooks';
 import { useTabbarStore } from '@vben/stores';
 import { downloadFileFromBlob } from '@vben/utils';
+
 import { message, Modal, notification } from 'antdv-next';
 
-import { useDict } from '#/composables/use-dict';
 import DictTag from '#/components/ruoyi/DictTag.vue';
+import { useDict } from '#/composables/use-dict';
 import { router } from '#/router';
 import {
   addDateRange,
@@ -92,10 +93,7 @@ export const ruoyiModal = {
 };
 
 function apiBase() {
-  return useAppConfig(import.meta.env, import.meta.env.PROD).apiURL.replace(
-    /\/$/,
-    '',
-  );
+  return useAppConfig(import.meta.env, import.meta.env.PROD).apiURL.replace(/\/$/, '');
 }
 
 async function printErrMsg(blob: Blob) {
@@ -108,11 +106,7 @@ async function printErrMsg(blob: Blob) {
   }
 }
 
-async function downloadGet(
-  url: string,
-  fallbackName?: string,
-  zipMime?: string,
-) {
+async function downloadGet(url: string, fallbackName?: string, zipMime?: string) {
   const { useAccessStore } = await import('@vben/stores');
   const token = useAccessStore().accessToken;
   const res = await fetch(url, {
@@ -121,9 +115,7 @@ async function downloadGet(
   const blob = await res.blob();
   if (blobValidate(blob)) {
     const fn = res.headers.get('download-filename');
-    const name = fn
-      ? decodeURIComponent(fn)
-      : fallbackName || `download_${Date.now()}`;
+    const name = fn ? decodeURIComponent(fn) : fallbackName || `download_${Date.now()}`;
     const out = zipMime ? new Blob([blob], { type: zipMime }) : blob;
     downloadFileFromBlob({ fileName: name, source: out });
   } else {
@@ -175,11 +167,9 @@ export const ruoyiTab = {
   },
   async closePage(obj?: any) {
     const tabbarStore = useTabbarStore();
-    if (obj === undefined) {
-      await tabbarStore.closeTab(router.currentRoute.value, router);
-    } else {
-      await tabbarStore.closeTab(obj, router);
-    }
+    await (obj === undefined
+      ? tabbarStore.closeTab(router.currentRoute.value, router)
+      : tabbarStore.closeTab(obj, router));
   },
   async closeRightPage(obj?: any) {
     const tab = obj || router.currentRoute.value;
@@ -202,9 +192,7 @@ export const ruoyiTab = {
     if (!path || !obj.title) {
       return;
     }
-    const tab = tabbarStore.tabs.find(
-      (t) => t.fullPath === path || t.path === path,
-    );
+    const tab = tabbarStore.tabs.find((t) => t.fullPath === path || t.path === path);
     if (tab) {
       await tabbarStore.setTabTitle(tab, obj.title);
     }

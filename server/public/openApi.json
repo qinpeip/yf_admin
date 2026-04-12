@@ -3890,6 +3890,26 @@
         ]
       }
     },
+    "/system/shipping-template/enums": {
+      "get": {
+        "operationId": "ShippingTemplateController_enums",
+        "summary": "运费模板-枚举",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "运费模板"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      }
+    },
     "/system/shipping-template/{shippingTemplateId}": {
       "get": {
         "operationId": "ShippingTemplateController_findOne",
@@ -3943,6 +3963,21 @@
           {
             "Authorization": []
           }
+        ]
+      }
+    },
+    "/system/express/list": {
+      "get": {
+        "operationId": "ExpressController_list",
+        "summary": "快递列表",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "快递"
         ]
       }
     },

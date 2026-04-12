@@ -6,12 +6,12 @@ import timezone from 'dayjs/plugin/timezone'; // 导入插件
 import utc from 'dayjs/plugin/utc'; // 导入插件
 import 'dayjs/locale/zh-cn'; // 导入本地化语言
 import { ValueTransformer } from 'typeorm';
+import * as Crypto from 'crypto';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(isLeapYear); // 使用插件
 dayjs.locale('zh-cn'); // 使用本地化语言
 dayjs.tz.setDefault('Asia/Beijing');
-
 
 /**
  * 数组转树结构
@@ -208,4 +208,13 @@ export const dateTransformer: ValueTransformer = {
  */
 export function isEmpty(value: any) {
   return value === null || value === undefined || value === '' || value === 'NaN';
+}
+
+/**
+ * 加密
+ * @param str
+ * @returns
+ */
+export function MD5(str: string): string {
+  return Crypto.createHash('md5').update(str).digest('hex');
 }

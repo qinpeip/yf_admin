@@ -38,7 +38,10 @@ export async function listShippingTemplate(query: ListShippingTemplateQuery) {
     { params: query },
   );
 }
-
+/** 获取运费模板选项 */
+export async function listShippingTemplateOptions() {
+  return requestClient.get<{ label: string; value: number }[]>('/system/shipping-template/enums');
+}
 export async function getShippingTemplate(shippingTemplateId: number) {
   return requestClient.get<ShippingTemplateRow & { express: IExpress }>(
     `/system/shipping-template/${shippingTemplateId}`,
