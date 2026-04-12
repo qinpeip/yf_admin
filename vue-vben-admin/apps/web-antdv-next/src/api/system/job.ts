@@ -38,7 +38,7 @@ export async function addJob(data: any) {
   return requestClient.post('/monitor/job', data);
 }
 
-export async function updateJob(data: { jobId: number } & Record<string, any>) {
+export async function updateJob(data: Record<string, any> & { jobId: number }) {
   return requestClient.put('/monitor/job', data);
 }
 
@@ -51,8 +51,8 @@ export async function changeJobStatus(jobId: number, status: string) {
   return requestClient.put('/monitor/job/changeStatus', { jobId, status });
 }
 
-export async function runJob(jobId: number) {
-  return requestClient.put('/monitor/job/run', { jobId });
+export async function runJob(jobId: number, jobGroup?: string) {
+  return requestClient.put('/monitor/job/run', { jobId, jobGroup });
 }
 
 export async function exportJob(body: any) {
@@ -92,4 +92,3 @@ export async function cleanJobLog() {
 export async function exportJobLog(body: any) {
   return baseRequestClient.post('/monitor/jobLog/export', body, { responseType: 'blob' });
 }
-

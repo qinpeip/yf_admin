@@ -30,7 +30,6 @@ import { ScheduleTaskModule } from './schedule-task/schedule-task.module';
     ),
 
     AxiosModule,
-    ScheduleTaskModule,
   ],
   providers: [DataPermissionService],
   exports: [DataPermissionService],

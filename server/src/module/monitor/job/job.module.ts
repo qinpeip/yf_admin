@@ -9,9 +9,10 @@ import { TaskService } from './task.service';
 import { JobLogService } from './job-log.service';
 import { JobLogController } from './job-log.controller';
 import { BackupService } from 'src/module/backup/backup.service';
+import { ScheduleTaskModule } from 'src/module/common/schedule-task/schedule-task.module';
 
 @Module({
-  imports: [NestScheduleModule.forRoot(), TypeOrmModule.forFeature([Job, JobLog])],
+  imports: [NestScheduleModule.forRoot(), TypeOrmModule.forFeature([Job, JobLog]), ScheduleTaskModule],
   controllers: [JobController, JobLogController],
   providers: [JobService, TaskService, JobLogService, BackupService],
   exports: [JobService],
