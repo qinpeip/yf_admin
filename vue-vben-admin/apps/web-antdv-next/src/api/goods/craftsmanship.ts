@@ -58,3 +58,7 @@ export async function delCraftsmanship(pk: number | number[]) {
   const idStr = Array.isArray(pk) ? pk.join(',') : String(pk);
   return requestClient.delete(`/goods/craftsmanship/${idStr}`);
 }
+
+export async function craftsmanshipEnum() {
+  return requestClient.get<{ label: string; value: number }[]>('/goods/craftsmanship/enums');
+}

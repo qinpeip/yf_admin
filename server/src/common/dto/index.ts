@@ -1,6 +1,6 @@
-import { IsDateString, IsNumber, IsNumberString, IsObject, IsOptional, IsString, IsEnum } from 'class-validator';
+import { IsDateString, IsNumber, IsNumberString, IsObject, IsOptional, IsString, IsEnum, IsArray, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { SortRuleEnum } from 'src/common/enum/index';
 
 /**
@@ -12,6 +12,23 @@ export class DateParamsDTO {
 
   @IsDateString()
   endTime: string;
+}
+
+export class EnumDto {
+  @ApiProperty({ required: true, description: '标签' })
+  @IsString()
+  label: string;
+
+  @ApiProperty({ required: true, description: '值' })
+  @IsString()
+  value: string;
+}
+export class EnumTreeDto extends EnumDto {
+  @ApiProperty({ required: true, description: '子节点' })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EnumTreeDto)
+  children: EnumTreeDto[];
 }
 
 /**

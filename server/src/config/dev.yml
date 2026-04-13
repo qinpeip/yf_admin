@@ -3,8 +3,12 @@ app:
   prefix: ''
   port: 8080
   logger:
-    # 项目日志存储路径，相对路径（相对本项目根目录）或绝对路径
-    dir: '../logs'
+    # 相对路径：始终位于当前运行目录 process.cwd() 之下（如 logs → <cwd>/logs）；绝对路径则按原样使用
+    dir: 'logs'
+    # 单文件上限；须为 k/m/g 单字母后缀（如 1m、512k），勿写 1mb 否则库会忽略、不按大小切割
+    maxSize: '1m'
+    # 保留策略：天数加 d，或最大文件数
+    maxFiles: '7d'
   # 文件相关
   file:
     # 是否为本地文件服务或cos

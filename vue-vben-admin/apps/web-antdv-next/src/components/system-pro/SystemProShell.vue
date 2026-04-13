@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { nextTick, onMounted, provide, ref, useTemplateRef } from 'vue';
+import { nextTick, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
 
 import { LayoutGrid, Maximize, Minimize2, RotateCw, Search } from '@vben/icons';
 
-import { useFullscreen, useResizeObserver } from '@vueuse/core';
+import { useDebounceFn, useFullscreen, useResizeObserver } from '@vueuse/core';
 import { Button, Card } from 'antdv-next';
 
 import { SYSTEM_PRO_SHELL_TABLE_SCROLL_Y } from './injection';
 
 const props = withDefaults(
   defineProps<{
+    /**
+     * 是否根据表格区域高度自动计算并下发 Table `scroll.y`。
+     * 在「侧栏 + 主表」等复杂 flex 布局下若出现高度闪烁，可设为 false，仅保留横向 `scroll.x`。
+     */
+    enableMeasuredScrollY?: boolean;
     /**
      * 从表格可视区域高度中预留的像素（表头、分页、边距），用于计算 Table scroll.y
      */
@@ -28,6 +33,7 @@ const props = withDefaults(
     showSearch: true,
     showColumnSetting: true,
     scrollBottomReserve: 100,
+    enableMeasuredScrollY: true,
   },
 );
 
@@ -46,28 +52,69 @@ const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(panelRef);
 const tableBodyScrollY = ref<number | undefined>(undefined);
 provide(SYSTEM_PRO_SHELL_TABLE_SCROLL_Y, tableBodyScrollY);
 
-function measureTableHost() {
+/** 写入 scroll.y 后，Table 重排会再次触发 ResizeObserver；短时间内忽略观察回调，打断振荡 */
+let suppressResizeObserverUntil = 0;
+
+type MeasureReason = 'fullscreen' | 'init' | 'resize' | 'toggle';
+
+function measureTableHostCore(reason: MeasureReason) {
+  if (!props.enableMeasuredScrollY) {
+    if (tableBodyScrollY.value !== undefined) {
+      tableBodyScrollY.value = undefined;
+    }
+    return;
+  }
+  if (reason === 'resize' && Date.now() < suppressResizeObserverUntil) {
+    return;
+  }
+
   nextTick(() => {
     requestAnimationFrame(() => {
       const el = tableHostRef.value;
       if (!el) {
-        tableBodyScrollY.value = undefined;
+        if (tableBodyScrollY.value !== undefined) {
+          tableBodyScrollY.value = undefined;
+        }
         return;
       }
-      const h = el.clientHeight;
+      const h = Math.round(el.getBoundingClientRect().height);
       const reserve = props.scrollBottomReserve;
-      tableBodyScrollY.value = h > reserve + 80 ? Math.floor(h - reserve) : undefined;
+      const raw = h > reserve + 80 ? h - reserve : undefined;
+      const next = raw == null ? undefined : Math.max(120, Math.round(raw / 16) * 16);
+      const prev = tableBodyScrollY.value;
+      if (next === prev) return;
+      if (next != null && prev != null && Math.abs(next - prev) < 16) return;
+      tableBodyScrollY.value = next;
+      suppressResizeObserverUntil = Date.now() + 240;
     });
   });
 }
 
-onMounted(measureTableHost);
-useResizeObserver(tableHostRef, measureTableHost);
+const measureOnResize = useDebounceFn(() => {
+  if (!props.enableMeasuredScrollY) return;
+  measureTableHostCore('resize');
+}, 120);
+
+onMounted(() => measureTableHostCore('init'));
+useResizeObserver(tableHostRef, () => measureOnResize());
+
+watch(isFullscreen, () => measureTableHostCore('fullscreen'));
 
 function toggleSearch() {
   searchExpanded.value = !searchExpanded.value;
-  measureTableHost();
+  measureTableHostCore('toggle');
 }
+
+watch(
+  () => props.enableMeasuredScrollY,
+  (en) => {
+    if (en) {
+      measureTableHostCore('init');
+    } else {
+      tableBodyScrollY.value = undefined;
+    }
+  },
+);
 </script>
 
 <template>

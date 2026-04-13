@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/qinpeipei/Documents/my-project/xk-project/new-xk/new-xk-admin/logs/.cb8730401ec3dbb66f1248e1a104af95a12351ef-audit.json",
+    "files": [
+        {
+            "date": 1775987511998,
+            "name": "/Users/qinpeipei/Documents/my-project/xk-project/new-xk/new-xk-admin/logs/NestApplication-2026-04-12.log",
+            "hash": "a3ffb88614a63c1171dfd0385e6cae072cb489acfe59111ece4d7b49fd4a0940"
+        }
+    ],
+    "hashType": "sha256"
+}

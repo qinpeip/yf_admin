@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/qinpeipei/Documents/my-project/xk-project/new-xk/new-xk-admin/logs/.10f2de2a6b2524f38959c46603ec8b108af065e3-audit.json",
+    "files": [
+        {
+            "date": 1775987511967,
+            "name": "/Users/qinpeipei/Documents/my-project/xk-project/new-xk/new-xk-admin/logs/RoutesResolver-2026-04-12.log",
+            "hash": "398b02724ab560638345b02e7e98c613deb0f2d5c00c54ab03f1c4beb15296d9"
+        }
+    ],
+    "hashType": "sha256"
+}

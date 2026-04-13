@@ -14,6 +14,7 @@ import { SystemModule } from './module/system/system.module';
 import { CommonModule } from './module/common/common.module';
 import { MonitorModule } from './module/monitor/monitor.module';
 import { GoodsModule } from './module/goods/goods.module';
+import { ContextFileLoggerService } from 'src/common/logger/context-file-logger.service';
 
 @Global()
 @Module({
@@ -49,6 +50,7 @@ import { GoodsModule } from './module/goods/goods.module';
     GoodsModule,
   ],
   providers: [
+    ContextFileLoggerService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

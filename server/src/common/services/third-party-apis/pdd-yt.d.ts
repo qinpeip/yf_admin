@@ -155,6 +155,7 @@ declare namespace PddYt {
     page: number;
     pageSize: number;
     isOnsale?: 0 | 1;
+    ownerId: string;
   }
   /**
    * 获取商品列表返回数据

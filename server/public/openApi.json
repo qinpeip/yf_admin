@@ -5829,6 +5829,51 @@
         ]
       }
     },
+    "/goods/craftsmanship/enums": {
+      "get": {
+        "operationId": "CraftsmanshipController_enums",
+        "summary": "工艺-枚举",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResultData"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/EnumDto"
+                              }
+                            },
+                            "total": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "工艺"
+        ]
+      }
+    },
     "/goods/craftsmanship/{craftsmanshipId}": {
       "get": {
         "operationId": "CraftsmanshipController_findOne",
@@ -8560,6 +8605,23 @@
             "description": "描述"
           }
         }
+      },
+      "EnumDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "标签"
+          },
+          "value": {
+            "type": "string",
+            "description": "值"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ]
       },
       "UpdateCraftsmanshipDto": {
         "type": "object",

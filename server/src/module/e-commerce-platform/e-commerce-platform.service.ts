@@ -88,7 +88,7 @@ export class ECommercePlatformService {
    * @param platformType 平台类型
    * @returns 获取商品列表返回数据
    */
-  async getGoodsList(body: ECommercePlatform.IGetGoodsListBody = { page: 1, pageSize: 10 }, platformType: PLATFORM_TYPE): Promise<ECommercePlatform.IGetGoodsListResponse> {
+  async getGoodsList(body: ECommercePlatform.IGetGoodsListBody = { page: 1, pageSize: 10, ownerId: '0' }, platformType: PLATFORM_TYPE): Promise<ECommercePlatform.IGetGoodsListResponse> {
     switch (platformType) {
       case PLATFORM_TYPE.PDD:
         return this.pddService.getGoodsList(body);

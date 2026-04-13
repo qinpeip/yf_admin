@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { mw as requestIpMw } from 'request-ip';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from 'src/app.module';
+import { ContextFileLoggerService } from 'src/common/logger/context-file-logger.service';
 import { HttpExceptionsFilter } from 'src/common/filters/http-exceptions-filter';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -14,7 +15,9 @@ import { writeFileSync } from 'fs';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true, // 开启跨域访问
+    bufferLogs: true,
   });
+  app.useLogger(app.get(ContextFileLoggerService));
   const config = app.get(ConfigService);
   // 设置访问频率
   app.use(

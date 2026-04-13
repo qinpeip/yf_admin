@@ -5,6 +5,7 @@ import { CraftsmanshipService } from './craftsmanship.service';
 import { CreateCraftsmanshipDto, BaseCraftsmanshipDto, UpdateCraftsmanshipDto, QueryCraftsmanshipDto, ListCraftsmanshipDto } from './dto/craftsmanship.dto';
 import { ApiDataResponse } from 'src/common/decorators/apiDataResponse.decorator';
 import { User, UserDto } from 'src/module/system/user/user.decorator';
+import { EnumDto } from 'src/common/dto';
 
 @ApiTags('工艺')
 @Controller('goods/craftsmanship')
@@ -25,6 +26,13 @@ export class CraftsmanshipController {
   @Get('list')
   findAll(@Query() query: QueryCraftsmanshipDto) {
     return this.craftsmanshipService.findAll(query);
+  }
+
+  @ApiOperation({ summary: '工艺-枚举' })
+  @ApiDataResponse(EnumDto, true, true)
+  @Get('enums')
+  enums() {
+    return this.craftsmanshipService.enums();
   }
 
   @ApiOperation({ summary: '工艺-详情' })

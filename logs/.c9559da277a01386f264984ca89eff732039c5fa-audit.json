@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/qinpeipei/Documents/my-project/xk-project/new-xk/new-xk-admin/logs/.c9559da277a01386f264984ca89eff732039c5fa-audit.json",
+    "files": [
+        {
+            "date": 1775987511994,
+            "name": "/Users/qinpeipei/Documents/my-project/xk-project/new-xk/new-xk-admin/logs/TaskService-2026-04-12.log",
+            "hash": "b57ac9436d43ee9896824cd91354fdca2f077dbb81aa2236442cf3ca0000eccb"
+        }
+    ],
+    "hashType": "sha256"
+}

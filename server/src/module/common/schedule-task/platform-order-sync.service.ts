@@ -13,17 +13,21 @@ export class PlatformOrderSyncService {
     description: '平台订单同步任务',
   })
   async syncPlatformOrder() {
-    this.logger.log('平台订单同步任务开始执行');
-    const res = await this.eCommercePlatformService.getOrderList(
-      {
-        page: 0,
-        pageSize: 100,
-        ownerId: '137484',
-        startTime: '2026-03-11 10:00:00',
-        endTime: '2026-04-12 10:00:00',
-      },
-      PLATFORM_TYPE.PDD,
-    );
-    console.log(res);
+    try {
+      this.logger.log('平台订单同步任务开始执行');
+      const res = await this.eCommercePlatformService.getOrderList(
+        {
+          page: 0,
+          pageSize: 100,
+          ownerId: '130296',
+          startTime: '2025-03-11 10:00:00',
+          endTime: '2026-04-12 10:00:00',
+        },
+        PLATFORM_TYPE.PDD,
+      );
+      this.logger.log(`返回数据：${JSON.stringify(res)}`);
+    } catch (error: any) {
+      this.logger.error(error.message, error.stack);
+    }
   }
 }

@@ -85,19 +85,18 @@ export class PddYtService {
    * @param query 获取商品列表参数
    * @returns 获取商品列表返回数据
    */
-  async getGoodsList(query: PddYt.IGetGoodsListQuery = { page: 1, pageSize: 10 }): Promise<PddYt.IGetGoodsListResponse> {
-    const { page, pageSize, isOnsale = 1 } = query;
+  async getGoodsList(query: PddYt.IGetGoodsListQuery): Promise<PddYt.IGetGoodsListResponse> {
+    const isOnsale = query.isOnsale ?? 1;
     const sendTime = dayjs().unix();
     const sign = MD5(`${sendTime}${this.app_secret}`.toUpperCase());
     const params = {
       appKey: this.app_key,
       sendTime,
       sign,
-      page,
-      pageSize,
+      ...query,
       isOnsale,
     };
-    const url = `${this.base_uri}/api/v1/goods/list?${qs.stringify(params)}`;
+    const url = `${this.base_uri}/api/v1/shop/goodsList?${qs.stringify(params)}`;
     const { data } = await axios.get(url);
     if (data.code === 10000) {
       return data.result;

@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/qinpeipei/Documents/my-project/xk-project/new-xk/new-xk-admin/logs/.3938ec4251e976aaf62233c91933b1c81137e08c-audit.json",
+    "files": [
+        {
+            "date": 1775987511960,
+            "name": "/Users/qinpeipei/Documents/my-project/xk-project/new-xk/new-xk-admin/logs/RedisModule-2026-04-12.log",
+            "hash": "59f180d234bf756c18a2f144a815adcfeb0ccb4a715f9332812c83e709751567"
+        }
+    ],
+    "hashType": "sha256"
+}

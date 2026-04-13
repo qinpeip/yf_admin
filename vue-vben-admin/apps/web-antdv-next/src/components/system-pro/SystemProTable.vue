@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Table } from 'antdv-next';
 import { computed, useAttrs, useSlots } from 'vue';
+
+import { Table } from 'antdv-next';
 
 import { useSystemProTableScroll } from './use-system-pro-table-scroll';
 
@@ -13,7 +14,7 @@ const slots = useSlots();
 const shellScroll = useSystemProTableScroll();
 
 const mergedScroll = computed(() => {
-  const user = attrs.scroll as { x?: number | string; y?: number } | undefined;
+  const user = attrs.scroll as undefined | { x?: number | string; y?: number };
   const shell = shellScroll.value;
   if (!user && !shell) return undefined;
   const u = typeof user === 'object' && user ? user : {};
@@ -41,7 +42,7 @@ const tableBind = computed(() => {
 <template>
   <Table v-bind="tableBind">
     <template v-for="(_, name) in slots" :key="name" #[name]="scope">
-      <slot :name="name" v-bind="scope || {}" />
+      <slot :name="name" v-bind="scope || {}"></slot>
     </template>
   </Table>
 </template>

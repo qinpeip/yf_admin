@@ -26,12 +26,19 @@ import { isArray } from 'lodash-es';
 
 import { delCategory, getCategory, listCategory, listCategoryTree } from '#/api/goods/category';
 import { listClass } from '#/api/goods/class';
-import { GOODS_PRICE_TYPE, GOODS_SHIPPING_TYPE, type GoodsRow } from '#/api/goods/goods';
+import { craftsmanshipEnum } from '#/api/goods/craftsmanship';
+import {
+  GOODS_PRICE_TYPE,
+  GOODS_SHIPPING_TYPE,
+  GOODS_UPLOAD_TYPE,
+  type GoodsRow,
+} from '#/api/goods/goods';
 import { listShippingTemplateOptions } from '#/api/system/shipping-template';
 import { SystemProShell, SystemProTable } from '#/components/system-pro';
 import { useDict } from '#/composables/use-dict';
 
 import ClassSelector from './components/class-selector.vue';
+import GoodsCraftsmanship from './components/goods-craftsmanship.vue';
 
 /** 商品分类 */
 type Row = GoodsRow;
@@ -184,6 +191,11 @@ const loadShippingTemplateOptions = async () => {
   const res = await listShippingTemplateOptions();
   shippingTemplateOptions.value = res;
 };
+const craftsmanshipOptions = ref<{ label: string; value: number }[]>([]);
+const loadCraftsmanshipOptions = async () => {
+  const res = await craftsmanshipEnum();
+  craftsmanshipOptions.value = res;
+};
 const step = ref(1);
 const handleNextStep = () => {
   step.value++;
@@ -212,11 +224,13 @@ function openAdd() {
   editForm.classId = undefined;
   editForm.deptId = undefined;
   editForm.craftsmanship = [];
+  editForm.uploadType = GOODS_UPLOAD_TYPE.CARD;
   step.value = 1;
   editOpen.value = true;
   loadCategoryTree();
   loadClassTree();
   loadShippingTemplateOptions();
+  loadCraftsmanshipOptions();
 }
 
 async function openEdit(row: Row) {
@@ -442,6 +456,7 @@ fetchList();
                         placeholder="请选择运费模板"
                         class="w-[350px]!"
                         :options="shippingTemplateOptions"
+                        mode="multiple"
                       />
                     </div>
                     <div class="flex-1 flex items-center">
@@ -462,19 +477,38 @@ fetchList();
           <div class="flex">
             <div class="flex-1">
               <FormItem label="商品显示价格">
-                <Space>
-                  <InputNumber v-model:value="editForm.showPrice" placeholder="请输入商品显示价格" />
-                  <TypographyText type="success">元</TypographyText>
+                <Space direction="vertical" :size="1">
+                  <Space>
+                    <InputNumber
+                      v-model:value="editForm.showPrice"
+                      placeholder="商品上架公共池时，显示的价格"
+                    />
+                    <TypographyText type="success">元</TypographyText>
+                  </Space>
+                  <TypographyText type="secondary" size="small" class="!text-xs">
+                    商品上架公共池时，显示的价格
+                  </TypographyText>
                 </Space>
               </FormItem>
             </div>
             <div class="flex-1">
-              <FormItem label="基础打包费用">
-                <InputNumber v-model:value="editForm.basePackingFee" placeholder="请输入基础打包费用" />
-                <TypographyText type="success">元</TypographyText>
+              <FormItem label="商品上传模板">
+                <RadioGroup v-model:value="editForm.uploadType">
+                  <Radio :value="GOODS_UPLOAD_TYPE.CARD">卡片</Radio>
+                  <Radio :value="GOODS_UPLOAD_TYPE.PHOTO">照片</Radio>
+                  <Radio :value="GOODS_UPLOAD_TYPE.ROLL">条幅</Radio>
+                </RadioGroup>
               </FormItem>
             </div>
           </div>
+          <div class="bg-gray-200 h-[10px]!"></div>
+          <div class="h-[10px]!"></div>
+          <GoodsCraftsmanship v-model="editForm.craftsmanship" :craftsmanship-options="craftsmanshipOptions" />
+          <!-- <FormItem label="商品工艺">
+            <div class="bg-[#f7f8fa] p-[10px]! w-full">
+              <Button type="primary">添加工艺</Button>
+            </div>
+          </FormItem> -->
         </Form>
       </div>
       <template #footer>

@@ -91,6 +91,13 @@ export class CraftsmanshipService {
     });
   }
 
+  async enums() {
+    const qb = this.craftsmanshipEntityRep.createQueryBuilder('entity');
+    qb.select(['entity.craftsmanshipId', 'entity.name']);
+    const list = await qb.getMany();
+    return ResultData.ok(list.map((item) => ({ label: item.name, value: item.craftsmanshipId })));
+  }
+
   async findOne(craftsmanshipId: number) {
     const res = await this.craftsmanshipEntityRep.findOne({
       where: {

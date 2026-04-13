@@ -12,7 +12,7 @@ import { BackupService } from 'src/module/backup/backup.service';
 import { ScheduleTaskModule } from 'src/module/common/schedule-task/schedule-task.module';
 
 @Module({
-  imports: [NestScheduleModule.forRoot(), TypeOrmModule.forFeature([Job, JobLog]), ScheduleTaskModule],
+  imports: [NestScheduleModule.forRoot(), TypeOrmModule.forFeature([Job, JobLog])],
   controllers: [JobController, JobLogController],
   providers: [JobService, TaskService, JobLogService, BackupService],
   exports: [JobService],
