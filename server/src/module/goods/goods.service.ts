@@ -119,7 +119,7 @@ export class GoodsService {
       // 若业务需要「只 PATCH 部分指纹、保留其余 SKU」，需改回按指纹 upsert 方案。
       console.time('updateGoodsDto:sku');
       const specFingerprintList = skus.map((s) => s.specFingerprint);
-      await manager.getRepository(GoodsSkuEntity).delete({ goodsId, specFingerprint: Not(In(specFingerprintList)) });
+      await manager.getRepository(GoodsSkuEntity).delete({ goods: { goodsId }, specFingerprint: Not(In(specFingerprintList)) });
       const skuRowList = skus.map((s) => ({
         sortOrder: s.sortOrder ?? 0,
         spec: skuSpecMap.get(s.specFingerprint),
@@ -127,7 +127,6 @@ export class GoodsService {
         stock: s.stock ?? 0,
         specFingerprint: s.specFingerprint,
         skuCode: s.skuCode ?? '',
-        goodsId,
         goods: { goodsId },
       }));
       await manager.getRepository(GoodsSkuEntity).save(skuRowList);
