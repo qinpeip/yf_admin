@@ -129,11 +129,11 @@ export class GoodsSkuDto {
   @IsNumber()
   stock: number;
 
-  @ApiProperty({ description: 'SKU 规格', required: true })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => GoodsSkuSpecDto)
-  spec: GoodsSkuSpecDto[];
+  // @ApiProperty({ description: 'SKU 规格', required: true })
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => GoodsSkuSpecDto)
+  // spec: GoodsSkuSpecDto[];
 }
 
 export class GoodsSkuSpecDto {

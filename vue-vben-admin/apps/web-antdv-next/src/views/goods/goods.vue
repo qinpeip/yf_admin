@@ -347,23 +347,15 @@ const generateSku = async () => {
       return obj;
     }),
   ).then((res) => {
-    const obj: any = {};
-    editForm.skus = res;
-    res.forEach(item => {
-      if (obj[item.specFingerprint]) {
-        obj[item.specFingerprint].push(item);
-      } else {
-        obj[item.specFingerprint] = [item];
-      }
-    })
-    Object.keys(obj).forEach(k => {
-      if (obj[k].length > 1) {
-        console.log(k,'====', obj[k]);
-      }
-    })
+    const seen = new Set<string>();
+    const deduped: GoodsSku[] = [];
+    for (const sku of res) {
+      if (seen.has(sku.specFingerprint)) continue;
+      seen.add(sku.specFingerprint);
+      deduped.push(sku);
+    }
+    editForm.skus = deduped.map((sku, i) => ({ ...sku, sortOrder: i + 1 }));
   });
-  // const skus: GoodsSku[] = ;
-  // console.log('sku combos', skus);
 };
 
 const editLoading = ref(false);
@@ -475,13 +467,15 @@ const handleSubmit = async () => {
         price: Decimal(ao.price || '0').toNumber(),
       })),
     }));
+    // @ts-ignore
     params.skus = params.skus?.map((s) => ({
       ...s,
       price: Decimal(s.price || '0').toNumber(),
-      spec: s.spec?.map((ss) => ({
-        ...ss,
-        price: Decimal(ss.price || '0').toNumber(),
-      })),
+      spec: undefined
+      // spec: s.spec?.map((ss) => ({
+      //   ...ss,
+      //   price: Decimal(ss.price || '0').toNumber(),
+      // })),
     }));
     updateGoods(params).then((res) => {
       console.log('res', res);

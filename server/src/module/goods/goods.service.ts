@@ -4,7 +4,7 @@ import { GoodsEntity } from './entities/goods.entity';
 import { DeepPartial, EntityManager, In, Not, Repository } from 'typeorm';
 import { CreateGoodsDto, QueryGoodsDto, UpdateGoodsDto } from './dto/goods.dto';
 import { UserType } from '../system/user/dto/user';
-import { GoodsSkuEntity } from './entities/goods-sku.entity';
+import { GoodsSkuEntity, GoodsSkuSpecJsonItem } from './entities/goods-sku.entity';
 import { GoodsWithCraftsmanshipEntity } from './entities/goods-with-craftsmanship.entity';
 import { GoodsAttrsEntity } from './entities/goods-attrs.entity';
 import { GoodsAttrsOptionsEntity } from './entities/goods-attrs-options.entity';
@@ -12,6 +12,7 @@ import { GoodsChildCraftsmanshipEntity } from './entities/goods-child-craftsmans
 import { isEmpty } from 'src/common/utils';
 import { DataPermissionService } from 'src/common/services/data-permission/data-permission.service';
 import { ResultData } from 'src/common/utils/result';
+import { buildGoodsSkuSpecFingerprint } from './utils/goods-sku-fingerprint';
 
 @Injectable()
 export class GoodsService {
@@ -68,7 +69,7 @@ export class GoodsService {
         );
         const skuEntities: DeepPartial<GoodsSkuEntity>[] = skus.map((s) => ({
           ...s,
-          spec: s.spec.map((it) => ({ ...it, optionName: String(it.optionName) })),
+          // spec: s.spec.map((it) => ({ ...it, optionName: String(it.optionName) })),
           goods,
         }));
         await manager.getRepository(GoodsSkuEntity).insert(skuEntities);
@@ -80,7 +81,8 @@ export class GoodsService {
   }
 
   async update(updateGoodsDto: UpdateGoodsDto, user: UserType['user']) {
-    const { goodsId, attrs, skus, craftsmanship, ...goodsPayload } = updateGoodsDto;
+    const { goodsId, attrs, craftsmanship, skus, ...goodsPayload } = updateGoodsDto;
+    const skuSpecMap = await this.generateSkuSpecMap(attrs);
     const entity = await this.goodsEntityRep.createQueryBuilder('entity');
     await this.dataPermissionService.applyTenantAndScope(entity, 'entity', user as any);
     entity.andWhere('entity.goodsId = :goodsId', { goodsId });
@@ -116,6 +118,19 @@ export class GoodsService {
       // 整单提交视为「当前商品 SKU 全量」：先删该 goods 下全部 SKU，再纯 INSERT。避免 NOT IN 大列表 + 每行 ON DUPLICATE + 大 JSON 的代价。
       // 若业务需要「只 PATCH 部分指纹、保留其余 SKU」，需改回按指纹 upsert 方案。
       console.time('updateGoodsDto:sku');
+      const specFingerprintList = skus.map((s) => s.specFingerprint);
+      await manager.getRepository(GoodsSkuEntity).delete({ goodsId, specFingerprint: Not(In(specFingerprintList)) });
+      const skuRowList = skus.map((s) => ({
+        sortOrder: s.sortOrder ?? 0,
+        spec: skuSpecMap.get(s.specFingerprint),
+        price: s.price,
+        stock: s.stock ?? 0,
+        specFingerprint: s.specFingerprint,
+        skuCode: s.skuCode ?? '',
+        goodsId,
+        goods: { goodsId },
+      }));
+      await manager.getRepository(GoodsSkuEntity).save(skuRowList);
       // const skuRowList = skus
       //   .filter((s) => s.specFingerprint)
       //   .map((s) => ({
@@ -150,6 +165,45 @@ export class GoodsService {
     });
     console.timeEnd('updateGoodsDto');
     return ResultData.ok({ value: true });
+  }
+
+  async generateSkuSpecMap(attrs: CreateGoodsDto['attrs']) {
+    const arr = [];
+    attrs.forEach(item => {
+      arr.push(item.attrsOptions.map(o => ({
+        ...o,
+        key: item.key,
+        attrName: item.attrName
+      })))
+    })
+    const combos = this.combineArrays(...arr);
+    const skuSpecMap = new Map<string, GoodsSkuSpecJsonItem[]>();
+    combos.forEach(item => {
+      const spec = item.map(p => ({
+        key: p.key,
+        optionName: p.optionName,
+        imgUrl: p.imgUrl,
+        price: p.price,
+        num1: p.num1,
+        num2: p.num2,
+        attrName: p.attrName,
+      }));
+      skuSpecMap.set(buildGoodsSkuSpecFingerprint(spec), spec);
+    })
+    return skuSpecMap;
+  }
+  combineArrays(...arrays: any[]) {
+    let acc: any[] = [[]];
+    for (const array of arrays) {
+      const next: any[] = [];
+      for (const item of acc) {
+        for (const subItem of array) {
+          next.push([...item, subItem]);
+        }
+      }
+      acc = next;
+    }
+    return acc;
   }
 
   async findOne(goodsId: number, user: UserType['user']) {
