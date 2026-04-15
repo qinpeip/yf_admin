@@ -95,9 +95,10 @@ export class OperlogService {
       'entity.status',
       'entity.costTime',
     ]);
+    entity.orderBy('entity.operTime', 'DESC');
     if (query.orderByColumn && query.isAsc) {
       const key = query.isAsc === 'ascending' ? 'ASC' : 'DESC';
-      entity.orderBy(`entity.${query.orderByColumn}`, key);
+      entity.addOrderBy(`entity.${query.orderByColumn}`, key);
     }
 
     if (query.pageNum && query.pageSize) {
@@ -150,7 +151,9 @@ export class OperlogService {
   }) {
     const { originalUrl, method, ip, body, query } = this.request;
     const { user } = this.request.user;
-
+    if (originalUrl.includes('/monitor/operlog/list')) {
+      return;
+    }
     const params = {
       title,
       method: handlerName,

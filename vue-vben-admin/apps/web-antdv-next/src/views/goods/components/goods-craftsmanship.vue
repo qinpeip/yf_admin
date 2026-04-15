@@ -11,7 +11,7 @@ const modelValue = defineModel<any[]>({ required: true });
 const handleAddCraftsmanship = () => {
   modelValue.value.push({
     priceType: '1',
-    craftsmanship_id: '',
+    craftsmanshipId: '',
     childCraftsmanship: [],
   });
 };
@@ -21,7 +21,7 @@ const handleDeleteCraftsmanship = (index: number) => {
 };
 
 const handleChangeCraftsmanship = (item: any) => {
-  item.childCraftsmanship = item.craftsmanship_id
+  item.childCraftsmanship = item.craftsmanshipId
     ? [
         {
           name: '',
@@ -50,15 +50,15 @@ const handleDeleteOption = (options: any[], index: number) => {
       <template v-for="(item, i) in modelValue" :key="i">
         <div class="bg-white p-[10px]! flex justify-between items-center w-full">
           <div class="flex gap-2">
-            <div class="w-[300px]">
+            <div class="w-[250px]">
               <Select
-                v-model:value="item.craftsmanship_id"
+                v-model:value="item.craftsmanshipId"
                 :options="
                   props.craftsmanshipOptions.filter(
                     (p) =>
-                      p.value === item.craftsmanship_id ||
+                      p.value === item.craftsmanshipId ||
                       !modelValue
-                        .map((m) => m.craftsmanship_id)
+                        .map((m) => m.craftsmanshipId)
                         .filter(Boolean)
                         .includes(p.value),
                   )
@@ -76,13 +76,13 @@ const handleDeleteOption = (options: any[], index: number) => {
             删除工艺
           </Button>
         </div>
-        <div class="bg-white p-[10px]! border-t border-[#eff0f4]" v-if="item.craftsmanship_id">
+        <div class="bg-white p-[10px]! border-t border-[#eff0f4]" v-if="item.craftsmanshipId">
           <Space wrap>
             <template v-for="(child, j) in item.childCraftsmanship" :key="j">
-              <div class="w-[150px]">
+              <div class="w-[100px]">
                 <Input
                   v-model:value="child.name"
-                  placeholder="请输入子工艺名称"
+                  placeholder="子工艺名称"
                   size="small"
                   @change="handleOptionChange(item.childCraftsmanship, +j)"
                 />
@@ -109,6 +109,7 @@ const handleDeleteOption = (options: any[], index: number) => {
             </template>
           </Space>
         </div>
+        <div class="w-full mt-2" v-if="i < modelValue.length - 1"></div>
       </template>
 
       <Button type="primary" class="mt-2" @click="handleAddCraftsmanship">添加工艺</Button>

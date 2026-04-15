@@ -2,6 +2,9 @@
 app:
   prefix: ''
   port: 8080
+  http:
+    # JSON / urlencoded 请求体大小限制（默认 10mb）
+    bodyLimit: '10mb'
   logger:
     # 相对路径：始终位于当前运行目录 process.cwd() 之下（如 logs → <cwd>/logs）；绝对路径则按原样使用
     dir: 'logs'
@@ -12,7 +15,7 @@ app:
   # 文件相关
   file:
     # 是否为本地文件服务或cos
-    isLocal: true
+    isLocal: false
     # location 文件上传后存储目录，相对路径（相对本项目根目录）或绝对路径
     location: '../upload'
     # 文件服务器地址，这是开发环境的配置 生产环境请自行配置成可访问域名
@@ -25,17 +28,17 @@ app:
 cos:
   secretId: ''
   secretKey: ''
-  bucket: ''
-  region: ''
-  domain: ''
-  location: ''
+  bucket: 'xk-sass-1301241230'
+  region: 'ap-guangzhou'
+  domain: 'https://txy-cdn.iszhy.com'
+  location: 'new-xk'
 # 数据库配置
 db:
   mysql:
     host: '1.95.140.90'
-    username: 'yifeng-ruoyi'
-    password: '8BRbCTcpe5M2dSAe'
-    database: 'yifeng-ruoyi'
+    username: 'new-xk'
+    password: 'hkDDbJPt4hFCmeBw'
+    database: 'new-xk'
     port: 3306
     charset: 'utf8mb4'
     logger: 'file'

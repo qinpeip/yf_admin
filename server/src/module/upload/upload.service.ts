@@ -40,7 +40,7 @@ export class UploadService {
    * @param file
    * @returns
    */
-  async singleFileUpload(file: Express.Multer.File) {
+  async singleFileUpload(file: Express.Multer.File, filePath: string) {
     const fileSize = (file.size / 1024 / 1024).toFixed(2);
     if (fileSize > this.config.get('app.file.maxSize')) {
       return ResultData.fail(500, `文件大小不能超过${this.config.get('app.file.maxSize')}MB`);
@@ -50,7 +50,7 @@ export class UploadService {
       res = await this.saveFileLocal(file);
     } else {
       const targetDir = this.config.get('cos.location');
-      res = await this.saveFileCos(targetDir, file);
+      res = await this.saveFileCos(path.join(targetDir, filePath), file);
     }
     const uploadId = GenerateUUID();
     await this.sysUploadEntityRep.save({ uploadId, ...res, ext: path.extname(res.newFileName), size: file.size });
@@ -132,9 +132,9 @@ export class UploadService {
     if (!fs.existsSync(sourceFilesDir)) {
       return ResultData.fail(500, '文件不存在');
     }
-
+    const ext = path.extname(fileName);
     //对文件重命名
-    const newFileName = this.getNewFileName(fileName);
+    const newFileName = this.getNewFileName(fileName, ext);
     const targetFile = path.posix.join(baseDirPath, newFileName);
     await this.thunkStreamMerge(sourceFilesDir, targetFile);
     //文件相对地址
@@ -222,7 +222,7 @@ export class UploadService {
     const originalname = iconv.decode(Buffer.from(file.originalname, 'binary'), 'utf8');
     const ext = Mime.extension(file.mimetype);
     //重新生成文件名加上时间戳
-    const newFileName = this.getNewFileName(originalname) + '.' + ext;
+    const newFileName = this.getNewFileName(originalname, ext || '');
     //文件路径
     const targetFile = path.posix.join(baseDirPath, newFileName);
     //文件目录
@@ -249,13 +249,12 @@ export class UploadService {
    * @param originalname
    * @returns
    */
-  getNewFileName(originalname: string): string {
+  getNewFileName(originalname: string, ext?: string): string {
     if (!originalname) {
       return originalname;
     }
     const newFileNameArr = originalname.split('.');
-    newFileNameArr[newFileNameArr.length - 1] = `${newFileNameArr[newFileNameArr.length - 1]}_${new Date().getTime()}`;
-    return newFileNameArr.join('.');
+    return `${newFileNameArr[0]}_${new Date().getTime()}.${ext}`;
   }
 
   /**
@@ -267,8 +266,9 @@ export class UploadService {
   async saveFileCos(targetDir: string, file: Express.Multer.File) {
     //对文件名转码
     const originalname = iconv.decode(Buffer.from(file.originalname, 'binary'), 'utf8');
+    const ext = Mime.extension(file.mimetype);
     //重新生成文件名加上时间戳
-    const newFileName = this.getNewFileName(originalname);
+    const newFileName = this.getNewFileName(originalname, ext || '');
     const targetFile = path.posix.join(targetDir, newFileName);
     await this.uploadCos(targetFile, file.buffer);
     const url = path.posix.join(this.config.get('cos.domain'), targetFile);

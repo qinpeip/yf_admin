@@ -26,8 +26,9 @@ export class UploadController {
   @HttpCode(200)
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  async singleFileUpload(@UploadedFile() file: Express.Multer.File) {
-    const res = await this.uploadService.singleFileUpload(file);
+  async singleFileUpload(@UploadedFile() file: Express.Multer.File, @Body() body: FileUploadDto) {
+    const path = body.path || '';
+    const res = await this.uploadService.singleFileUpload(file, path);
     return ResultData.ok(res);
   }
 

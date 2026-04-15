@@ -110,6 +110,7 @@
   },
   "packageManager": "pnpm@10.33.0",
   "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
     "element-plus": "catalog:"
   }
 }

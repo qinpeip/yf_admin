@@ -42,7 +42,7 @@ export class OperlogRecordService {
   shouldSkip(req: Request): boolean {
     if (req.method === 'OPTIONS') return true;
     const url = req.originalUrl || req.url || '';
-    if (url.includes('swagger-ui') || url.includes('/swagger')) return true;
+    if (url.includes('swagger-ui') || url.includes('/swagger') || url.includes('/monitor/operlog')) return true;
     return false;
   }
 

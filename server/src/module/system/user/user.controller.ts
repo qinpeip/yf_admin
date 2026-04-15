@@ -47,7 +47,7 @@ export class UserController {
   @Post('/profile/avatar')
   @UseInterceptors(FileInterceptor('avatarfile'))
   async avatar(@UploadedFile() avatarfile: Express.Multer.File, @User() user: UserDto) {
-    const res = await this.uploadService.singleFileUpload(avatarfile);
+    const res = await this.uploadService.singleFileUpload(avatarfile, '');
     return ResultData.ok({ imgUrl: res.fileName });
   }
 

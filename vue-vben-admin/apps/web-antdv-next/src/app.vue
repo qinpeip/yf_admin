@@ -14,9 +14,7 @@ const { isDark } = usePreferences();
 const { tokens } = useAntdDesignTokens();
 
 const tokenTheme = computed(() => {
-  const algorithm = isDark.value
-    ? [theme.darkAlgorithm]
-    : [theme.defaultAlgorithm];
+  const algorithm = isDark.value ? [theme.darkAlgorithm] : [theme.defaultAlgorithm];
 
   // antd 紧凑模式算法
   if (preferences.app.compact) {
@@ -37,3 +35,9 @@ const tokenTheme = computed(() => {
     </App>
   </ConfigProvider>
 </template>
+
+<style>
+.ant-table-wrapper .ant-table .ant-table-cell {
+  line-height: 1;
+}
+</style>

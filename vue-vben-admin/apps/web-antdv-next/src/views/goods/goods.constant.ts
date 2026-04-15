@@ -25,3 +25,5 @@ export const CLASS_CUSTOMIZE_DEFAULT_ATTRS = [
     enable: true,
   },
 ];
+
+

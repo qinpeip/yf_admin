@@ -3,13 +3,16 @@ import { computed, reactive, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
+import { generateUUID } from '@vben/utils';
 
 import {
+  Image as AntdvImage,
   Breadcrumb,
   BreadcrumbItem,
   Button,
   Drawer,
   Form,
+  type FormInstance,
   FormItem,
   Input,
   InputNumber,
@@ -19,28 +22,49 @@ import {
   RadioGroup,
   Select,
   Space,
+  Spin,
+  Tag,
   TreeSelect,
   TypographyText,
 } from 'antdv-next';
-import { isArray } from 'lodash-es';
+import Decimal from 'decimal.js';
+import { cloneDeep, isArray } from 'lodash-es';
 
-import { delCategory, getCategory, listCategory, listCategoryTree } from '#/api/goods/category';
-import { listClass } from '#/api/goods/class';
+import { listCategoryTree } from '#/api/goods/category';
+import { type ClassRow, getClass, listClass } from '#/api/goods/class';
 import { craftsmanshipEnum } from '#/api/goods/craftsmanship';
 import {
+  addGoods,
+  deleteGoods,
+  getGoods,
+  getGoodsSku,
   GOODS_PRICE_TYPE,
+  GOODS_PUBLIC_STATUS,
   GOODS_SHIPPING_TYPE,
+  GOODS_STATUS,
   GOODS_UPLOAD_TYPE,
   type GoodsRow,
+  type GoodsSku,
+  listGoods,
+  updateGoods,
 } from '#/api/goods/goods';
 import { listShippingTemplateOptions } from '#/api/system/shipping-template';
 import { SystemProShell, SystemProTable } from '#/components/system-pro';
+import ImageUploader from '#/components/uploader/image-uploader.vue';
 import { useDict } from '#/composables/use-dict';
 
 import ClassSelector from './components/class-selector.vue';
 import GoodsCraftsmanship from './components/goods-craftsmanship.vue';
+import GoodsSkuComponent from './components/goods-sku.vue';
+import GoodsSpec from './components/goods-spec.vue';
+import {
+  GOODS_CLASS_ATTRS_KS,
+  GOODS_CLASS_ATTRS_NUM,
+  GOODS_CLASS_ATTRS_SIZE,
+} from './goods.constant';
+import { buildGoodsSkuSpecFingerprint } from './goods.helper';
 
-/** 商品分类 */
+/** 商品 */
 type Row = GoodsRow;
 
 function asRow(x: unknown): Row {
@@ -68,7 +92,7 @@ const rowSelection = computed(() => ({
 async function fetchList() {
   loading.value = true;
   try {
-    const data = await listCategory({
+    const data = await listGoods({
       pageNum: query.pageNum,
       pageSize: query.pageSize,
       name: query.name,
@@ -101,7 +125,7 @@ async function onBatchDelete() {
     title: '确认删除',
     content: `是否确认删除选中的 ${selectedRowKeys.value.length} 条记录？`,
     async onOk() {
-      await delCategory(selectedRowKeys.value as any);
+      await deleteGoods(selectedRowKeys.value as any);
       message.success('删除成功');
       selectedRowKeys.value = [];
       await fetchList();
@@ -114,7 +138,7 @@ async function onDelete(row: Row) {
     title: '确认删除',
     content: '是否确认删除该条记录？',
     async onOk() {
-      await delCategory(row.categoryId as any);
+      await deleteGoods(row.goodsId as any);
       message.success('删除成功');
       await fetchList();
     },
@@ -122,11 +146,14 @@ async function onDelete(row: Row) {
 }
 
 const columns = computed(() => [
-  { title: '分类ID', dataIndex: 'categoryId', width: 90 },
-  { title: '名称', dataIndex: 'name' },
-  { title: '父ID', dataIndex: 'parentId' },
-  { title: '排序', dataIndex: 'sort' },
-  { title: '描述', dataIndex: 'description' },
+  { title: '商品ID', dataIndex: 'goodsId', width: 90 },
+  { title: '名称', dataIndex: 'name', key: 'name' },
+  { title: '商品状态', dataIndex: 'status', key: 'status' },
+  { title: '公共池状态', dataIndex: 'public', key: 'public' },
+  { title: '创建人', dataIndex: 'createBy' },
+  { title: '创建时间', dataIndex: 'createTime' },
+  { title: '更新人', dataIndex: 'updateBy' },
+  { title: '更新时间', dataIndex: 'updateTime' },
   { title: '操作', key: 'action', width: 200, fixed: 'right' },
 ]);
 
@@ -197,8 +224,12 @@ const loadCraftsmanshipOptions = async () => {
   craftsmanshipOptions.value = res;
 };
 const step = ref(1);
+const currentClass = ref<ClassRow | null>(null);
 const handleNextStep = () => {
   step.value++;
+  getClass(editForm.classId as any).then((res) => {
+    currentClass.value = res as ClassRow;
+  });
 };
 const editOpen = ref(false);
 const editForm = reactive<Partial<Row>>({});
@@ -222,9 +253,9 @@ function openAdd() {
   editForm.showPrice = 0;
   editForm.categoryId = undefined;
   editForm.classId = undefined;
-  editForm.deptId = undefined;
   editForm.craftsmanship = [];
   editForm.uploadType = GOODS_UPLOAD_TYPE.CARD;
+  editForm.skus = [];
   step.value = 1;
   editOpen.value = true;
   loadCategoryTree();
@@ -233,16 +264,146 @@ function openAdd() {
   loadCraftsmanshipOptions();
 }
 
+function combineArrays(...arrays: any[]) {
+  let acc: any[] = [[]];
+  for (const array of arrays) {
+    const next: any[] = [];
+    for (const item of acc) {
+      for (const subItem of array) {
+        next.push([...item, subItem]);
+      }
+    }
+    acc = next;
+  }
+  return acc;
+}
+// 根据属性生成sku
+const generateSku = async () => {
+  const arr: any[] = [];
+  editForm.attrs
+    ?.filter((item) => item.key)
+    ?.forEach((item) => {
+      if (item.key === GOODS_CLASS_ATTRS_SIZE) {
+        item.attrsOptions?.forEach((o) => {
+          if (o.num1 && o.num2 && o.remark) {
+            o.optionName = `${o.remark}(${o.num1} * ${o.num2})`;
+          }
+        });
+      }
+      const hasValue = item.attrsOptions?.some((o) => o.optionName);
+      if (hasValue) {
+        arr.push(
+          item.attrsOptions
+            ?.filter((o) => o.optionName)
+            .map((o) => ({
+              ...o,
+              key: item.key,
+              attrName: item.attrName,
+            })),
+        );
+      }
+    });
+  const combos = combineArrays(...arr);
+  Promise.all(
+    combos.map(async (item, i) => {
+      console.log('item ====', item);
+      const obj: GoodsSku = {
+        sortOrder: i + 1,
+        price: 0,
+        stock: 0,
+        specFingerprint: '',
+        skuCode: '',
+        spec: item.map((p: any) => {
+          return {
+            key: p.key,
+            optionName: p.optionName,
+            imgUrl: p.imgUrl,
+            price: p.price,
+            num1: p.num1,
+            num2: p.num2,
+            attrName: p.attrName,
+          };
+        }),
+      };
+      let square = Decimal(0);
+      let num = Decimal(1);
+      let total_price = Decimal(0);
+      obj.spec.forEach((s) => {
+        if (s.key === GOODS_CLASS_ATTRS_SIZE) {
+          square = Decimal(s.num1 || '0').mul(s.num2 || '0');
+        } else if ([GOODS_CLASS_ATTRS_KS, GOODS_CLASS_ATTRS_NUM].includes(s.key)) {
+          num = Decimal(s.optionName || '1').mul(num);
+        } else {
+          total_price = Decimal(s.price || '0').plus(total_price);
+        }
+      });
+      if (editForm.priceType === GOODS_PRICE_TYPE.SQUARE) {
+        // 1平方米等于1000000平方毫米
+        const square_m = Decimal(square).div(1_000_000);
+        obj.price = +square_m.mul(num).mul(total_price).toFixed(4);
+      } else {
+        obj.price = 0;
+      }
+      obj.specFingerprint = await buildGoodsSkuSpecFingerprint(obj.spec);
+      return obj;
+    }),
+  ).then((res) => {
+    editForm.skus = res;
+  });
+  // const skus: GoodsSku[] = ;
+  // console.log('sku combos', skus);
+};
+
+const editLoading = ref(false);
 async function openEdit(row: Row) {
-  Object.keys(editForm).forEach((k) => delete (editForm as any)[k]);
-  // const detail = await getCategory(row.categoryId as any);
-  // // Object.assign(editForm, detail as object);
-  // editForm.categoryId = detail.categoryId;
-  // editForm.name = detail.name;
-  // editForm.parentId = detail.parentId;
-  // editForm.sort = detail.sort;
-  // editForm.description = detail.description;
   editOpen.value = true;
+  step.value = 2;
+  editLoading.value = true;
+  Object.keys(editForm).forEach((k) => delete (editForm as any)[k]);
+  editForm.image = '';
+  editForm.craftsmanship = [];
+  editForm.attrs = [];
+  editForm.skus = [];
+  const detail = await getGoods(row.goodsId as any);
+  Object.assign(editForm, detail);
+  editForm.craftsmanship = detail.craftsmanship?.map((item) => ({
+    ...item,
+    childCraftsmanship: [
+      ...(item.childCraftsmanship?.map((c) => ({
+        ...c,
+        name: c.name,
+      })) ?? []),
+      { name: '', price: undefined },
+    ],
+  }));
+  editForm.attrs = detail.attrs?.map((item) => ({
+    ...item,
+    _k: generateUUID(),
+    attrsOptions: [
+      ...(item.attrsOptions?.map((o) => ({
+        ...o,
+        optionName: o.optionName,
+      })) ?? []),
+      {
+        optionName: '',
+        imgUrl: '',
+        remark: '',
+        price: undefined,
+        num1: undefined,
+        num2: undefined,
+      },
+    ],
+  }));
+  const skuRes = await getGoodsSku(row.goodsId as any);
+  editForm.skus = skuRes;
+  loadCategoryTree();
+  loadClassTree();
+  loadShippingTemplateOptions();
+  loadCraftsmanshipOptions();
+  getClass(editForm.classId as any).then((res) => {
+    currentClass.value = res as ClassRow;
+  });
+  editLoading.value = false;
 }
 
 // async function submitEdit() {
@@ -251,6 +412,74 @@ async function openEdit(row: Row) {
 //   editOpen.value = false;
 //   await fetchList();
 // }
+
+const formRef = ref<FormInstance>();
+const submitting = ref(false);
+const handleSubmit = async () => {
+  await formRef.value?.validate();
+  const params = cloneDeep(editForm);
+  params.craftsmanship = params.craftsmanship?.map((item) => {
+    return {
+      ...item,
+      childCraftsmanship: item.childCraftsmanship?.filter((c) => c.name),
+    };
+  });
+  params.attrs = params.attrs?.map((item) => {
+    return {
+      attrName: item.attrName,
+      customValue: item.customValue,
+      hasImg: item.hasImg,
+      joinNormalPrice: item.joinNormalPrice,
+      joinSquarePrice: item.joinSquarePrice,
+      key: item.key,
+      goodsAttrsId: item.goodsAttrsId,
+      attrsOptions: item.attrsOptions
+        ?.filter((o) => o.optionName)
+        .map((o) => {
+          return {
+            ...o,
+            optionName: String(o.optionName),
+          };
+        }),
+    };
+  });
+  if (params.goodsId) {
+    params.weight = Decimal(params.weight || '0').toNumber();
+    params.volume = Decimal(params.volume || '0').toNumber();
+    params.showPrice = Decimal(params.showPrice || '0').toNumber();
+    params.shippingFee = Decimal(params.shippingFee || '0').toNumber();
+    params.basePackingFee = Decimal(params.basePackingFee || '0').toNumber();
+    params.craftsmanship = params.craftsmanship?.map((c) => ({
+      ...c,
+      childCraftsmanship: c.childCraftsmanship?.map((cc) => ({
+        ...cc,
+        price: Decimal(cc.price || '0').toNumber(),
+      })),
+    }));
+    params.attrs = params.attrs?.map((a) => ({
+      ...a,
+      attrsOptions: a.attrsOptions?.map((ao) => ({
+        ...ao,
+        price: Decimal(ao.price || '0').toNumber(),
+      })),
+    }));
+    params.skus = params.skus?.map((s) => ({
+      ...s,
+      price: Decimal(s.price || '0').toNumber(),
+      spec: s.spec?.map((ss) => ({
+        ...ss,
+        price: Decimal(ss.price || '0').toNumber(),
+      })),
+    }));
+    updateGoods(params).then((res) => {
+      console.log('res', res);
+    });
+  } else {
+    addGoods(params).then((res) => {
+      console.log('res', res);
+    });
+  }
+};
 fetchList();
 </script>
 
@@ -309,6 +538,58 @@ fetchList();
         }"
       >
         <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'name'">
+            <Space direction="vertical" :size="0">
+              <AntdvImage :src="record.image" width="50px" height="50px" />
+              <TypographyText :ellipsis="true" type="secondary" class="text-xs!">
+                {{ record.name }}
+              </TypographyText>
+            </Space>
+          </template>
+          <template v-if="column.key === 'status'">
+            <Tag v-if="record.status === GOODS_STATUS.ON_SALE" color="success">上架中</Tag>
+            <Tag v-else color="error">下架</Tag>
+          </template>
+          <template v-if="column.key === 'public'">
+            <Tag v-if="!record.public">未上架</Tag>
+            <Tag v-else-if="record.public === GOODS_PUBLIC_STATUS.PENDING" color="warning">
+              待审核
+            </Tag>
+            <Space
+              direction="vertical"
+              :size="1"
+              v-else-if="record.public === GOODS_PUBLIC_STATUS.ON_SALE"
+            >
+              <Tag color="success"> 已上架 </Tag>
+              <Space :size="0">
+                <TypographyText type="secondary" class="text-xs!">
+                  &nbsp;&nbsp;&nbsp;溢价：
+                </TypographyText>
+                <TypographyText type="success" class="text-xs!">
+                  ￥ {{ record.public.premiumFee }}
+                </TypographyText>
+              </Space>
+              <!-- <Space :size="0">
+                <TypographyText type="secondary" class="text-xs!">已绑定：</TypographyText>
+                <TypographyText type="success" class="text-xs!">
+                  {{ record.public.supplierPublicGoods.length }}
+                </TypographyText>
+              </Space> -->
+            </Space>
+            <Space
+              direction="vertical"
+              :size="1"
+              v-else-if="record.public === GOODS_PUBLIC_STATUS.REJECTED"
+            >
+              <Tag color="error">驳回</Tag>
+              <Space :size="0">
+                <TypographyText type="secondary" class="text-xs!"> 驳回原因：</TypographyText>
+                <TypographyText type="danger" class="text-xs!">
+                  {{ record.public?.remark ?? '--' }}
+                </TypographyText>
+              </Space>
+            </Space>
+          </template>
           <template v-if="column.key === 'action'">
             <div class="flex flex-wrap items-center gap-1">
               <Button type="link" size="small" class="!px-1" @click="openEdit(asRow(record))">
@@ -331,7 +612,7 @@ fetchList();
     <Drawer
       v-model:open="editOpen"
       :title="editForm.goodsId ? '修改商品' : '新增商品'"
-      width="1200px"
+      width="1280px"
       :mask-closable="false"
       class="goods-drawer"
     >
@@ -359,7 +640,13 @@ fetchList();
           :class-circle-data="classCircleData"
           v-if="step === 1"
         />
-        <Form :model="editForm" :label-col="{ style: { width: '100px' } }" v-if="step === 2">
+        <Form
+          :model="editForm"
+          :label-col="{ style: { width: '100px' } }"
+          v-if="step === 2"
+          ref="formRef"
+        >
+          <Spin />
           <div class="flex">
             <div class="flex-1">
               <FormItem
@@ -373,7 +660,7 @@ fetchList();
             <div class="flex-1">
               <FormItem
                 label="商品分类"
-                name="name"
+                name="categoryId"
                 :rules="[{ required: true, message: '请选择商品分类' }]"
               >
                 <TreeSelect
@@ -388,7 +675,9 @@ fetchList();
           </div>
           <div class="flex">
             <div class="flex-1">
-              <FormItem label="商品图片" name="weight"> </FormItem>
+              <FormItem label="商品图片" name="weight">
+                <ImageUploader v-model="editForm.image as string" size="102px" />
+              </FormItem>
             </div>
             <div class="flex-1">
               <FormItem
@@ -401,6 +690,7 @@ fetchList();
                     v-for="item in goods_price_type_options"
                     :key="item.value"
                     :value="item.value"
+                    @change="generateSku"
                   >
                     {{ item.label }}
                   </Radio>
@@ -479,10 +769,7 @@ fetchList();
               <FormItem label="商品显示价格">
                 <Space direction="vertical" :size="1">
                   <Space>
-                    <InputNumber
-                      v-model:value="editForm.showPrice"
-                      placeholder="商品上架公共池时，显示的价格"
-                    />
+                    <InputNumber v-model:value="editForm.showPrice" placeholder="请输入" />
                     <TypographyText type="success">元</TypographyText>
                   </Space>
                   <TypographyText type="secondary" size="small" class="!text-xs">
@@ -503,12 +790,18 @@ fetchList();
           </div>
           <div class="bg-gray-200 h-[10px]!"></div>
           <div class="h-[10px]!"></div>
-          <GoodsCraftsmanship v-model="editForm.craftsmanship" :craftsmanship-options="craftsmanshipOptions" />
-          <!-- <FormItem label="商品工艺">
-            <div class="bg-[#f7f8fa] p-[10px]! w-full">
-              <Button type="primary">添加工艺</Button>
-            </div>
-          </FormItem> -->
+          <GoodsCraftsmanship
+            v-model="editForm.craftsmanship!"
+            :craftsmanship-options="craftsmanshipOptions"
+          />
+          <GoodsSpec
+            v-model="editForm.attrs!"
+            :class-data="currentClass"
+            v-if="currentClass"
+            @generate-sku="generateSku"
+          />
+          <GoodsSkuComponent v-model="editForm.skus!" />
+          <div class="h-[30px]!"></div>
         </Form>
       </div>
       <template #footer>
@@ -521,6 +814,9 @@ fetchList();
             :disabled="!editForm.classId"
           >
             下一步
+          </Button>
+          <Button type="primary" @click="handleSubmit" v-if="step === 2" :loading="submitting">
+            提交
           </Button>
         </div>
       </template>

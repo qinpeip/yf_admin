@@ -9,6 +9,7 @@ import { ContextFileLoggerService } from 'src/common/logger/context-file-logger.
 import { HttpExceptionsFilter } from 'src/common/filters/http-exceptions-filter';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import express from 'express';
 import path from 'path';
 import { writeFileSync } from 'fs';
 
@@ -19,6 +20,12 @@ async function bootstrap() {
   });
   app.useLogger(app.get(ContextFileLoggerService));
   const config = app.get(ConfigService);
+
+  // 允许较大的 JSON body（例如商品规格/sku 笛卡尔积的提交）
+  const bodyLimit = config.get<string>('app.http.bodyLimit') ?? '10mb';
+  app.use(express.json({ limit: bodyLimit }));
+  app.use(express.urlencoded({ limit: bodyLimit, extended: true }));
+
   // 设置访问频率
   app.use(
     rateLimit({

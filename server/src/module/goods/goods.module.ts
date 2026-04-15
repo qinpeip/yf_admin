@@ -6,9 +6,10 @@ import { GoodsController } from './goods.controller';
 import { GoodsService } from './goods.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GoodsEntity } from './entities/goods.entity';
+import { GoodsSkuEntity } from './entities/goods-sku.entity';
 
 @Module({
-  imports: [GoodsCategoryModule, CraftsmanshipModule, ClassModule, TypeOrmModule.forFeature([GoodsEntity])],
+  imports: [GoodsCategoryModule, CraftsmanshipModule, ClassModule, TypeOrmModule.forFeature([GoodsEntity, GoodsSkuEntity])],
   controllers: [GoodsController],
   providers: [GoodsService],
   exports: [GoodsService],

@@ -21,8 +21,17 @@ export interface ClassRow {
   type?: string;
   status?: string;
   description?: string;
+  attrs?: ClassAttrsRow[];
 }
 
+export interface ClassAttrsRow {
+  attrId?: number;
+  attrName?: string;
+  key?: string;
+  joinNormalPrice?: boolean;
+  joinSquarePrice?: boolean;
+  enable?: boolean;
+}
 export interface ListClassQuery {
   pageNum?: number;
   pageSize?: number;
@@ -44,10 +53,9 @@ export interface ListClassQuery {
 }
 
 export async function listClass(query: ListClassQuery) {
-  return requestClient.get<{ list: ClassRow[]; total: number }>(
-    '/goods/class/list',
-    { params: query },
-  );
+  return requestClient.get<{ list: ClassRow[]; total: number }>('/goods/class/list', {
+    params: query,
+  });
 }
 
 export async function getClass(classId: number) {

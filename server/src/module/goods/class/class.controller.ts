@@ -22,7 +22,6 @@ export class ClassController {
 
   @ApiOperation({ summary: '商品类目-列表' })
   @ApiDataResponse(ListClassDto, true, true)
-  @RequirePermission('goods:class:list')
   @Get('list')
   findAll(@Query() query: QueryClassDto) {
     return this.classService.findAll(query);
@@ -30,7 +29,6 @@ export class ClassController {
 
   @ApiOperation({ summary: '商品类目-详情' })
   @ApiDataResponse(BaseClassDto)
-  @RequirePermission('goods:class:query')
   @Get(':classId')
   findOne(@Param('classId') classId: string) {
     return this.classService.findOne(+classId);

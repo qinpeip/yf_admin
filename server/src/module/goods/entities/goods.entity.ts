@@ -1,7 +1,9 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseEntity } from 'src/common/entities/base';
 import { GoodsWithCraftsmanshipEntity } from './goods-with-craftsmanship.entity';
 import { GoodsAttrsEntity } from './goods-attrs.entity';
+import { GoodsSkuEntity } from './goods-sku.entity';
+import { GoodsPublicEntity } from './goods-public.entity';
 
 // 计价方式：1-平方计价，2-普通计价
 export enum GOODS_PRICE_TYPE {
@@ -82,7 +84,7 @@ export class GoodsEntity extends BaseEntity {
   public isCustomization: boolean;
 
   // 展示价格
-  @Column({ type: 'decimal', name: 'show_price', precision: 10, scale: 2, comment: '展示价格', nullable: true, select: false, default: 0 })
+  @Column({ type: 'decimal', name: 'show_price', precision: 10, scale: 2, comment: '展示价格', nullable: true, default: 0 })
   public showPrice: number;
 
   // 上传类型
@@ -106,4 +108,10 @@ export class GoodsEntity extends BaseEntity {
 
   @OneToMany(() => GoodsAttrsEntity, (attrs) => attrs.goods, { cascade: true })
   public attrs: GoodsAttrsEntity[];
+
+  @OneToMany(() => GoodsSkuEntity, (sku) => sku.goods, { cascade: true })
+  public skus: GoodsSkuEntity[];
+
+  @OneToOne(() => GoodsPublicEntity, (goodsPublic) => goodsPublic.goods)
+  public public: GoodsPublicEntity;
 }

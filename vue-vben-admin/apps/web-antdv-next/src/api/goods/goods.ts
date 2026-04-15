@@ -25,6 +25,12 @@ export enum GOODS_UPLOAD_TYPE {
   ROLL = 'roll',
 }
 
+// 工艺价格类型：1-普通计价，2-按平方计价
+export enum GOODS_WITH_CRAFTSMANSHIP_PRICE_TYPE {
+  NORMAL = '1',
+  SQUARE = '2',
+}
+
 export interface GoodsRow {
   goodsId?: number;
   name?: string;
@@ -47,11 +53,13 @@ export interface GoodsRow {
   deptId?: number;
   craftsmanship?: GoodsWithCraftsmanshipRow[];
   attrs?: GoodsAttrsRow[];
+  skus?: GoodsSku[];
 }
 export interface GoodsWithCraftsmanshipRow {
   goodsWithCraftsmanshipId?: number;
   goodsId?: number;
   craftsmanshipId?: number;
+  priceType?: GOODS_WITH_CRAFTSMANSHIP_PRICE_TYPE;
   childCraftsmanship?: GoodsChildCraftsmanshipRow[];
 }
 export interface GoodsChildCraftsmanshipRow {
@@ -86,6 +94,54 @@ export interface ListGoodsQuery {
   name?: string;
 }
 
+export interface GoodsSku {
+  sortOrder: number;
+  spec: GoodsSkuSpec[];
+  price: number;
+  stock: number;
+  specFingerprint: string;
+  skuCode: string;
+}
+
+export interface GoodsSkuSpec {
+  key: string;
+  optionName: string;
+  imgUrl?: string;
+  price?: number;
+  num1?: number;
+  num2?: number;
+  remark?: string;
+}
+
+export enum GOODS_PUBLIC_STATUS {
+  // 已上架
+  ON_SALE = '20',
+  // 待审核
+  PENDING = '10',
+  // 驳回
+  REJECTED = '30',
+}
+
 export async function listGoods(query: ListGoodsQuery) {
   return requestClient.get<{ list: GoodsRow[]; total: number }>('/goods/list', { params: query });
+}
+
+export async function addGoods(data: GoodsRow) {
+  return requestClient.post<{ goodsId: number }>('/goods', data);
+}
+
+export async function updateGoods(data: GoodsRow) {
+  return requestClient.put<{ goodsId: number }>('/goods', data);
+}
+
+export async function deleteGoods(goodsId: number) {
+  return requestClient.delete<{ goodsId: number }>(`/goods/${goodsId}`);
+}
+
+export async function getGoods(goodsId: number) {
+  return requestClient.get<GoodsRow>(`/goods/${goodsId}`);
+}
+
+export async function getGoodsSku(goodsId: number) {
+  return requestClient.get<GoodsSku[]>(`/goods/skus/${goodsId}`);
 }

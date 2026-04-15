@@ -3,6 +3,7 @@ import { IsArray, IsBoolean, IsEnum, IsNumber, IsOptional, IsString, IsNotEmpty,
 import { GOODS_PRICE_TYPE, GOODS_SHIPPING_TYPE, GOODS_UPLOAD_TYPE } from '../entities/goods.entity';
 import { GOODS_WITH_CRAFTSMANSHIP_PRICE_TYPE } from '../entities/goods-with-craftsmanship.entity';
 import { Type } from 'class-transformer';
+import { PagingDto } from 'src/common/dto';
 
 export class CreateGoodsDto {
   @ApiProperty({ description: '名称', required: true })
@@ -83,10 +84,107 @@ export class CreateGoodsDto {
   @ValidateNested({ each: true })
   @Type(() => GoodsWithCraftsmanshipDto)
   craftsmanship: GoodsWithCraftsmanshipDto[];
+
+  @ApiProperty({ description: '属性', required: true })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => GoodsAttrsDto)
+  attrs: GoodsAttrsDto[];
+
+  @ApiProperty({ description: 'SKU', required: true })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => GoodsSkuDto)
+  skus: GoodsSkuDto[];
+}
+
+export class GoodsSkuDto {
+  @ApiProperty({ description: 'SKU id', required: false })
+  @IsOptional()
+  @IsNumber()
+  goodsSkuId: number;
+
+  // sortOrder
+  @IsOptional()
+  @IsNumber()
+  sortOrder: number;
+
+  // specFingerprintts
+  @IsNotEmpty()
+  @IsString()
+  specFingerprint: string;
+
+  @ApiProperty({ description: 'SKU 编码', required: false })
+  @IsOptional()
+  @IsString()
+  skuCode: string;
+
+  @ApiProperty({ description: 'SKU 价格', required: false })
+  @IsOptional()
+  @IsNumber()
+  price: number;
+
+  @ApiProperty({ description: 'SKU 库存', required: false })
+  @IsOptional()
+  @IsNumber()
+  stock: number;
+
+  @ApiProperty({ description: 'SKU 规格', required: true })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => GoodsSkuSpecDto)
+  spec: GoodsSkuSpecDto[];
+}
+
+export class GoodsSkuSpecDto {
+  @ApiProperty({ description: 'SKU 规格key', required: false })
+  @IsNotEmpty()
+  @IsString()
+  key: string;
+
+  @ApiProperty({ description: 'SKU 规格属性名称', required: false })
+  @IsNotEmpty()
+  @IsString()
+  attrName: string;
+
+  @ApiProperty({ description: 'SKU 规格名称', required: true })
+  @IsNotEmpty()
+  optionName: string | number;
+
+  @ApiProperty({ description: 'SKU 规格图片', required: false })
+  @IsOptional()
+  @IsString()
+  imgUrl: string;
+
+  @ApiProperty({ description: 'SKU 规格价格', required: false })
+  @IsOptional()
+  @IsNumber()
+  price: number;
+
+  @ApiProperty({ description: 'SKU 规格数值1', required: false })
+  @IsOptional()
+  @IsNumber()
+  num1: number;
+
+  @ApiProperty({ description: 'SKU 规格数值2', required: false })
+  @IsOptional()
+  @IsNumber()
+  num2: number;
+
+  @ApiProperty({ description: 'SKU 规格备注', required: false })
+  @IsOptional()
+  @IsString()
+  remark: string;
 }
 
 export class GoodsWithCraftsmanshipDto {
+  @ApiProperty({ description: '工艺与商品关联id', required: false })
+  @IsOptional()
+  @IsNumber()
+  goodsWithCraftsmanshipId: number;
+
   @ApiProperty({ description: '工艺id', required: true })
+  @IsNotEmpty()
   @IsNumber()
   craftsmanshipId: number;
 
@@ -192,4 +290,18 @@ export class GoodsAttrsOptionsDto {
   @IsOptional()
   @IsNumber()
   num2: number;
+}
+
+export class UpdateGoodsDto extends CreateGoodsDto {
+  @ApiProperty({ description: '商品id', required: true })
+  @IsNotEmpty()
+  @IsNumber()
+  goodsId: number;
+}
+
+export class QueryGoodsDto extends PagingDto {
+  @ApiProperty({ description: '商品名称', required: false })
+  @IsOptional()
+  @IsString()
+  name: string;
 }
