@@ -1,7 +1,7 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ECommercePlatformOrderEntity } from './e-commerce-platform-order.entity';
 
-@Entity('e_commerce_platform_order_goodsInfo', {
+@Entity('e_commerce_platform_order_goods_info', {
   comment: '电商平台订单商品信息',
 })
 export class ECommercePlatformOrderGoodsInfoEntity {
@@ -36,5 +36,6 @@ export class ECommercePlatformOrderGoodsInfoEntity {
   public outerGoodsId: string;
 
   @ManyToOne(() => ECommercePlatformOrderEntity, (ptOrder) => ptOrder.goodsInfo, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'pt_order_id' })
   public ptOrder: ECommercePlatformOrderEntity;
 }

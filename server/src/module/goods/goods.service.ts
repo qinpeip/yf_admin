@@ -19,7 +19,7 @@ export class GoodsService {
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
     private readonly dataPermissionService: DataPermissionService,
-  ) {}
+  ) { }
 
   async findAll(query: QueryGoodsDto, user: UserType['user']) {
     const entity = await this.goodsEntityRep.createQueryBuilder('entity');
@@ -78,6 +78,7 @@ export class GoodsService {
   }
 
   async update(updateGoodsDto: UpdateGoodsDto, user: UserType['user']) {
+    console.time('updateGoodsDto');
     const { goodsId, attrs, skus, craftsmanship, ...goodsPayload } = updateGoodsDto;
     const entity = await this.goodsEntityRep.createQueryBuilder('entity');
     await this.dataPermissionService.applyTenantAndScope(entity, 'entity', user as any);
@@ -95,7 +96,15 @@ export class GoodsService {
         const goodsWithCraftsmanshipIdList = craftsmanship.map((c) => c.goodsWithCraftsmanshipId).filter(Boolean);
         await manager.getRepository(GoodsWithCraftsmanshipEntity).delete({ goodsWithCraftsmanshipId: Not(In(goodsWithCraftsmanshipIdList)), goods: { goodsId } });
         await manager.getRepository(GoodsWithCraftsmanshipEntity).save(craftsmanship);
+        const existSpecFingerprints = skus.map((s) => s.specFingerprint).filter(Boolean);
+        await manager.getRepository(GoodsSkuEntity).delete({ specFingerprint: Not(In(existSpecFingerprints)), goods: { goodsId } });
+        await manager.getRepository(GoodsSkuEntity).save(skus.map((s) => ({
+          ...s,
+          spec: s.spec.map((it) => ({ ...it, optionName: String(it.optionName) })),
+          goods: { goodsId },
+        })));
       });
+      console.timeEnd('updateGoodsDto');
       return ResultData.ok({ value: true });
     } catch (error) {
       return ResultData.fail(500, error.message);

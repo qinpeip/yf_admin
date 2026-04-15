@@ -105,6 +105,7 @@ export interface GoodsSku {
 
 export interface GoodsSkuSpec {
   key: string;
+  attrName: string;
   optionName: string;
   imgUrl?: string;
   price?: number;

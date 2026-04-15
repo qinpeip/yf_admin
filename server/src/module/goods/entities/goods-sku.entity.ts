@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm';
 import { GoodsEntity } from './goods.entity';
 
 /**
@@ -16,6 +16,7 @@ export type GoodsSkuSpecJsonItem = {
   remark?: string;
 };
 
+@Index('idx_spec_fingerprint_goods_id', ['specFingerprint', 'goods'])
 @Entity('goods_sku', {
   comment: '商品SKU（多规格笛卡尔积的一行）',
 })
@@ -48,4 +49,8 @@ export class GoodsSkuEntity {
   @ManyToOne(() => GoodsEntity, (goods) => goods.skus, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'goods_id' })
   public goods: GoodsEntity;
+
+  /** 供批量 upsert 的冲突键映射（对应列 goods_id） */
+  @RelationId((sku: GoodsSkuEntity) => sku.goods)
+  public goodsId: number;
 }
