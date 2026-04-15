@@ -13,6 +13,7 @@ import { isEmpty } from 'src/common/utils';
 import { DataPermissionService } from 'src/common/services/data-permission/data-permission.service';
 import { ResultData } from 'src/common/utils/result';
 import { buildGoodsSkuSpecFingerprint } from './utils/goods-sku-fingerprint';
+import { keys } from 'lodash';
 
 @Injectable()
 export class GoodsService {
@@ -44,6 +45,11 @@ export class GoodsService {
 
   async create(createGoodsDto: CreateGoodsDto, user: UserType['user']) {
     const { attrs, skus, craftsmanship, ...goodsPayload } = createGoodsDto;
+    const skuSpecMap = await this.generateSkuSpecMap(attrs);
+    console.log('skuSpecMap', skuSpecMap);
+    keys(skuSpecMap).forEach(key => {
+      console.log(key, '=============', skuSpecMap.get(key));
+    })
     try {
       await this.entityManager.transaction(async (manager) => {
         const goods = await manager.save(GoodsEntity, {
