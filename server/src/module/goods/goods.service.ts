@@ -129,6 +129,7 @@ export class GoodsService {
         skuCode: s.skuCode ?? '',
         goods: { goodsId },
       }));
+      console.log('save skuRowList', skuRowList);
       await manager.getRepository(GoodsSkuEntity).save(skuRowList);
       // const skuRowList = skus
       //   .filter((s) => s.specFingerprint)
@@ -186,6 +187,7 @@ export class GoodsService {
         num1: p.num1,
         num2: p.num2,
         attrName: p.attrName,
+        remark: p.remark,
       }));
       skuSpecMap.set(buildGoodsSkuSpecFingerprint(spec), spec);
     })
