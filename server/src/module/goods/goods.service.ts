@@ -7,6 +7,8 @@ import { UserType } from '../system/user/dto/user';
 import { GoodsSkuEntity } from './entities/goods-sku.entity';
 import { GoodsWithCraftsmanshipEntity } from './entities/goods-with-craftsmanship.entity';
 import { GoodsAttrsEntity } from './entities/goods-attrs.entity';
+import { GoodsAttrsOptionsEntity } from './entities/goods-attrs-options.entity';
+import { GoodsChildCraftsmanshipEntity } from './entities/goods-child-craftsmanship.entity';
 import { isEmpty } from 'src/common/utils';
 import { DataPermissionService } from 'src/common/services/data-permission/data-permission.service';
 import { ResultData } from 'src/common/utils/result';
@@ -78,39 +80,76 @@ export class GoodsService {
   }
 
   async update(updateGoodsDto: UpdateGoodsDto, user: UserType['user']) {
-    console.time('updateGoodsDto');
     const { goodsId, attrs, skus, craftsmanship, ...goodsPayload } = updateGoodsDto;
     const entity = await this.goodsEntityRep.createQueryBuilder('entity');
     await this.dataPermissionService.applyTenantAndScope(entity, 'entity', user as any);
     entity.andWhere('entity.goodsId = :goodsId', { goodsId });
+    console.time('updateGoodsDto:find');
     const found = await entity.getOne();
+    console.timeEnd('updateGoodsDto:find');
     if (!found) {
       return ResultData.fail(404, '商品不存在');
     }
-    try {
-      await this.entityManager.transaction(async (manager) => {
-        await manager.getRepository(GoodsEntity).update(goodsId, goodsPayload);
-        const goodsAttrsIdList = attrs.map((a) => a.goodsAttrsId).filter(Boolean);
-        await manager.getRepository(GoodsAttrsEntity).delete({ goodsAttrsId: Not(In(goodsAttrsIdList)), goods: { goodsId } });
-        await manager.getRepository(GoodsAttrsEntity).save(attrs);
-        const goodsWithCraftsmanshipIdList = craftsmanship.map((c) => c.goodsWithCraftsmanshipId).filter(Boolean);
-        await manager.getRepository(GoodsWithCraftsmanshipEntity).delete({ goodsWithCraftsmanshipId: Not(In(goodsWithCraftsmanshipIdList)), goods: { goodsId } });
-        await manager.getRepository(GoodsWithCraftsmanshipEntity).save(craftsmanship);
-        const existSpecFingerprints = skus.map((s) => s.specFingerprint).filter(Boolean);
-        await manager.getRepository(GoodsSkuEntity).delete({ specFingerprint: Not(In(existSpecFingerprints)), goods: { goodsId } });
-        await manager.getRepository(GoodsSkuEntity).save(skus.map((s) => ({
-          ...s,
-          spec: s.spec.map((it) => ({ ...it, optionName: String(it.optionName) })),
-          goods: { goodsId },
-        })));
+    await this.entityManager.transaction(async (manager) => {
+      console.time('updateGoodsDto');
+      console.time('updateGoodsDto:goods');
+      await manager.getRepository(GoodsEntity).update(goodsId, {
+        ...goodsPayload,
+        updateBy: user.userName,
+        ownerUserId: user.userId,
+        tenantId: user.tenantId,
+        deptId: user.deptId,
       });
-      console.timeEnd('updateGoodsDto');
-      return ResultData.ok({ value: true });
-    } catch (error) {
-      return ResultData.fail(500, error.message);
-    }
-    // await this.goodsEntityRep.update(goodsId, goodsPayload);
-    // return ResultData.ok({ value: true });
+      console.timeEnd('updateGoodsDto:goods');
+      console.time('updateGoodsDto:attrs');
+      const goodsAttrsIdList = attrs.map((a) => a.goodsAttrsId).filter(Boolean);
+      const attrsRepo = manager.getRepository(GoodsAttrsEntity);
+      await attrsRepo.delete({ goodsAttrsId: Not(In(goodsAttrsIdList)), goods: { goodsId } });
+      await attrsRepo.save(attrs.map((a) => ({ ...a, goods: { goodsId } })));
+      console.timeEnd('updateGoodsDto:attrs');
+      console.time('updateGoodsDto:craft');
+      const goodsWithCraftsmanshipIdList = craftsmanship.map((c) => c.goodsWithCraftsmanshipId).filter(Boolean);
+      const craftRepo = manager.getRepository(GoodsWithCraftsmanshipEntity);
+      await craftRepo.delete({ goodsWithCraftsmanshipId: Not(In(goodsWithCraftsmanshipIdList)), goods: { goodsId } });
+      await craftRepo.save(craftsmanship.map((c) => ({ ...c, goods: { goodsId } })));
+      console.timeEnd('updateGoodsDto:craft');
+      // 整单提交视为「当前商品 SKU 全量」：先删该 goods 下全部 SKU，再纯 INSERT。避免 NOT IN 大列表 + 每行 ON DUPLICATE + 大 JSON 的代价。
+      // 若业务需要「只 PATCH 部分指纹、保留其余 SKU」，需改回按指纹 upsert 方案。
+      console.time('updateGoodsDto:sku');
+      // const skuRowList = skus
+      //   .filter((s) => s.specFingerprint)
+      //   .map((s) => ({
+      //     sortOrder: s.sortOrder ?? 0,
+      //     spec: s.spec.map((it) => ({ ...it, optionName: String(it.optionName) })),
+      //     price: s.price,
+      //     stock: s.stock ?? 0,
+      //     specFingerprint: s.specFingerprint,
+      //     skuCode: s.skuCode ?? '',
+      //     goodsId,
+      //     goods: { goodsId },
+      //   }));
+      // // 前端笛卡尔积可能产生相同 specFingerprint 的多行；唯一索引下同一批 INSERT 也会撞 ER_DUP_ENTRY，按指纹保留最后一条
+      // const skuByFingerprint = new Map<string, (typeof skuRowList)[0]>();
+      // for (const row of skuRowList) {
+      //   skuByFingerprint.set(row.specFingerprint, row);
+      // }
+      // const skuRows = Array.from(skuByFingerprint.values());
+      // await manager.query('DELETE FROM goods_sku WHERE goods_id = ?', [goodsId]);
+      // const skuChunk = 1000;
+      // for (let i = 0; i < skuRows.length; i += skuChunk) {
+      //   const chunk = skuRows.slice(i, i + skuChunk);
+      //   await manager
+      //     .createQueryBuilder()
+      //     .insert()
+      //     .into(GoodsSkuEntity)
+      //     .values(chunk)
+      //     .updateEntity(false)
+      //     .execute();
+      // }
+      console.timeEnd('updateGoodsDto:sku');
+    });
+    console.timeEnd('updateGoodsDto');
+    return ResultData.ok({ value: true });
   }
 
   async findOne(goodsId: number, user: UserType['user']) {
@@ -136,12 +175,19 @@ export class GoodsService {
   }
 
   async findSkus(goodsId: number, user: UserType['user']) {
-    const entity = await this.goodsEntityRep.createQueryBuilder('entity');
-    await this.dataPermissionService.applyTenantAndScope(entity, 'entity', user as any);
-    entity.andWhere('entity.goodsId = :goodsId', { goodsId });
-    entity.leftJoinAndSelect('entity.skus', 'skus');
-    const res = await entity.getOne();
-    return ResultData.ok(res.skus);
+    // 勿用 goods leftJoinAndSelect skus + getOne：OneToMany 会笛卡尔积，几千 SKU 时 ORM 组装可达数十秒
+    const guard = this.goodsEntityRep.createQueryBuilder('g');
+    await this.dataPermissionService.applyTenantAndScope(guard, 'g', user as any);
+    guard.select(['g.goodsId']).andWhere('g.goodsId = :goodsId', { goodsId });
+    const allowed = await guard.getOne();
+    if (!allowed) {
+      return ResultData.fail(404, '商品不存在');
+    }
+    const skus = await this.entityManager.find(GoodsSkuEntity, {
+      where: { goods: { goodsId } },
+      order: { sortOrder: 'ASC', goodsSkuId: 'ASC' },
+    });
+    return ResultData.ok(skus);
   }
 
   async remove(goodsIds: number[], user: UserType['user']) {

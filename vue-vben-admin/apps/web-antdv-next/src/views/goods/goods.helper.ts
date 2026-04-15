@@ -47,6 +47,11 @@ export async function buildGoodsSkuSpecFingerprint(spec: GoodsSkuSpec[]): Promis
     n: String(item.optionName ?? ''),
     i: String(item.imgUrl ?? ''),
     p: item.price ?? 0,
+    n1: item.num1 ?? 0,
+    n2: item.num2 ?? 0,
+    r: item.remark ?? '',
+    a: item.attrName ?? '',
+    pr: item.price ?? 0,
   }));
   const payload = JSON.stringify(canonical);
   return sha256HexUtf8(payload);

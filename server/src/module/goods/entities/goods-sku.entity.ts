@@ -16,7 +16,7 @@ export type GoodsSkuSpecJsonItem = {
   remark?: string;
 };
 
-@Index('idx_spec_fingerprint_goods_id', ['specFingerprint', 'goods'])
+@Index('UQ_goods_sku_goods_spec', ['goods', 'specFingerprint'], { unique: true })
 @Entity('goods_sku', {
   comment: '商品SKU（多规格笛卡尔积的一行）',
 })

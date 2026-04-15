@@ -306,7 +306,6 @@ const generateSku = async () => {
   const combos = combineArrays(...arr);
   Promise.all(
     combos.map(async (item, i) => {
-      console.log('item ====', item);
       const obj: GoodsSku = {
         sortOrder: i + 1,
         price: 0,
@@ -348,7 +347,20 @@ const generateSku = async () => {
       return obj;
     }),
   ).then((res) => {
+    const obj: any = {};
     editForm.skus = res;
+    res.forEach(item => {
+      if (obj[item.specFingerprint]) {
+        obj[item.specFingerprint].push(item);
+      } else {
+        obj[item.specFingerprint] = [item];
+      }
+    })
+    Object.keys(obj).forEach(k => {
+      if (obj[k].length > 1) {
+        console.log(k,'====', obj[k]);
+      }
+    })
   });
   // const skus: GoodsSku[] = ;
   // console.log('sku combos', skus);
@@ -394,8 +406,8 @@ async function openEdit(row: Row) {
       },
     ],
   }));
-  const skuRes = await getGoodsSku(row.goodsId as any);
-  editForm.skus = skuRes;
+  // const skuRes = await getGoodsSku(row.goodsId as any);
+  // editForm.skus = skuRes;
   loadCategoryTree();
   loadClassTree();
   loadShippingTemplateOptions();
@@ -485,23 +497,13 @@ fetchList();
 
 <template>
   <Page auto-content-height content-stable-layout>
-    <SystemProShell
-      table-title="商品分类"
-      :show-column-setting="false"
-      @search="doSearch"
-      @reset="resetQuery"
-      @refresh="fetchList"
-    >
+    <SystemProShell table-title="商品分类" :show-column-setting="false" @search="doSearch" @reset="resetQuery"
+      @refresh="fetchList">
       <template #search>
         <Form :model="query" class="contents">
           <div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
             <FormItem name="name" label="名称" class="!mb-0">
-              <Input
-                v-model:value="query.name"
-                allow-clear
-                placeholder="请输入名称"
-                @press-enter="doSearch"
-              />
+              <Input v-model:value="query.name" allow-clear placeholder="请输入名称" @press-enter="doSearch" />
             </FormItem>
           </div>
         </Form>
@@ -515,15 +517,8 @@ fetchList();
         <Button danger :disabled="selectedRowKeys.length === 0" @click="onBatchDelete">删除</Button>
       </template>
 
-      <SystemProTable
-        row-key="categoryId"
-        class="system-pro-table"
-        :row-selection="rowSelection"
-        :loading="loading"
-        :columns="columns"
-        :data-source="rows"
-        :scroll="{ x: 1200 }"
-        :pagination="{
+      <SystemProTable row-key="categoryId" class="system-pro-table" :row-selection="rowSelection" :loading="loading"
+        :columns="columns" :data-source="rows" :scroll="{ x: 1200 }" :pagination="{
           current: query.pageNum,
           pageSize: query.pageSize,
           total,
@@ -535,8 +530,7 @@ fetchList();
             query.pageSize = pageSize;
             fetchList();
           },
-        }"
-      >
+        }">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'name'">
             <Space direction="vertical" :size="0">
@@ -555,11 +549,7 @@ fetchList();
             <Tag v-else-if="record.public === GOODS_PUBLIC_STATUS.PENDING" color="warning">
               待审核
             </Tag>
-            <Space
-              direction="vertical"
-              :size="1"
-              v-else-if="record.public === GOODS_PUBLIC_STATUS.ON_SALE"
-            >
+            <Space direction="vertical" :size="1" v-else-if="record.public === GOODS_PUBLIC_STATUS.ON_SALE">
               <Tag color="success"> 已上架 </Tag>
               <Space :size="0">
                 <TypographyText type="secondary" class="text-xs!">
@@ -576,11 +566,7 @@ fetchList();
                 </TypographyText>
               </Space> -->
             </Space>
-            <Space
-              direction="vertical"
-              :size="1"
-              v-else-if="record.public === GOODS_PUBLIC_STATUS.REJECTED"
-            >
+            <Space direction="vertical" :size="1" v-else-if="record.public === GOODS_PUBLIC_STATUS.REJECTED">
               <Tag color="error">驳回</Tag>
               <Space :size="0">
                 <TypographyText type="secondary" class="text-xs!"> 驳回原因：</TypographyText>
@@ -595,13 +581,7 @@ fetchList();
               <Button type="link" size="small" class="!px-1" @click="openEdit(asRow(record))">
                 修改
               </Button>
-              <Button
-                type="link"
-                size="small"
-                danger
-                class="!px-1"
-                @click="onDelete(asRow(record))"
-              >
+              <Button type="link" size="small" danger class="!px-1" @click="onDelete(asRow(record))">
                 删除
               </Button>
             </div>
@@ -609,13 +589,8 @@ fetchList();
         </template>
       </SystemProTable>
     </SystemProShell>
-    <Drawer
-      v-model:open="editOpen"
-      :title="editForm.goodsId ? '修改商品' : '新增商品'"
-      width="1280px"
-      :mask-closable="false"
-      class="goods-drawer"
-    >
+    <Drawer v-model:open="editOpen" :title="editForm.goodsId ? '修改商品' : '新增商品'" width="1280px" :mask-closable="false"
+      class="goods-drawer">
       <template #extra>
         <div class="translate-x-[-50%]">
           <Space>
@@ -634,42 +609,20 @@ fetchList();
         </div>
       </template>
       <div class="size-full">
-        <ClassSelector
-          v-model="editForm.classId as number"
-          :class-tree="classTreeList"
-          :class-circle-data="classCircleData"
-          v-if="step === 1"
-        />
-        <Form
-          :model="editForm"
-          :label-col="{ style: { width: '100px' } }"
-          v-if="step === 2"
-          ref="formRef"
-        >
+        <ClassSelector v-model="editForm.classId as number" :class-tree="classTreeList"
+          :class-circle-data="classCircleData" v-if="step === 1" />
+        <Form :model="editForm" :label-col="{ style: { width: '100px' } }" v-if="step === 2" ref="formRef">
           <Spin />
           <div class="flex">
             <div class="flex-1">
-              <FormItem
-                label="商品名称"
-                name="name"
-                :rules="[{ required: true, message: '请输入商品名称' }]"
-              >
+              <FormItem label="商品名称" name="name" :rules="[{ required: true, message: '请输入商品名称' }]">
                 <Input v-model:value="editForm.name" placeholder="请输入名称" class="w-[300px]!" />
               </FormItem>
             </div>
             <div class="flex-1">
-              <FormItem
-                label="商品分类"
-                name="categoryId"
-                :rules="[{ required: true, message: '请选择商品分类' }]"
-              >
-                <TreeSelect
-                  v-model:value="editForm.categoryId"
-                  placeholder="请选择商品分类"
-                  :tree-data="categoryTree"
-                  :field-names="{ value: 'categoryId', label: 'name', children: 'children' }"
-                  class="w-[300px]!"
-                />
+              <FormItem label="商品分类" name="categoryId" :rules="[{ required: true, message: '请选择商品分类' }]">
+                <TreeSelect v-model:value="editForm.categoryId" placeholder="请选择商品分类" :tree-data="categoryTree"
+                  :field-names="{ value: 'categoryId', label: 'name', children: 'children' }" class="w-[300px]!" />
               </FormItem>
             </div>
           </div>
@@ -680,18 +633,10 @@ fetchList();
               </FormItem>
             </div>
             <div class="flex-1">
-              <FormItem
-                label="计价方式"
-                name="name"
-                :rules="[{ required: true, message: '请选择计价方式' }]"
-              >
+              <FormItem label="计价方式" name="name" :rules="[{ required: true, message: '请选择计价方式' }]">
                 <RadioGroup v-model:value="editForm.priceType">
-                  <Radio
-                    v-for="item in goods_price_type_options"
-                    :key="item.value"
-                    :value="item.value"
-                    @change="generateSku"
-                  >
+                  <Radio v-for="item in goods_price_type_options" :key="item.value" :value="item.value"
+                    @change="generateSku">
                     {{ item.label }}
                   </Radio>
                 </RadioGroup>
@@ -702,22 +647,14 @@ fetchList();
             <div class="flex-1">
               <FormItem label="商品重量" name="weight">
                 <Space>
-                  <InputNumber
-                    v-model:value="editForm.weight"
-                    placeholder="请输入商品重量"
-                    class="w-[300px]!"
-                  />
+                  <InputNumber v-model:value="editForm.weight" placeholder="请输入商品重量" class="w-[300px]!" />
                   <TypographyText type="secondary">g</TypographyText>
                 </Space>
               </FormItem>
             </div>
             <div class="flex-1">
               <FormItem label="发货地址" name="shippingAddress">
-                <Input
-                  v-model:value="editForm.shippingAddress"
-                  placeholder="请输入发货地址"
-                  class="w-[300px]!"
-                />
+                <Input v-model:value="editForm.shippingAddress" placeholder="请输入发货地址" class="w-[300px]!" />
               </FormItem>
             </div>
           </div>
@@ -725,11 +662,7 @@ fetchList();
             <div class="flex-1">
               <FormItem label="图片出血范围" name="bleedRange">
                 <Space>
-                  <InputNumber
-                    v-model:value="editForm.bleedRange"
-                    placeholder="请输入图片出血范围"
-                    class="w-[300px]!"
-                  />
+                  <InputNumber v-model:value="editForm.bleedRange" placeholder="请输入图片出血范围" class="w-[300px]!" />
                   <TypographyText type="secondary">mm</TypographyText>
                 </Space>
               </FormItem>
@@ -740,22 +673,14 @@ fetchList();
                   <div class="flex flex-col gap-2">
                     <div class="flex-1 flex items-center">
                       <Radio :value="GOODS_SHIPPING_TYPE.TEMPLATE">运费模板</Radio>
-                      <Select
-                        v-if="editForm.shippingType === GOODS_SHIPPING_TYPE.TEMPLATE"
-                        v-model:value="editForm.shippingTemplateIds"
-                        placeholder="请选择运费模板"
-                        class="w-[350px]!"
-                        :options="shippingTemplateOptions"
-                        mode="multiple"
-                      />
+                      <Select v-if="editForm.shippingType === GOODS_SHIPPING_TYPE.TEMPLATE"
+                        v-model:value="editForm.shippingTemplateIds" placeholder="请选择运费模板" class="w-[350px]!"
+                        :options="shippingTemplateOptions" mode="multiple" />
                     </div>
                     <div class="flex-1 flex items-center">
                       <Radio :value="GOODS_SHIPPING_TYPE.FIXED">固定运费</Radio>
                       <Space v-if="editForm.shippingType === GOODS_SHIPPING_TYPE.FIXED">
-                        <InputNumber
-                          v-model:value="editForm.shippingFee"
-                          placeholder="请输入固定运费"
-                        />
+                        <InputNumber v-model:value="editForm.shippingFee" placeholder="请输入固定运费" />
                         <TypographyText type="success">元</TypographyText>
                       </Space>
                     </div>
@@ -790,16 +715,9 @@ fetchList();
           </div>
           <div class="bg-gray-200 h-[10px]!"></div>
           <div class="h-[10px]!"></div>
-          <GoodsCraftsmanship
-            v-model="editForm.craftsmanship!"
-            :craftsmanship-options="craftsmanshipOptions"
-          />
-          <GoodsSpec
-            v-model="editForm.attrs!"
-            :class-data="currentClass"
-            v-if="currentClass"
-            @generate-sku="generateSku"
-          />
+          <GoodsCraftsmanship v-model="editForm.craftsmanship!" :craftsmanship-options="craftsmanshipOptions" />
+          <GoodsSpec v-model="editForm.attrs!" :class-data="currentClass" v-if="currentClass"
+            @generate-sku="generateSku" />
           <GoodsSkuComponent v-model="editForm.skus!" />
           <div class="h-[30px]!"></div>
         </Form>
@@ -807,12 +725,7 @@ fetchList();
       <template #footer>
         <div class="flex justify-end gap-2">
           <Button @click="editOpen = false">取消</Button>
-          <Button
-            type="primary"
-            @click="handleNextStep"
-            v-if="step === 1"
-            :disabled="!editForm.classId"
-          >
+          <Button type="primary" @click="handleNextStep" v-if="step === 1" :disabled="!editForm.classId">
             下一步
           </Button>
           <Button type="primary" @click="handleSubmit" v-if="step === 2" :loading="submitting">
@@ -827,6 +740,7 @@ fetchList();
 <style lang="scss">
 .goods-drawer {
   display: block;
+
   .ant-drawer-header {
     .ant-drawer-extra {
       flex: 1;
